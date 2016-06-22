@@ -23,6 +23,7 @@ int phoneInitApplication(void) {
   pthread_mutex_init(&pApp->mainWorkQueue.threadLock, NULL);
   pApp->mainWorkQueue.threadCount = 1;
   pApp->maxHandleType = PHONE_USER_DEFINED;
+  pApp->displayDensity = 1.0;
   return shareInitApplication();
 }
 
@@ -724,4 +725,8 @@ int shareRequestTableViewCellIdentifier(int handle, int section, int row,
     char *buf, int bufSize) {
   // TODO:
   return 0;
+}
+
+int phoneDipToPix(int dip) {
+  return (int)(dip * pApp->displayDensity);
 }

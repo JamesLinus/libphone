@@ -721,7 +721,7 @@ int shareSetStatusBarBackgroundColor(unsigned int color) {
   return 0;
 }
 
-static int phoneVierAlignToIos(int align) {
+static int phoneViewAlignToIos(int align) {
   switch (align) {
     case PHONE_VIEW_ALIGN_CENTER:
       return UITextAlignmentCenter;
@@ -738,7 +738,7 @@ int shareSetViewAlign(int handle, int align) {
     case PHONE_TEXT_VIEW: {
       UILabel *view = (UILabel *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
-      view.textAlignment = phoneVierAlignToIos(align);
+      view.textAlignment = phoneViewAlignToIos(align);
     } break;
   }
   return 0;

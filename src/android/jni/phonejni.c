@@ -38,10 +38,15 @@ JNIEXPORT jint nativeNotifyMainThread(JNIEnv *env, jobject obj,
   return 0;
 }
 
+JNIEXPORT jint nativeInit(JNIEnv *env, jobject obj) {
+  saveCurrentObject(obj);
+  phoneInitApplication();
+  return 0;
+}
+
 JNIEXPORT jint nativeSendAppShowing(JNIEnv *env, jobject obj) {
   saveCurrentObject(obj);
   if (!phoneInited) {
-    phoneInitApplication();
     phoneMain(0, 0);
     phoneInited = 1;
   }
@@ -191,6 +196,12 @@ JNIEXPORT jint nativeDispatchViewTouchCancelEvent(JNIEnv *env, jobject obj,
   return PHONE_VIEW_EVENT_DONTCARE;
 }
 
+JNIEXPORT jint nativeInitDensity(JNIEnv *env, jobject obj, jfloat density) {
+  saveCurrentObject(obj);
+  pApp->displayDensity = density;
+  return 0;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -208,6 +219,8 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeDispatchViewTouchEndEvent", "(III)I", nativeDispatchViewTouchEndEvent},
     {"nativeDispatchViewTouchMoveEvent", "(III)I", nativeDispatchViewTouchMoveEvent},
     {"nativeDispatchViewTouchCancelEvent", "(III)I", nativeDispatchViewTouchCancelEvent},
+    {"nativeInitDensity", "(F)I", nativeInitDensity},
+    {"nativeInit", "()I", nativeInit},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -600,4 +613,77 @@ int shareEnableViewTouchEvent(int handle) {
 
 int shareGetThreadId(void) {
   return (int)gettid();
+}
+
+int shareIsLandscape(void) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaIsLandscape", "()I");
+  return result;
+}
+
+int shareSetStatusBarBackgroundColor(unsigned int color) {
+  // TODO:
+  return 0;
+}
+
+int shareSetViewAlign(int handle, int align) {
+  jint result = 0;
+  JNIEnv *env = phoneGetJNIEnv();
+  switch (align) {
+    case PHONE_VIEW_ALIGN_CENTER:
+      phoneCallJavaReturnInt(result, env, currentObject,
+        "javaSetViewAlignCenter", "(I)I",
+        (jint)handle);
+      break;
+    case PHONE_VIEW_ALIGN_LEFT:
+      phoneCallJavaReturnInt(result, env, currentObject,
+        "javaSetViewAlignLeft", "(I)I",
+        (jint)handle);
+      break;
+    case PHONE_VIEW_ALIGN_RIGHT:
+      phoneCallJavaReturnInt(result, env, currentObject,
+        "javaSetViewAlignRight", "(I)I",
+        (jint)handle);
+      break;
+  }
+  return result;
+}
+
+int shareSetViewVerticalAlign(int handle, int align) {
+  // TODO:
+  return 0;
+}
+
+int shareSetViewCornerRadius(int handle, int radius) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewCornerRadius", "(II)I",
+    (jint)handle, (jint)radius);
+  return result;
+}
+
+int shareSetViewBorderColor(int handle, unsigned int color) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewBorderColor", "(II)I",
+    (jint)handle, (jint)color);
+  return result;
+}
+
+int shareSetViewBorderWidth(int handle, int width) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewBorderWidth", "(II)I",
+    (jint)handle, (jint)width);
+  return result;
+}
+
+int shareCreateTableView(int style, int handle, int parentHandle) {
+  // TODO:
+  return 0;
 }

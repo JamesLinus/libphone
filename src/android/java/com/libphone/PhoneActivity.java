@@ -2,8 +2,10 @@ package com.libphone;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.SparseArray;
 import android.os.Handler;
+import android.view.ViewTreeObserver;
 import android.view.animation.TranslateAnimation;
 import android.view.animation.AlphaAnimation;
 import android.widget.AbsoluteLayout;
@@ -24,16 +26,84 @@ import android.view.inputmethod.InputMethodManager;
 import android.text.TextWatcher;
 import android.text.Editable;
 import android.view.MotionEvent;
+import android.content.res.Configuration;
+import android.view.Gravity;
+import android.graphics.drawable.shapes.RoundRectShape;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.Paint;
+import android.graphics.drawable.shapes.Shape;
+import android.graphics.Canvas;
 
 public class PhoneActivity extends Activity {
 
+    // http://stackoverflow.com/questions/2145131/trying-to-draw-a-button-how-to-set-a-stroke-color-and-how-to-align-a-gradient
+    public class CustomBorderDrawable extends ShapeDrawable {
+        private Paint fillPaint;
+        private Paint strokePaint = null;
+
+        private void prepareStokePaint() {
+            if (null == strokePaint) {
+                strokePaint = new Paint(fillPaint);
+                strokePaint.setStyle(Paint.Style.STROKE);
+            }
+        }
+
+        public CustomBorderDrawable(Shape s) {
+            super(s);
+            fillPaint = this.getPaint();
+        }
+
+        @Override
+        protected void onDraw(Shape shape, Canvas canvas, Paint fillpaint) {
+            shape.draw(canvas, fillPaint);
+            if (null != strokePaint) {
+                shape.draw(canvas, strokePaint);
+            }
+        }
+
+        public void setFillColour(int c){
+            fillPaint.setColor(c | 0xff000000);
+        }
+
+        public void setBorderWidth(int width) {
+            prepareStokePaint();
+            strokePaint.setStrokeWidth(width);
+        }
+
+        public void setBorderColor(int color) {
+            prepareStokePaint();
+            strokePaint.setColor(color | 0xff000000);
+        }
+    }
+
     class PhoneContainerView extends AbsoluteLayout {
+        public int cornerRadius = 0;
+        public int borderWidth = 0;
+        public int borderColor = 0;
+        public int backgroundColor = 0xffffffff;
         public PhoneContainerView(Context context) {
             super(context);
+        }
+        public void appyBackgroud() {
+            if (0 == borderWidth && 0 == borderColor && 0 == cornerRadius) {
+                setBackgroundColor(backgroundColor | 0xff000000);
+                return;
+            }
+            RoundRectShape rect = new RoundRectShape(
+                    new float[] {cornerRadius, cornerRadius, cornerRadius, cornerRadius,
+                            cornerRadius, cornerRadius, cornerRadius, cornerRadius},
+                    null,
+                    null);
+            CustomBorderDrawable drawable = new CustomBorderDrawable(rect);
+            drawable.setFillColour(backgroundColor);
+            drawable.setBorderWidth(borderWidth);
+            drawable.setBorderColor(borderColor);
+            setBackgroundDrawable(drawable);
         }
     }
 
     private PhoneContainerView container;
+    private Boolean lunched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +113,36 @@ public class PhoneActivity extends Activity {
         container.setId(0);
         setContentView(container);
 
+        ViewTreeObserver viewTreeObserver = container.getViewTreeObserver();
+        if (viewTreeObserver.isAlive()) {
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (!lunched) {
+                        lunched = true;
+                        lunchWithNative();
+                    }
+                }
+            });
+        }
+        /*
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                lunchWithNative();
+            }
+        }, 100);*/
+    }
+
+    private void lunchWithNative() {
+        nativeInit();
+        nativeInitDensity(getResources().getDisplayMetrics().density);
+
         nativeSendAppShowing();
 
         PhoneNotifyThread notifyThread = new PhoneNotifyThread();
         notifyThread.handler = handler;
-        notifyThread.activity = this;
+        notifyThread.activity = PhoneActivity.this;
         notifyThread.start();
     }
 
@@ -72,6 +167,8 @@ public class PhoneActivity extends Activity {
     private native int nativeDispatchViewTouchEndEvent(int handle, int x, int y);
     private native int nativeDispatchViewTouchMoveEvent(int handle, int x, int y);
     private native int nativeDispatchViewTouchCancelEvent(int handle, int x, int y);
+    private native int nativeInitDensity(float density);
+    private native int nativeInit();
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -134,8 +231,14 @@ public class PhoneActivity extends Activity {
     }
 
     public int javaSetViewBackgroundColor(int handle, int color) {
-        View view = 0 == handle ? container : (View)findHandleObject(handle);
-        view.setBackgroundColor(color | 0xff000000);
+        if (0 == handle) {
+            container.setBackgroundColor(color | 0xff000000);
+            return 0;
+        }
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.backgroundColor = color;
+        view.appyBackgroud();
+        //view.setBackgroundColor(color | 0xff000000);
         return 0;
     }
 
@@ -434,6 +537,50 @@ public class PhoneActivity extends Activity {
                 return false;
             }
         });
+        return 0;
+    }
+
+    public int javaIsLandscape() {
+        return Configuration.ORIENTATION_LANDSCAPE ==
+                getResources().getConfiguration().orientation ? 1 : 0;
+    }
+
+    public int javaSetViewAlignCenter(int handle) {
+        TextView view = (TextView)findHandleObject(handle);
+        view.setGravity(Gravity.CENTER);
+        return 0;
+    }
+
+    public int javaSetViewAlignLeft(int handle) {
+        TextView view = (TextView)findHandleObject(handle);
+        view.setGravity(Gravity.LEFT);
+        return 0;
+    }
+
+    public int javaSetViewAlignRight(int handle) {
+        TextView view = (TextView)findHandleObject(handle);
+        view.setGravity(Gravity.RIGHT);
+        return 0;
+    }
+
+    public int javaSetViewCornerRadius(int handle, int radius) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.cornerRadius = radius;
+        view.appyBackgroud();
+        return 0;
+    }
+
+    public int javaSetViewBorderColor(int handle, int color) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.borderColor = color;
+        view.appyBackgroud();
+        return 0;
+    }
+
+    public int javaSetViewBorderWidth(int handle, int width) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.borderWidth = width;
+        view.appyBackgroud();
         return 0;
     }
 }

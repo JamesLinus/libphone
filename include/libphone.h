@@ -140,6 +140,7 @@ enum phoneTableViewStyle {
 };
 int phoneCreateTableView(int style, int parentHandle,
     phoneViewEventHandler eventHandler);
+int phoneDipToPix(int dip);
 
 #if __ANDROID__
 #include <jni.h>

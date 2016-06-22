@@ -91,6 +91,7 @@ typedef struct phoneApplication {
   phoneWorkQueueContext mainWorkQueue;
   volatile int needFlushMainWorkQueue;
   int maxHandleType;
+  float displayDensity;
 } phoneApplication;
 
 extern phoneApplication *pApp;

@@ -52,20 +52,25 @@ int phoneMain(int argc, const char *argv[]) {
   phoneSetAppNotificationHandler(&handler);
 
   phoneSetStatusBarBackgroundColor(BACKGROUND_COLOR);
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "screenSize: %dx%d",
+    phoneGetViewWidth(0), phoneGetViewHeight(0));
   backgroundView = phoneCreateContainerView(0, 0);
   phoneSetViewFrame(backgroundView, 0, 0, phoneGetViewWidth(0),
     phoneGetViewHeight(0));
   phoneSetViewBackgroundColor(backgroundView, BACKGROUND_COLOR);
 
   textBackgroundView = phoneCreateContainerView(backgroundView, 0);
-  phoneSetViewFrame(textBackgroundView, 20, phoneGetViewHeight(0) / 2 - 31,
-    phoneGetViewWidth(0) - 40, 31);
+  phoneSetViewFrame(textBackgroundView, phoneDipToPix(20), phoneGetViewHeight(0) / 2 - phoneDipToPix(31),
+    phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewBackgroundColor(textBackgroundView, FONT_BACKGROUND_COLOR);
+  //phoneSetViewCornerRadius(textBackgroundView, phoneDipToPix(3));
+  //phoneSetViewBorderColor(textBackgroundView, 0xff0000);
+  //phoneSetViewBorderWidth(textBackgroundView, phoneDipToPix(1));
 
   textView = phoneCreateTextView(textBackgroundView, 0);
   phoneSetViewText(textView, "Hello World");
-  phoneSetViewFontSize(textView, 14);
-  phoneSetViewFrame(textView, 0, 0, phoneGetViewWidth(0) - 40, 31);
+  phoneSetViewFontSize(textView, phoneDipToPix(14));
+  phoneSetViewFrame(textView, 0, 0, phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewFontColor(textView, FONT_COLOR);
 
   delayedTask = phoneCreateWorkItem(doCpuIntensiveWorkInBackgroundThread,
