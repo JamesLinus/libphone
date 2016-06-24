@@ -828,3 +828,19 @@ int shareRequestTableViewCellClick(int handle, int section, int row,
       PHONE_VIEW_REQUEST_TABLE_CELL_CLICK,
       &request);
 }
+
+int phoneSetViewShadowColor(int handle, unsigned int color) {
+  return shareSetViewShadowColor(handle, color);
+}
+
+int phoneSetViewShadowOffset(int handle, float offsetX, float offsetY) {
+  return shareSetViewShadowOffset(handle, offsetX, offsetY);
+}
+
+int phoneSetViewShadowOpacity(int handle, float opacity) {
+  return shareSetViewShadowOpacity(handle, opacity);
+}
+
+int phoneSetViewShadowRadius(int handle, float radius) {
+  return shareSetViewShadowRadius(handle, radius);
+}

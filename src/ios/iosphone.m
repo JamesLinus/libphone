@@ -829,3 +829,33 @@ int shareReloadTableView(int handle) {
   [view reloadData];
   return 0;
 }
+
+int shareSetViewShadowColor(int handle, unsigned int color) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view.layer setMasksToBounds:NO];
+  [view.layer setShadowColor:[objcDelegate
+    makeColor:(0xff000000 | color)].CGColor];
+  return 0;
+}
+
+int shareSetViewShadowOffset(int handle, float offsetX, float offsetY) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view.layer setShadowOffset:CGSizeMake(5, 5)];
+  return 0;
+}
+
+int shareSetViewShadowOpacity(int handle, float opacity) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view.layer setShadowOpacity:(CGFloat)opacity];
+  return 0;
+}
+
+int shareSetViewShadowRadius(int handle, float radius) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view.layer setShadowRadius:(CGFloat)radius];
+  return 0;
+}

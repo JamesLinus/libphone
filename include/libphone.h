@@ -167,6 +167,10 @@ int phoneCreateTableView(int style, int parentHandle,
 float phoneDipToPix(int dip);
 #define dp(dip) phoneDipToPix(dip)
 int phoneReloadTableView(int handle);
+int phoneSetViewShadowColor(int handle, unsigned int color);
+int phoneSetViewShadowOffset(int handle, float offsetX, float offsetY);
+int phoneSetViewShadowOpacity(int handle, float opacity);
+int phoneSetViewShadowRadius(int handle, float radius);
 
 #if __ANDROID__
 #include <jni.h>

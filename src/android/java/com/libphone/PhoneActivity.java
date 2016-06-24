@@ -97,6 +97,58 @@ public class PhoneActivity extends Activity {
         }
     }
 
+    class PhoneViewShadow {
+        private float shadowRadius = 0;
+        private float shadowOffsetX = 0;
+        private float shadowOffsetY = 0;
+        private int shadowColor = 0;
+        private float shadowOpacity = 0;
+        private Paint shadowPaint = null;
+        private float insetSize = 0;
+
+        public Paint getPaint() {
+            return shadowPaint;
+        }
+
+        public float getInsetSize() {
+            return insetSize;
+        }
+
+        public void setInsetSize(float size) {
+            insetSize = size;
+        }
+
+        public void setColor(int color) {
+            shadowColor = color;
+            apply();
+        }
+
+        public void setOffset(float offsetX, float offsetY) {
+            shadowOffsetX = offsetX;
+            shadowOffsetY = offsetY;
+            apply();
+        }
+
+        public void setOpacity(float opacity) {
+            shadowOpacity = opacity;
+            apply();
+        }
+
+        public void setRadius(float radius) {
+            shadowRadius = radius;
+            apply();
+        }
+
+        private void apply() {
+            shadowPaint = new Paint();
+            shadowPaint.setShadowLayer(shadowRadius, shadowOffsetX, shadowOffsetY,
+                    0xff000000 | shadowColor);
+            shadowPaint.setStyle(Paint.Style.FILL);
+            shadowPaint.setColor(0xff000000 | shadowColor);
+            shadowPaint.setStrokeCap(Paint.Cap.ROUND);
+        }
+    }
+
     class PhoneContainerView extends AbsoluteLayout {
         private float cornerRadius = 0;
         private float borderWidth = 0;
@@ -104,41 +156,104 @@ public class PhoneActivity extends Activity {
         private int backgroundColor = 0;
         private int backgroundImageResourceId = 0;
         private String backgroundImagePath = null;
+        private SparseArray<PhoneViewShadow> childShadowMap = null;
 
         public PhoneContainerView(Context context) {
             super(context);
         }
 
+        @Override
+        protected void onDraw (Canvas canvas) {
+            if (null != childShadowMap) {
+                for(int i = 0; i < childShadowMap.size(); i++) {
+                    int childHandle = childShadowMap.keyAt(i);
+                    PhoneViewShadow shadow = (PhoneViewShadow)childShadowMap.valueAt(i);
+                    View view = (View)findHandleObject(childHandle);
+                    float insetSize = shadow.getInsetSize();
+                    canvas.drawRect(view.getLeft() + insetSize, view.getTop() + insetSize,
+                            view.getWidth() + view.getLeft() - insetSize - insetSize,
+                            view.getHeight() + view.getTop() - insetSize - insetSize,
+                            shadow.getPaint());
+                }
+            }
+            super.onDraw(canvas);
+        }
+
+        public PhoneViewShadow findChildShadow(int childHandle) {
+            if (null == childShadowMap) {
+                return null;
+            }
+            return childShadowMap.get(childHandle);
+        }
+
+        public void addChildShadow(int childHandle, PhoneViewShadow shadow) {
+            if (null == childShadowMap) {
+                childShadowMap = new SparseArray<PhoneViewShadow>();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    setLayerType(LAYER_TYPE_SOFTWARE, null);
+                }
+            }
+            childShadowMap.put(childHandle, shadow);
+        }
+
         public void setCornerRadius(float radius) {
             cornerRadius = radius;
-            appyBackgroud();
+            applyBackgroud();
         }
 
         public void setBorderWidth(float width) {
             borderWidth = width;
-            appyBackgroud();
+            applyBackgroud();
         }
 
         public void setBorderColor(int color) {
             borderColor = color;
-            appyBackgroud();
+            applyBackgroud();
         }
 
         public void setBackgroundImageResourceId(int resId) {
             backgroundImageResourceId = resId;
             backgroundImagePath = null;
-            appyBackgroud();
+            applyBackgroud();
         }
 
         public void setBackgroundFillColor(int color) {
             backgroundColor = color;
-            appyBackgroud();
+            applyBackgroud();
         }
 
         public void setBackgroundImagePath(String path) {
             backgroundImagePath = path;
             backgroundImageResourceId = 0;
-            appyBackgroud();
+            applyBackgroud();
+        }
+
+        private PhoneViewShadow createShadowIfNotExist() {
+            PhoneContainerView parent = (PhoneContainerView)getParent();
+            PhoneViewShadow shadow = parent.findChildShadow(getId());
+            if (null == shadow) {
+                shadow = new PhoneViewShadow();
+                shadow.setInsetSize(PhoneActivity.this.dp(2));
+                parent.addChildShadow(getId(), shadow);
+                parent.invalidate();
+            }
+            return shadow;
+        }
+
+        public void setShadowColor(int color) {
+            createShadowIfNotExist().setColor(color);
+        }
+
+        public void setShadowOffset(float offsetX, float offsetY) {
+            createShadowIfNotExist().setOffset(offsetX, offsetY);
+        }
+
+        public void setShadowOpacity(float opacity) {
+            createShadowIfNotExist().setOpacity(opacity);
+        }
+
+        public void setShadowRadius(float radius) {
+            createShadowIfNotExist().setRadius(radius);
         }
 
         private boolean shouldUseDefaultBackground() {
@@ -149,11 +264,11 @@ public class PhoneActivity extends Activity {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             if (!shouldUseDefaultBackground()) {
-                appyBackgroud();
+                applyBackgroud();
             }
         }
 
-        private void appyBackgroud() {
+        private void applyBackgroud() {
             if (shouldUseDefaultBackground()) {
                 if (null != backgroundImagePath) {
                     try {
@@ -407,6 +522,10 @@ public class PhoneActivity extends Activity {
         notifyThread.start();
     }
 
+    public float dp(float size) {
+        return getResources().getDisplayMetrics().density * size;
+    }
+
     public class PhoneNotifyRunnable implements Runnable {
         public long needNotifyMask;
         @Override
@@ -442,7 +561,7 @@ public class PhoneActivity extends Activity {
     private native String nativeRequestTableViewCellText(int handle, int section, int row);
     private native int nativeRequestTableViewCellSelectionStyle(int handle, int section, int row);
     private native String nativeRequestTableViewCellImageResource(int handle, int section, int row);
-    private native int nativeRequestTableViewCellSeparatorStyle(int handle, int section, int row);
+    private native int nativeRequestTableViewCellSeparatorStyle(int handle);
     private native int nativeRequestTableViewCellAccessoryView(int handle, int section, int row);
     private native int nativeRequestTableViewCellRender(int handle, int section, int row, int renderHandle);
 
@@ -872,6 +991,30 @@ public class PhoneActivity extends Activity {
     public int javaReloadTableView(int handle) {
         PhoneTableView view = (PhoneTableView)findHandleObject(handle);
         view.reload();
+        return 0;
+    }
+
+    public int javaSetViewShadowColor(int handle, int color) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.setShadowColor(color | 0xff000000);
+        return 0;
+    }
+
+    public int javaSetViewShadowOffset(int handle, float offsetX, float offsetY) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.setShadowOffset(offsetX, offsetY);
+        return 0;
+    }
+
+    public int javaSetViewShadowOpacity(int handle, float opacity) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.setShadowOpacity(opacity);
+        return 0;
+    }
+
+    public int javaSetViewShadowRadius(int handle, float radius) {
+        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+        view.setShadowRadius(radius);
         return 0;
     }
 }

@@ -288,9 +288,9 @@ JNIEXPORT jstring nativeRequestTableViewCellImageResource(JNIEnv *env,
 }
 
 JNIEXPORT jint nativeRequestTableViewCellSeparatorStyle(JNIEnv *env,
-    jobject obj, jint handle, jint section, jint row) {
+    jobject obj, jint handle) {
   saveCurrentObject(obj);
-  return shareRequestTableViewCellSeparatorStyle(handle, section, row);
+  return shareRequestTableViewCellSeparatorStyle(handle);
 }
 
 JNIEXPORT jint nativeRequestTableViewCellAccessoryView(JNIEnv *env, jobject obj,
@@ -336,7 +336,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeRequestTableViewCellText", "(III)Ljava/lang/String;", nativeRequestTableViewCellText},
     {"nativeRequestTableViewCellSelectionStyle", "(III)I", nativeRequestTableViewCellSelectionStyle},
     {"nativeRequestTableViewCellImageResource", "(III)Ljava/lang/String;", nativeRequestTableViewCellImageResource},
-    {"nativeRequestTableViewCellSeparatorStyle", "(III)I", nativeRequestTableViewCellSeparatorStyle},
+    {"nativeRequestTableViewCellSeparatorStyle", "(I)I", nativeRequestTableViewCellSeparatorStyle},
     {"nativeRequestTableViewCellAccessoryView", "(III)I", nativeRequestTableViewCellAccessoryView},
     {"nativeRequestTableViewCellRender", "(IIII)I", nativeRequestTableViewCellRender},
   };
@@ -817,5 +817,41 @@ int shareReloadTableView(int handle) {
   phoneCallJavaReturnInt(result, env, currentObject,
     "javaReloadTableView", "(I)I",
     (jint)handle);
+  return result;
+}
+
+int shareSetViewShadowColor(int handle, unsigned int color) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewShadowColor", "(II)I",
+    (jint)handle, (jint)color);
+  return result;
+}
+
+int shareSetViewShadowOffset(int handle, float offsetX, float offsetY) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewShadowOffset", "(IFF)I",
+    (jint)handle, (jfloat)offsetX, (jfloat)offsetY);
+  return result;
+}
+
+int shareSetViewShadowOpacity(int handle, float opacity) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewShadowOpacity", "(IF)I",
+    (jint)handle, (jfloat)opacity);
+  return result;
+}
+
+int shareSetViewShadowRadius(int handle, float radius) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewShadowRadius", "(IF)I",
+    (jint)handle, (jfloat)radius);
   return result;
 }

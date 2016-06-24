@@ -177,5 +177,9 @@ int shareRequestTableViewCellRender(int handle, int section, int row,
     int renderHandle);
 int shareRequestTableViewCellClick(int handle, int section, int row,
     int renderHandle);
+int shareSetViewShadowColor(int handle, unsigned int color);
+int shareSetViewShadowOffset(int handle, float offsetX, float offsetY);
+int shareSetViewShadowOpacity(int handle, float opacity);
+int shareSetViewShadowRadius(int handle, float radius);
 
 #endif

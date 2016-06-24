@@ -63,9 +63,14 @@ int phoneMain(int argc, const char *argv[]) {
   phoneSetViewFrame(textBackgroundView, phoneDipToPix(20), phoneGetViewHeight(0) / 2 - phoneDipToPix(31),
     phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewBackgroundColor(textBackgroundView, FONT_BACKGROUND_COLOR);
-  //phoneSetViewCornerRadius(textBackgroundView, phoneDipToPix(3));
+  phoneSetViewCornerRadius(textBackgroundView, phoneDipToPix(3));
   //phoneSetViewBorderColor(textBackgroundView, 0xff0000);
   //phoneSetViewBorderWidth(textBackgroundView, phoneDipToPix(1));
+
+  phoneSetViewShadowColor(textBackgroundView, 0x00ffff);
+  phoneSetViewShadowOffset(textBackgroundView, dp(0), dp(0));
+  phoneSetViewShadowRadius(textBackgroundView, dp(20));
+  phoneSetViewShadowOpacity(textBackgroundView, 1);
 
   textView = phoneCreateTextView(textBackgroundView, 0);
   phoneSetViewText(textView, "Hello World");
@@ -73,10 +78,11 @@ int phoneMain(int argc, const char *argv[]) {
   phoneSetViewFrame(textView, 0, 0, phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewFontColor(textView, FONT_COLOR);
 
+  /*
   delayedTask = phoneCreateWorkItem(doCpuIntensiveWorkInBackgroundThread,
     disposeAtUiThread);
   phoneSetHandleTag(delayedTask, (void *)123456);
-  phonePostToMainWorkQueue(delayedTask);
+  phonePostToMainWorkQueue(delayedTask);*/
 
   return 0;
 }
