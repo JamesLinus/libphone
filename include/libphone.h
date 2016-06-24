@@ -27,16 +27,38 @@ enum phoneViewEventResult {
   PHONE_VIEW_EVENT_YES,
   PHONE_VIEW_EVENT_NO
 };
-#define phoneViewEventTypeMap(XX)                 \
-  XX(PHONE_VIEW_CLICK, "click")                   \
-  XX(PHONE_VIEW_LONG_CLICK, "longClick")          \
-  XX(PHONE_VIEW_VALUE_CHANGE, "valueChange")      \
-  XX(PHONE_VIEW_TOUCH, "touch")
+#define phoneViewEventTypeMap(XX)                                                               \
+  XX(PHONE_VIEW_CLICK, "click")                                                                 \
+  XX(PHONE_VIEW_LONG_CLICK, "longClick")                                                        \
+  XX(PHONE_VIEW_VALUE_CHANGE, "valueChange")                                                    \
+  XX(PHONE_VIEW_TOUCH, "touch")                                                                 \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_DETAIL_TEXT, "requestTableCellDetailText")                   \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_TEXT, "requestTableCellText")                                \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_SELECTION_STYLE, "requestTableCellSelectionStyle")           \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_IMAGE_RESOURCE, "requestTableCellImageResource")             \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_SEPARATOR_STYLE, "requestTableCellSeparatorStyle")           \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_ACCESSORY_VIEW, "requestTableCellAccessoryView")             \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_CUSTOM_VIEW, "requestTableCellCustomView")                   \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER, "requestTableCellIdentifier")                    \
+  XX(PHONE_VIEW_REQUEST_TABLE_SECTION_COUNT, "requestTableSectionCount")                        \
+  XX(PHONE_VIEW_REQUEST_TABLE_ROW_COUNT, "requestTableRowCount")                                \
+  XX(PHONE_VIEW_REQUEST_TABLE_ROW_HEIGHT, "requestTableRowHeight")                              \
+  XX(PHONE_VIEW_REQUEST_TABLE_SECTION_HEADER, "requestTableSectionHeader")                      \
+  XX(PHONE_VIEW_REQUEST_TABLE_SECTION_FOOTER, "requestTableSectionFooter")                      \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER_TYPE_COUNT, "requestTableCellIdentifierTypeCount")\
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_RENDER, "requestTableCellRender")
 #define XX(code, name) code,
 enum phoneViewEventType {
   phoneViewEventTypeMap(XX)
 };
 #undef XX
+typedef struct phoneViewRequestTable {
+  int section;
+  int row;
+  char *buf;
+  int bufSize;
+  int renderHandle;
+} phoneViewRequestTable;
 const char *phoneViewEventTypeToName(int eventType);
 enum phoneViewTouchType {
   PHONE_VIEW_TOUCH_BEGIN,
@@ -74,20 +96,21 @@ int phoneSetHandleTag(int handle, void *tag);
 void *phoneGetHandleTag(int handle);
 int phoneRemoveTimer(int handle);
 int phoneRemoveWorkItem(int handle);
-int phoneSetViewFrame(int handle, int x, int y, int width, int height);
+int phoneSetViewFrame(int handle, float x, float y, float width, float height);
 int phoneSetViewBackgroundColor(int handle, unsigned int color);
 int phoneSetViewFontColor(int handle, unsigned int color);
 int phoneSetViewText(int handle, const char *val);
 int phoneSetAppNotificationHandler(phoneAppNotificationHandler *handler);
 int phoneShowView(int handle, int display);
-int phoneGetViewWidth(int handle);
-int phoneGetViewHeight(int handle);
+float phoneGetViewWidth(int handle);
+float phoneGetViewHeight(int handle);
 typedef void (*phoneViewAnimationSetFinishHandler)(int handle);
 int phoneCreateViewAnimationSet(int duration,
     phoneViewAnimationSetFinishHandler finishHandler);
 int phoneAddViewAnimationToSet(int animationHandle, int setHandle);
 int phoneBeginViewAnimationSet(int handle);
-int phoneCreateViewTranslateAnimation(int viewHandle, int offsetX, int offsetY);
+int phoneCreateViewTranslateAnimation(int viewHandle, float offsetX,
+    float offsetY);
 int phoneRemoveViewAnimationSet(int handle);
 int phoneRemoveViewAnimation(int handle);
 int phoneCreateViewAlphaAnimation(int viewHandle,
@@ -103,7 +126,7 @@ int phoneCreateWorkItem(phoneBackgroundWorkHandler workHandler,
     phoneAfterWorkHandler afterWorkHandler);
 int phonePostToMainWorkQueue(int itemHandle);
 int phoneSetViewAlpha(int handle, float alpha);
-int phoneSetViewFontSize(int handle, int fontSize);
+int phoneSetViewFontSize(int handle, float fontSize);
 int phoneSetViewBackgroundImageResource(int handle,
     const char *imageResource);
 int phoneSetViewBackgroundImagePath(int handle,
@@ -117,9 +140,9 @@ enum phoneInputType {
   PHONE_INPUT_VISIBLE_PASSWORD
 };
 int phoneSetViewInputType(int handle, int inputType);
-int phoneSetViewCornerRadius(int handle, int radius);
+int phoneSetViewCornerRadius(int handle, float radius);
 int phoneSetViewBorderColor(int handle, unsigned int color);
-int phoneSetViewBorderWidth(int handle, int width);
+int phoneSetViewBorderWidth(int handle, float width);
 int phoneIsLandscape(void);
 int phoneSetStatusBarBackgroundColor(unsigned int color);
 enum phoneViewAlignType {
@@ -140,7 +163,9 @@ enum phoneTableViewStyle {
 };
 int phoneCreateTableView(int style, int parentHandle,
     phoneViewEventHandler eventHandler);
-int phoneDipToPix(int dip);
+float phoneDipToPix(int dip);
+#define dp(dip) phoneDipToPix(dip)
+int phoneReloadTableView(int handle);
 
 #if __ANDROID__
 #include <jni.h>
@@ -161,12 +186,9 @@ JNIEnv *phoneGetJNIEnv(void);
 void phoneRegisterNativeMethod(const char *className, const char *methodName,
     const char *methodSig, void *func);
 #define phonePrepareForCallJava(obj, methodName, methodSig) \
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "GetObjectClass"); \
   jclass objClass = (*env)->GetObjectClass(env, obj); \
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "objClass:%d", (int)objClass); \
   jmethodID methodId = (*env)->GetMethodID(env, \
-      objClass, methodName, (methodSig));\
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "methodId:%d", (int)methodId)
+      objClass, methodName, (methodSig));
 #define phoneCallJava(env, obj, methodName, methodSig, ...) do { \
   phonePrepareForCallJava(obj, methodName, methodSig); \
   (*env)->CallVoidMethod(env, obj, methodId, ##__VA_ARGS__); \

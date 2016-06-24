@@ -109,25 +109,25 @@ int shareCreateTimer(int handle, unsigned int milliseconds);
 int shareRemoveTimer(int handle);
 int shareCreateContainerView(int handle, int parentHandle);
 int shareSetViewBackgroundColor(int handle, unsigned int color);
-int shareSetViewFrame(int handle, int x, int y, int width, int height);
+int shareSetViewFrame(int handle, float x, float y, float width, float height);
 int shareCreateTextView(int handle, int parentHandle);
 int shareSetViewText(int handle, const char *val);
 int shareSetViewFontColor(int handle, unsigned int color);
 int shareShowView(int handle, int display);
-int shareGetViewWidth(int handle);
-int shareGetViewHeight(int handle);
+float shareGetViewWidth(int handle);
+float shareGetViewHeight(int handle);
 int shareCreateViewAnimationSet(int handle);
 int shareAddViewAnimationToSet(int animationHandle, int setHandle);
 int shareRemoveViewAnimationSet(int handle);
 int shareRemoveViewAnimation(int handle);
 int shareCreateViewTranslateAnimation(int handle, int viewHandle,
-    int offsetX, int offsetY);
+    float offsetX, float offsetY);
 int shareBeginAnimationSet(int handle, int duration);
 int shareCreateViewAlphaAnimation(int handle, int viewHandle,
     float fromAlpha, float toAlpha);
 int shareBringViewToFront(int handle);
 int shareSetViewAlpha(int handle, float alpha);
-int shareSetViewFontSize(int handle, int fontSize);
+int shareSetViewFontSize(int handle, float fontSize);
 int shareSetViewBackgroundImageResource(int handle,
     const char *imageResource);
 int shareSetViewBackgroundImagePath(int handle,
@@ -144,9 +144,9 @@ int shareEnableViewLongClickEvent(int handle);
 int shareEnableViewValueChangeEvent(int handle);
 int shareEnableViewTouchEvent(int handle);
 int shareGetThreadId(void);
-int shareSetViewCornerRadius(int handle, int radius);
+int shareSetViewCornerRadius(int handle, float radius);
 int shareSetViewBorderColor(int handle, unsigned int color);
-int shareSetViewBorderWidth(int handle, int width);
+int shareSetViewBorderWidth(int handle, float width);
 int shareIsLandscape(void);
 int shareSetStatusBarBackgroundColor(unsigned int color);
 int shareSetViewAlign(int handle, int align);
@@ -163,6 +163,17 @@ int shareRequestTableViewCellAccessoryView(int handle, int section, int row);
 int shareRequestTableViewCellCustomView(int handle, int section, int row);
 int shareRequestTableViewCellIdentifier(int handle, int section, int row,
     char *buf, int bufSize);
+int shareRequestTableViewSectionCount(int handle);
+int shareRequestTableViewRowCount(int handle, int section);
+int shareRequestTableViewRowHeight(int handle, int section, int row);
+int shareRequestTableViewSectionHeader(int handle, int section,
+    char *buf, int bufSize);
+int shareRequestTableViewSectionFooter(int handle, int section,
+    char *buf, int bufSize);
+int shareRequestTableViewCellIdentifierTypeCount(int handle);
 int shareCreateTableView(int style, int handle, int parentHandle);
+int shareReloadTableView(int handle);
+int shareRequestTableViewCellRender(int handle, int section, int row,
+    int renderHandle);
 
 #endif

@@ -14,10 +14,11 @@ import android.view.View;
 import android.content.Context;
 import android.widget.TextView;
 import com.libphone.PhoneNotifyThread;
-import android.view.animation.AnimationSet;
 import android.view.animation.Animation;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.HashMap;
+import android.widget.AbsListView;
 import android.view.animation.Animation.AnimationListener;
 import android.graphics.drawable.Drawable;
 import android.widget.EditText;
@@ -33,60 +34,164 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.Paint;
 import android.graphics.drawable.shapes.Shape;
 import android.graphics.Canvas;
+import android.widget.ListView;
+import android.graphics.Color;
+import android.widget.BaseAdapter;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Path;
+import android.os.Build;
+import android.graphics.BitmapShader;
+import android.graphics.Shader;
 
 public class PhoneActivity extends Activity {
 
-    // http://stackoverflow.com/questions/2145131/trying-to-draw-a-button-how-to-set-a-stroke-color-and-how-to-align-a-gradient
-    public class CustomBorderDrawable extends ShapeDrawable {
-        private Paint fillPaint;
+    class PhoneContainerBackgroundDrawable extends ShapeDrawable {
+        private Paint fillPaint = null;
         private Paint strokePaint = null;
-
-        private void prepareStokePaint() {
-            if (null == strokePaint) {
-                strokePaint = new Paint(fillPaint);
-                strokePaint.setStyle(Paint.Style.STROKE);
-            }
-        }
-
-        public CustomBorderDrawable(Shape s) {
-            super(s);
-            fillPaint = this.getPaint();
-        }
+        private float cornerRadius = 0;
 
         @Override
-        protected void onDraw(Shape shape, Canvas canvas, Paint fillpaint) {
-            shape.draw(canvas, fillPaint);
+        public void onDraw(Shape shape, Canvas canvas, Paint paint) {
+            if (0 == cornerRadius) {
+                shape.draw(canvas, fillPaint);
+            } else {
+                RectF rect = new RectF(0, 0, shape.getWidth(), shape.getHeight());
+                canvas.drawRoundRect(rect, cornerRadius, cornerRadius, fillPaint);
+            }
             if (null != strokePaint) {
                 shape.draw(canvas, strokePaint);
             }
         }
 
-        public void setFillColour(int c){
-            fillPaint.setColor(c | 0xff000000);
+        private void createStrokePaintIfNeed(int borderWidth, int borderColor) {
+            if (borderWidth > 0 && 0 != borderColor) {
+                strokePaint = new Paint(fillPaint);
+                strokePaint.setStyle(Paint.Style.STROKE);
+                strokePaint.setColor(borderColor);
+                strokePaint.setStrokeWidth(borderWidth);
+            }
         }
 
-        public void setBorderWidth(int width) {
-            prepareStokePaint();
-            strokePaint.setStrokeWidth(width);
+        public PhoneContainerBackgroundDrawable(Shape shape, int borderWidth, int borderColor,
+                                                int backgroundColor, float radius) {
+            super(shape);
+            fillPaint = this.getPaint();
+            fillPaint.setColor(backgroundColor);
+            cornerRadius = radius;
+            createStrokePaintIfNeed(borderWidth, borderColor);
         }
 
-        public void setBorderColor(int color) {
-            prepareStokePaint();
-            strokePaint.setColor(color | 0xff000000);
+        public PhoneContainerBackgroundDrawable(Shape shape, int borderWidth, int borderColor,
+                                                Bitmap backgroundBitmap, float radius) {
+            super(shape);
+            fillPaint = this.getPaint();
+            fillPaint.setAntiAlias(true);
+            fillPaint.setShader(new BitmapShader(backgroundBitmap,
+                    Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+            cornerRadius = radius;
+            createStrokePaintIfNeed(borderWidth, borderColor);
         }
     }
 
     class PhoneContainerView extends AbsoluteLayout {
-        public int cornerRadius = 0;
-        public int borderWidth = 0;
-        public int borderColor = 0;
-        public int backgroundColor = 0xffffffff;
+        private float cornerRadius = 0;
+        private float borderWidth = 0;
+        private int borderColor = 0;
+        private int backgroundColor = 0;
+        private int backgroundImageResourceId = 0;
+        private String backgroundImagePath = null;
+
         public PhoneContainerView(Context context) {
             super(context);
         }
-        public void appyBackgroud() {
+
+        public void setCornerRadius(float radius) {
+            cornerRadius = radius;
+            appyBackgroud();
+        }
+
+        public void setBorderWidth(float width) {
+            borderWidth = width;
+            appyBackgroud();
+        }
+
+        public void setBorderColor(int color) {
+            borderColor = color;
+            appyBackgroud();
+        }
+
+        public void setBackgroundImageResourceId(int resId) {
+            backgroundImageResourceId = resId;
+            backgroundImagePath = null;
+            appyBackgroud();
+        }
+
+        public void setBackgroundFillColor(int color) {
+            backgroundColor = color;
+            appyBackgroud();
+        }
+
+        public void setBackgroundImagePath(String path) {
+            backgroundImagePath = path;
+            backgroundImageResourceId = 0;
+            appyBackgroud();
+        }
+
+        private void appyBackgroud() {
+            if (0 == cornerRadius && 0 == borderWidth && 0 == borderColor) {
+                if (null != backgroundImagePath) {
+                    try {
+                        setBackgroundDrawable(Drawable.createFromPath(backgroundImagePath));
+                    } catch (Throwable t) {
+                    }
+                } else if (0 != backgroundImageResourceId) {
+                    setBackgroundResource(backgroundImageResourceId);
+                } else if (0 != backgroundColor) {
+                    setBackgroundColor(backgroundColor);
+                }
+            } else {
+                RoundRectShape shape = new RoundRectShape(
+                        new float[]{cornerRadius, cornerRadius, cornerRadius, cornerRadius,
+                                cornerRadius, cornerRadius, cornerRadius, cornerRadius},
+                        null,
+                        null);
+                PhoneContainerBackgroundDrawable drawable = null;
+                if (null != backgroundImagePath) {
+                    drawable = new PhoneContainerBackgroundDrawable(shape,
+                            (int)borderWidth, borderColor,
+                            BitmapFactory.decodeFile(backgroundImagePath),
+                            cornerRadius);
+                } else if (0 != backgroundImageResourceId) {
+                    drawable = new PhoneContainerBackgroundDrawable(shape,
+                            (int)borderWidth, borderColor,
+                            BitmapFactory.decodeResource(getResources(), backgroundImageResourceId),
+                            cornerRadius);
+                } else {
+                    drawable = new PhoneContainerBackgroundDrawable(shape,
+                            (int)borderWidth, borderColor, backgroundColor,
+                            cornerRadius);
+                }
+                if (null != drawable) {
+                    setBackgroundDrawable(drawable);
+                }
+            }
+
+            /*
             if (0 == borderWidth && 0 == borderColor && 0 == cornerRadius) {
-                setBackgroundColor(backgroundColor | 0xff000000);
+                if (0 != backgroundImageResourceId) {
+                    setBackgroundResource(backgroundImageResourceId);
+                } else if (null != backgroundImagePath) {
+                    try {
+                        setBackgroundDrawable(Drawable.createFromPath(backgroundImagePath));
+                    } catch (Throwable t) {
+                    }
+                } else {
+                    setBackgroundColor(backgroundColor | 0xff000000);
+                }
                 return;
             }
             RoundRectShape rect = new RoundRectShape(
@@ -94,16 +199,203 @@ public class PhoneActivity extends Activity {
                             cornerRadius, cornerRadius, cornerRadius, cornerRadius},
                     null,
                     null);
+            if (null == maskPath) {
+                maskPath = new Path();
+            }
+            maskPath.addRoundRect(new RectF(cornerRadius, cornerRadius, cornerRadius, cornerRadius),
+                    cornerRadius, cornerRadius, Path.Direction.CW);
             CustomBorderDrawable drawable = new CustomBorderDrawable(rect);
             drawable.setFillColour(backgroundColor);
-            drawable.setBorderWidth(borderWidth);
-            drawable.setBorderColor(borderColor);
-            setBackgroundDrawable(drawable);
+            if (0 != borderWidth) {
+                drawable.setBorderWidth(borderWidth);
+            }
+            if (0 != borderColor) {
+                drawable.setBorderColor(borderColor);
+            }
+            drawable.setImageResourceId(backgroundImageResourceId);
+            drawable.setImagePath(backgroundImagePath);
+            setBackgroundDrawable(drawable);*/
         }
     }
 
+    public class SectionRow {
+        public int section;
+        public int row;
+    }
+
+    public class PhoneTableCellView extends PhoneContainerView {
+        public View customView = null;
+        public PhoneTableCellView(Context context) {
+            super(context);
+        }
+        public void setCustomView(View view) {
+            if (customView == view) {
+                return;
+            }
+            if (null != customView && this == customView.getParent()) {
+                this.removeView(customView);
+            }
+            customView = view;
+            if (null != customView && this != customView.getParent()) {
+                ((ViewGroup)customView.getParent()).removeView(customView);
+                this.addView(customView);
+            }
+        }
+        public View getRenderView() {
+            if (null != customView) {
+                return customView;
+            }
+            return null;
+        }
+    }
+
+    public class PhoneTableViewAdapter extends BaseAdapter {
+        public ListView listView = null;
+        public int handle = 0;
+        public boolean isGrouped = false;
+        private SparseArray<Integer> sectionRowNumMap = new SparseArray<Integer>();
+        private HashMap<String, Integer> viewTypeMap = new HashMap<String, Integer>();
+        private int totalRecordsNum = 0;
+        private int sectionCount = 0;
+
+        public PhoneTableViewAdapter(ListView target, boolean grouped) {
+            this.listView = target;
+            this.handle = target.getId();
+            this.isGrouped = grouped;
+        }
+
+        public int sectionRowToPosition(int section, int row) {
+            int position = 0;
+            int sectionIndex = 0;
+            for (sectionIndex = 0; sectionIndex <= section; ++sectionIndex) {
+                position += sectionRowNumMap.get(sectionIndex);
+            }
+            return position;
+        }
+
+        public SectionRow positionToSectionRow(int position) {
+            SectionRow item = new SectionRow();
+            int count = 0;
+            int sectionIndex = 0;
+            int lastSectionIndex = 0;
+            int lastRowIndex = 0;
+            int lastCount = 0;
+            for (sectionIndex = 0; sectionIndex < sectionCount; ++sectionIndex) {
+                lastSectionIndex = sectionIndex;
+                lastCount = count;
+                count += sectionRowNumMap.get(sectionIndex);
+                if (count >= position) {
+                    lastRowIndex = position - lastCount;
+                    break;
+                }
+            }
+            item.section = lastSectionIndex;
+            item.row = lastRowIndex;
+            return item;
+        }
+
+        public void rebuildSectionRowNumMap() {
+            int section;
+            int total = 0;
+            sectionCount = nativeRequestTableViewSectionCount(handle);
+            for (section = 0; section < sectionCount; ++section) {
+                int rowNum = nativeRequestTableViewRowCount(handle, section);
+                sectionRowNumMap.put(section, rowNum);
+                total += rowNum;
+            }
+            totalRecordsNum = total;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public boolean hasStableIds () {
+            return false;
+        }
+
+        @Override
+        public int getCount() {
+            return totalRecordsNum;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return nativeRequestTableViewCellIdentifierTypeCount(handle);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            SectionRow item = positionToSectionRow(position);
+            String identifier = nativeRequestTableViewCellIdentifier(handle, item.section, item.row);
+            Integer id = viewTypeMap.get(identifier);
+            if (null == id) {
+                int newIdVal = viewTypeMap.size();
+                viewTypeMap.put(identifier, newIdVal);
+                return newIdVal;
+            }
+            return id;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            PhoneTableCellView cellView;
+            int customHandle;
+            SectionRow item = positionToSectionRow(position);
+            if (null == convertView || !(convertView instanceof PhoneTableCellView)) {
+                cellView = new PhoneTableCellView(PhoneActivity.this);
+                convertView = cellView;
+            } else {
+                cellView = (PhoneTableCellView)convertView;
+            }
+            customHandle = nativeRequestTableViewCellCustomView(handle, item.section, item.row);
+            if (0 != customHandle) {
+                cellView.setCustomView((View)findHandleObject(customHandle));
+            }
+            cellView.setLayoutParams(
+                    new AbsListView.LayoutParams(listView.getWidth(),
+                            nativeRequestTableViewRowHeight(handle, item.section, item.row)));
+            nativeRequestTableViewCellRender(handle, item.section, item.row,
+                    cellView.getRenderView().getId());
+            return convertView;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+    }
+
+    public class PhoneTableView extends ListView {
+        public boolean isGrouped = false;
+        private PhoneTableViewAdapter adapter = null;
+
+        public PhoneTableView(Context context) {
+            super(context);
+            setDivider(null);
+            setDividerHeight(0);
+            setPadding(0, 0, 0, 0);
+            setCacheColorHint(Color.TRANSPARENT);
+            setScrollingCacheEnabled(false);
+            setSelector(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        public void reload() {
+            if (null == adapter) {
+                adapter = new PhoneTableViewAdapter(this, isGrouped);
+                setAdapter(adapter);
+            }
+            adapter.rebuildSectionRowNumMap();
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     private PhoneContainerView container;
-    private Boolean lunched = false;
+    private boolean lunched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,24 +406,15 @@ public class PhoneActivity extends Activity {
         setContentView(container);
 
         ViewTreeObserver viewTreeObserver = container.getViewTreeObserver();
-        if (viewTreeObserver.isAlive()) {
-            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (!lunched) {
-                        lunched = true;
-                        lunchWithNative();
-                    }
-                }
-            });
-        }
-        /*
-        handler.postDelayed(new Runnable() {
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void run() {
-                lunchWithNative();
+            public void onGlobalLayout() {
+                if (!lunched) {
+                    lunched = true;
+                    lunchWithNative();
+                }
             }
-        }, 100);*/
+        });
     }
 
     private void lunchWithNative() {
@@ -169,6 +452,21 @@ public class PhoneActivity extends Activity {
     private native int nativeDispatchViewTouchCancelEvent(int handle, int x, int y);
     private native int nativeInitDensity(float density);
     private native int nativeInit();
+    private native int nativeRequestTableViewCellCustomView(int handle, int section, int row);
+    private native String nativeRequestTableViewCellIdentifier(int handle, int section, int row);
+    private native int nativeRequestTableViewSectionCount(int handle);
+    private native int nativeRequestTableViewRowCount(int handle, int section);
+    private native int nativeRequestTableViewRowHeight(int handle, int section, int row);
+    private native int nativeRequestTableViewCellIdentifierTypeCount(int handle);
+    private native String nativeRequestTableViewSectionHeader(int handle, int section);
+    private native String nativeRequestTableViewSectionFooter(int handle, int section);
+    private native String nativeRequestTableViewCellDetailText(int handle, int section, int row);
+    private native String nativeRequestTableViewCellText(int handle, int section, int row);
+    private native int nativeRequestTableViewCellSelectionStyle(int handle, int section, int row);
+    private native String nativeRequestTableViewCellImageResource(int handle, int section, int row);
+    private native int nativeRequestTableViewCellSeparatorStyle(int handle, int section, int row);
+    private native int nativeRequestTableViewCellAccessoryView(int handle, int section, int row);
+    private native int nativeRequestTableViewCellRender(int handle, int section, int row, int renderHandle);
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -221,12 +519,13 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    public int javaSetViewFrame(int handle, int x, int y, int width, int height) {
+    public int javaSetViewFrame(int handle, float x, float y, float width, float height) {
         if (0 == handle) {
             return -1;
         }
         View view = (View)findHandleObject(handle);
-        view.setLayoutParams(new AbsoluteLayout.LayoutParams(width, height, x, y));
+        view.setLayoutParams(new AbsoluteLayout.LayoutParams((int)width, (int)height, (int)x,
+                (int)y));
         return 0;
     }
 
@@ -236,9 +535,7 @@ public class PhoneActivity extends Activity {
             return 0;
         }
         PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
-        view.backgroundColor = color;
-        view.appyBackgroud();
-        //view.setBackgroundColor(color | 0xff000000);
+        view.setBackgroundFillColor(color | 0xff000000);
         return 0;
     }
 
@@ -276,14 +573,14 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    public int javaGetViewWidth(int handle) {
+    public float javaGetViewWidth(int handle) {
         if (0 == handle) {
             return container.getWidth();
         }
         return ((View)findHandleObject(handle)).getWidth();
     }
 
-    public int javaGetViewHeight(int handle) {
+    public float javaGetViewHeight(int handle) {
         if (0 == handle) {
             return container.getHeight();
         }
@@ -318,7 +615,7 @@ public class PhoneActivity extends Activity {
     }
 
     public int javaCreateViewTranslateAnimation(int handle, int viewHandle,
-                                                 int offsetX, int offsetY) {
+                                                 float offsetX, float offsetY) {
         PhoneAnimationPair pair = new PhoneAnimationPair();
         TranslateAnimation ani = new TranslateAnimation(0, offsetX, 0, offsetY);
         View view = (View)findHandleObject(viewHandle);
@@ -387,33 +684,37 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    public int javaSetViewFontSize(int handle, int fontSize) {
+    public int javaSetViewFontSize(int handle, float fontSize) {
         TextView view = (TextView)findHandleObject(handle);
         view.setTextSize(fontSize);
         return 0;
     }
 
     public int javaSetViewBackgroundImageResource(int handle, String imageResource) {
-        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
         int dotPos = imageResource.indexOf('.');
         String name = -1 == dotPos ? imageResource : imageResource.substring(0, dotPos);
-        view.setBackgroundResource(getResources().getIdentifier(name,
+        int resId = getResources().getIdentifier(name,
                 "drawable",
-                getPackageName()));
+                getPackageName());
+        if (0 == handle) {
+            container.setBackgroundResource(resId);
+        } else {
+            PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
+            view.setBackgroundImageResourceId(resId);
+        }
         return 0;
     }
 
     public int javaSetViewBackgroundImagePath(int handle, String imagePath) {
-        PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
-        Drawable drawable = null;
-        try {
-            drawable = Drawable.createFromPath(imagePath);
-        } catch (Throwable t) {
+        if (0 == handle) {
+            try {
+                container.setBackgroundDrawable(Drawable.createFromPath(imagePath));
+            } catch (Throwable t) {
+            }
+        } else {
+            PhoneContainerView view = (PhoneContainerView) findHandleObject(handle);
+            view.setBackgroundImagePath(imagePath);
         }
-        if (null == drawable) {
-            return -1;
-        }
-        view.setBackgroundDrawable(drawable);
         return 0;
     }
 
@@ -563,24 +864,36 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    public int javaSetViewCornerRadius(int handle, int radius) {
+    public int javaSetViewCornerRadius(int handle, float radius) {
         PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
-        view.cornerRadius = radius;
-        view.appyBackgroud();
+        view.setCornerRadius(radius);
         return 0;
     }
 
     public int javaSetViewBorderColor(int handle, int color) {
         PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
-        view.borderColor = color;
-        view.appyBackgroud();
+        view.setBorderColor(color | 0xff000000);
         return 0;
     }
 
-    public int javaSetViewBorderWidth(int handle, int width) {
+    public int javaSetViewBorderWidth(int handle, float width) {
         PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
-        view.borderWidth = width;
-        view.appyBackgroud();
+        view.setBorderWidth(width);
+        return 0;
+    }
+
+    public int javaCreateTableView(int grouped, int handle, int parentHandle) {
+        PhoneTableView view = new PhoneTableView(this);
+        setHandleObject(handle, view);
+        view.setId(handle);
+        view.isGrouped = 1 == grouped;
+        addViewToParent(view, parentHandle);
+        return 0;
+    }
+
+    public int javaReloadTableView(int handle) {
+        PhoneTableView view = (PhoneTableView)findHandleObject(handle);
+        view.reload();
         return 0;
     }
 }

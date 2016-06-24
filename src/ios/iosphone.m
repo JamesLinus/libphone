@@ -97,13 +97,13 @@ UIImageView *objcContainer = nil;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
   int handle = tableView.tag;
-  return shareGetTableViewSectionCount(handle);
+  return shareRequestTableViewSectionCount(handle);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView
     numberOfRowsInSection:(NSInteger)section {
   int handle = tableView.tag;
-  return shareGetTableViewRowCount(handle, (int)section);
+  return shareRequestTableViewRowCount(handle, (int)section);
 }
 
 - (void)tableView: (UITableView *)tableView
@@ -115,7 +115,7 @@ UIImageView *objcContainer = nil;
 - (CGFloat)tableView:(UITableView *)tableView
     heightForRowAtIndexPath:(NSIndexPath *)indexPath {
   int handle = tableView.tag;
-  return (CGFloat)shareGetTableViewRowHeight(handle,
+  return (CGFloat)shareRequestTableViewRowHeight(handle,
     indexPath.section, indexPath.row);
 }
 
@@ -123,7 +123,7 @@ UIImageView *objcContainer = nil;
     titleForHeaderInSection:(NSInteger)section {
   int handle = tableView.tag;
   char buf[4096];
-  shareGetTableViewSectionHeader(handle, (int)section, buf, sizeof(buf));
+  shareRequestTableViewSectionHeader(handle, (int)section, buf, sizeof(buf));
   return [NSString stringWithUTF8String:buf];
 }
 
@@ -131,7 +131,7 @@ UIImageView *objcContainer = nil;
     titleForFooterInSection:(NSInteger)section {
   int handle = tableView.tag;
   char buf[4096];
-  shareGetTableViewSectionFooter(handle, (int)section, buf, sizeof(buf));
+  shareRequestTableViewSectionFooter(handle, (int)section, buf, sizeof(buf));
   return [NSString stringWithUTF8String:buf];
 }
 

@@ -202,6 +202,109 @@ JNIEXPORT jint nativeInitDensity(JNIEnv *env, jobject obj, jfloat density) {
   return 0;
 }
 
+JNIEXPORT jint nativeRequestTableViewCellCustomView(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellCustomView(handle, section, row);
+}
+
+JNIEXPORT jstring nativeRequestTableViewCellIdentifier(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewCellIdentifier(handle, section, row, buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jint nativeRequestTableViewSectionCount(JNIEnv *env, jobject obj,
+    jint handle) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewSectionCount(handle);
+}
+
+JNIEXPORT jint nativeRequestTableViewRowCount(JNIEnv *env, jobject obj,
+    jint handle, jint section) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewRowCount(handle, section);
+}
+
+JNIEXPORT jint nativeRequestTableViewRowHeight(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewRowHeight(handle, section, row);
+}
+
+JNIEXPORT jint nativeRequestTableViewCellIdentifierTypeCount(JNIEnv *env,
+    jobject obj, jint handle) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellIdentifierTypeCount(handle);
+}
+
+JNIEXPORT jstring nativeRequestTableViewSectionHeader(JNIEnv *env, jobject obj,
+    jint handle, jint section) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewSectionHeader(handle, section, buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jstring nativeRequestTableViewSectionFooter(JNIEnv *env, jobject obj,
+    jint handle, jint section) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewSectionFooter(handle, section, buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jstring nativeRequestTableViewCellDetailText(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewCellDetailText(handle, section, row, buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jstring nativeRequestTableViewCellText(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewCellText(handle, section, row, buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jint nativeRequestTableViewCellSelectionStyle(JNIEnv *env,
+    jobject obj, jint handle, jint section, jint row) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellSelectionStyle(handle, section, row);
+}
+
+JNIEXPORT jstring nativeRequestTableViewCellImageResource(JNIEnv *env,
+    jobject obj, jint handle, jint section, jint row) {
+  char buf[4096];
+  saveCurrentObject(obj);
+  shareRequestTableViewCellImageResource(handle, section, row,
+      buf, sizeof(buf));
+  return (*env)->NewStringUTF(env, buf);
+}
+
+JNIEXPORT jint nativeRequestTableViewCellSeparatorStyle(JNIEnv *env,
+    jobject obj, jint handle, jint section, jint row) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellSeparatorStyle(handle, section, row);
+}
+
+JNIEXPORT jint nativeRequestTableViewCellAccessoryView(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellAccessoryView(handle, section, row);
+}
+
+JNIEXPORT jint nativeRequestTableViewCellRender(JNIEnv *env, jobject obj,
+    jint handle, jint section, jint row, jint renderHandle) {
+  saveCurrentObject(obj);
+  return shareRequestTableViewCellRender(handle, section, row, renderHandle);
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -221,6 +324,21 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeDispatchViewTouchCancelEvent", "(III)I", nativeDispatchViewTouchCancelEvent},
     {"nativeInitDensity", "(F)I", nativeInitDensity},
     {"nativeInit", "()I", nativeInit},
+    {"nativeRequestTableViewCellCustomView", "(III)I", nativeRequestTableViewCellCustomView},
+    {"nativeRequestTableViewCellIdentifier", "(III)Ljava/lang/String;", nativeRequestTableViewCellIdentifier},
+    {"nativeRequestTableViewSectionCount", "(I)I", nativeRequestTableViewSectionCount},
+    {"nativeRequestTableViewRowCount", "(II)I", nativeRequestTableViewRowCount},
+    {"nativeRequestTableViewRowHeight", "(III)I", nativeRequestTableViewRowHeight},
+    {"nativeRequestTableViewCellIdentifierTypeCount", "(I)I", nativeRequestTableViewCellIdentifierTypeCount},
+    {"nativeRequestTableViewSectionHeader", "(II)Ljava/lang/String;", nativeRequestTableViewSectionHeader},
+    {"nativeRequestTableViewSectionFooter", "(II)Ljava/lang/String;", nativeRequestTableViewSectionFooter},
+    {"nativeRequestTableViewCellDetailText", "(III)Ljava/lang/String;", nativeRequestTableViewCellDetailText},
+    {"nativeRequestTableViewCellText", "(III)Ljava/lang/String;", nativeRequestTableViewCellText},
+    {"nativeRequestTableViewCellSelectionStyle", "(III)I", nativeRequestTableViewCellSelectionStyle},
+    {"nativeRequestTableViewCellImageResource", "(III)Ljava/lang/String;", nativeRequestTableViewCellImageResource},
+    {"nativeRequestTableViewCellSeparatorStyle", "(III)I", nativeRequestTableViewCellSeparatorStyle},
+    {"nativeRequestTableViewCellAccessoryView", "(III)I", nativeRequestTableViewCellAccessoryView},
+    {"nativeRequestTableViewCellRender", "(IIII)I", nativeRequestTableViewCellRender},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -290,13 +408,13 @@ int shareCreateContainerView(int handle, int parentHandle) {
   return result;
 }
 
-int shareSetViewFrame(int handle, int x, int y, int width,
-    int height) {
+int shareSetViewFrame(int handle, float x, float y, float width,
+    float height) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaSetViewFrame", "(IIIII)I",
-    (jint)handle, (jint)x, (jint)y, (jint)width, (jint)height);
+    "javaSetViewFrame", "(IFFFF)I",
+    (jint)handle, (jfloat)x, (jfloat)y, (jfloat)width, (jfloat)height);
   return result;
 }
 
@@ -345,20 +463,20 @@ int shareShowView(int handle, int display) {
   return result;
 }
 
-int shareGetViewWidth(int handle) {
-  jint result;
+float shareGetViewWidth(int handle) {
+  jfloat result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
-    "javaGetViewWidth", "(I)I",
+  phoneCallJavaReturnFloat(result, env, currentObject,
+    "javaGetViewWidth", "(I)F",
     (jint)handle);
   return result;
 }
 
-int shareGetViewHeight(int handle) {
-  jint result;
+float shareGetViewHeight(int handle) {
+  jfloat result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
-    "javaGetViewHeight", "(I)I",
+  phoneCallJavaReturnFloat(result, env, currentObject,
+    "javaGetViewHeight", "(I)F",
     (jint)handle);
   return result;
 }
@@ -436,13 +554,13 @@ int shareRemoveViewAnimation(int handle) {
 }
 
 int shareCreateViewTranslateAnimation(int handle, int viewHandle,
-    int offsetX, int offsetY) {
+    float offsetX, float offsetY) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaCreateViewTranslateAnimation", "(IIII)I",
+    "javaCreateViewTranslateAnimation", "(IIFF)I",
     (jint)handle, (jint)viewHandle,
-    (jint)offsetX, (jint)offsetY);
+    (jfloat)offsetX, (jfloat)offsetY);
   return result;
 }
 
@@ -483,12 +601,12 @@ int shareSetViewAlpha(int handle, float alpha) {
   return result;
 }
 
-int shareSetViewFontSize(int handle, int fontSize) {
+int shareSetViewFontSize(int handle, float fontSize) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaSetViewFontSize", "(II)I",
-    (jint)handle, (jint)fontSize);
+    "javaSetViewFontSize", "(IF)I",
+    (jint)handle, (jfloat)fontSize);
   return result;
 }
 
@@ -656,12 +774,12 @@ int shareSetViewVerticalAlign(int handle, int align) {
   return 0;
 }
 
-int shareSetViewCornerRadius(int handle, int radius) {
+int shareSetViewCornerRadius(int handle, float radius) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaSetViewCornerRadius", "(II)I",
-    (jint)handle, (jint)radius);
+    "javaSetViewCornerRadius", "(IF)I",
+    (jint)handle, (jfloat)radius);
   return result;
 }
 
@@ -674,16 +792,30 @@ int shareSetViewBorderColor(int handle, unsigned int color) {
   return result;
 }
 
-int shareSetViewBorderWidth(int handle, int width) {
+int shareSetViewBorderWidth(int handle, float width) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaSetViewBorderWidth", "(II)I",
-    (jint)handle, (jint)width);
+    "javaSetViewBorderWidth", "(IF)I",
+    (jint)handle, (jfloat)width);
   return result;
 }
 
 int shareCreateTableView(int style, int handle, int parentHandle) {
-  // TODO:
-  return 0;
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  jint isGrouped = PHONE_TABLE_VIEW_STYLE_GROUPED == style ? 1 : 0;
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaCreateTableView", "(III)I",
+    (jint)isGrouped, (jint)handle, (jint)parentHandle);
+  return result;
+}
+
+int shareReloadTableView(int handle) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaReloadTableView", "(I)I",
+    (jint)handle);
+  return result;
 }

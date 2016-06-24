@@ -1,3 +1,3 @@
 Overview
 -------------
-More functions and docs are heavily developing.
+More functions and docs are under heavily development.

@@ -384,7 +384,7 @@ int phoneCreateContainerView(int parentHandle,
   return handle;
 }
 
-int phoneSetViewFrame(int handle, int x, int y, int width, int height) {
+int phoneSetViewFrame(int handle, float x, float y, float width, float height) {
   if (0 == handle) {
     return -1;
   }
@@ -427,11 +427,11 @@ int phoneShowView(int handle, int display) {
   return shareShowView(handle, display);
 }
 
-int phoneGetViewWidth(int handle) {
+float phoneGetViewWidth(int handle) {
   return shareGetViewWidth(handle);
 }
 
-int phoneGetViewHeight(int handle) {
+float phoneGetViewHeight(int handle) {
   return shareGetViewHeight(handle);
 }
 
@@ -475,8 +475,8 @@ int phoneBeginViewAnimationSet(int handle) {
       pHandle(handle)->u.animationSet.duration);
 }
 
-int phoneCreateViewTranslateAnimation(int viewHandle, int offsetX,
-    int offsetY) {
+int phoneCreateViewTranslateAnimation(int viewHandle, float offsetX,
+    float offsetY) {
   int handle = phoneAllocHandle();
   phoneHandle *handleData;
   if (!handle) {
@@ -545,7 +545,7 @@ int phoneSetViewAlpha(int handle, float alpha) {
   return shareSetViewAlpha(handle, alpha);
 }
 
-int phoneSetViewFontSize(int handle, int fontSize) {
+int phoneSetViewFontSize(int handle, float fontSize) {
   return shareSetViewFontSize(handle, fontSize);
 }
 
@@ -628,7 +628,7 @@ int phoneEnableViewEvent(int handle, int eventType) {
   return result;
 }
 
-int phoneSetViewCornerRadius(int handle, int radius) {
+int phoneSetViewCornerRadius(int handle, float radius) {
   return shareSetViewCornerRadius(handle, radius);
 }
 
@@ -636,7 +636,7 @@ int phoneSetViewBorderColor(int handle, unsigned int color) {
   return shareSetViewBorderColor(handle, color);
 }
 
-int phoneSetViewBorderWidth(int handle, int width) {
+int phoneSetViewBorderWidth(int handle, float width) {
   return shareSetViewBorderWidth(handle, width);
 }
 
@@ -675,6 +675,7 @@ int phoneCreateTableView(int style, int parentHandle,
   }
   handleData = pHandle(handle);
   handleData->type = PHONE_TABLE_VIEW;
+  assert(eventHandler);
   handleData->u.view.eventHandler = eventHandler;
   if (0 != shareCreateTableView(style, handle, parentHandle)) {
     phoneFreeHandle(handle);
@@ -685,48 +686,138 @@ int phoneCreateTableView(int style, int parentHandle,
 
 int shareRequestTableViewCellDetailText(int handle, int section, int row,
     char *buf, int bufSize) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_DETAIL_TEXT,
+      &request);
 }
 
 int shareRequestTableViewCellText(int handle, int section, int row,
     char *buf, int bufSize) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_TEXT,
+      &request);
 }
 
 int shareRequestTableViewCellSelectionStyle(int handle, int section, int row) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_SELECTION_STYLE,
+      &request);
 }
 
 int shareRequestTableViewCellImageResource(int handle, int section, int row,
     char *buf, int bufSize) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_IMAGE_RESOURCE,
+      &request);
 }
 
 int shareRequestTableViewCellSeparatorStyle(int handle, int section, int row) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_SEPARATOR_STYLE,
+      &request);
 }
 
 int shareRequestTableViewCellAccessoryView(int handle, int section, int row) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_ACCESSORY_VIEW,
+      &request);
 }
 
 int shareRequestTableViewCellCustomView(int handle, int section, int row) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_CUSTOM_VIEW,
+      &request);
 }
 
 int shareRequestTableViewCellIdentifier(int handle, int section, int row,
     char *buf, int bufSize) {
-  // TODO:
-  return 0;
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER,
+      &request);
 }
 
-int phoneDipToPix(int dip) {
-  return (int)(dip * pApp->displayDensity);
+int shareRequestTableViewSectionCount(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_SECTION_COUNT, 0);
+}
+
+int shareRequestTableViewRowCount(int handle, int section) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_ROW_COUNT,
+      &request);
+}
+
+int shareRequestTableViewRowHeight(int handle, int section, int row) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_ROW_HEIGHT,
+      &request);
+}
+
+int shareRequestTableViewSectionHeader(int handle, int section,
+    char *buf, int bufSize) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, 0, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_SECTION_HEADER,
+      &request);
+}
+
+int shareRequestTableViewSectionFooter(int handle, int section,
+    char *buf, int bufSize) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, 0, buf, bufSize};
+  buf[0] = '\0';
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_SECTION_FOOTER,
+      &request);
+}
+
+int shareRequestTableViewCellIdentifierTypeCount(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER_TYPE_COUNT, 0);
+}
+
+float phoneDipToPix(int dip) {
+  return pApp->displayDensity * dip;
+}
+
+int phoneReloadTableView(int handle) {
+  assert(PHONE_TABLE_VIEW == pHandle(handle)->type);
+  return shareReloadTableView(handle);
+}
+
+int shareRequestTableViewCellRender(int handle, int section, int row,
+    int renderHandle) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, 0, 0, renderHandle};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_RENDER,
+      &request);
 }
