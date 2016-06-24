@@ -158,7 +158,7 @@ int shareRequestTableViewCellText(int handle, int section, int row,
 int shareRequestTableViewCellSelectionStyle(int handle, int section, int row);
 int shareRequestTableViewCellImageResource(int handle, int section, int row,
     char *buf, int bufSize);
-int shareRequestTableViewCellSeparatorStyle(int handle, int section, int row);
+int shareRequestTableViewCellSeparatorStyle(int handle);
 int shareRequestTableViewCellAccessoryView(int handle, int section, int row);
 int shareRequestTableViewCellCustomView(int handle, int section, int row);
 int shareRequestTableViewCellIdentifier(int handle, int section, int row,
@@ -174,6 +174,8 @@ int shareRequestTableViewCellIdentifierTypeCount(int handle);
 int shareCreateTableView(int style, int handle, int parentHandle);
 int shareReloadTableView(int handle);
 int shareRequestTableViewCellRender(int handle, int section, int row,
+    int renderHandle);
+int shareRequestTableViewCellClick(int handle, int section, int row,
     int renderHandle);
 
 #endif

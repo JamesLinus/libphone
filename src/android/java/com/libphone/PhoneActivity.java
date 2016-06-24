@@ -141,8 +141,20 @@ public class PhoneActivity extends Activity {
             appyBackgroud();
         }
 
+        private boolean shouldUseDefaultBackground() {
+            return (0 == cornerRadius && 0 == borderWidth && 0 == borderColor) ||
+                    0 == getWidth() || 0 == getHeight();
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            if (!shouldUseDefaultBackground()) {
+                appyBackgroud();
+            }
+        }
+
         private void appyBackgroud() {
-            if (0 == cornerRadius && 0 == borderWidth && 0 == borderColor) {
+            if (shouldUseDefaultBackground()) {
                 if (null != backgroundImagePath) {
                     try {
                         setBackgroundDrawable(Drawable.createFromPath(backgroundImagePath));
@@ -163,12 +175,14 @@ public class PhoneActivity extends Activity {
                 if (null != backgroundImagePath) {
                     drawable = new PhoneContainerBackgroundDrawable(shape,
                             (int)borderWidth, borderColor,
-                            BitmapFactory.decodeFile(backgroundImagePath),
+                            Bitmap.createScaledBitmap(BitmapFactory.decodeFile(backgroundImagePath),
+                                    getWidth(), getHeight(), true),
                             cornerRadius);
                 } else if (0 != backgroundImageResourceId) {
                     drawable = new PhoneContainerBackgroundDrawable(shape,
                             (int)borderWidth, borderColor,
-                            BitmapFactory.decodeResource(getResources(), backgroundImageResourceId),
+                            Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),
+                                    backgroundImageResourceId), getWidth(), getHeight(), true),
                             cornerRadius);
                 } else {
                     drawable = new PhoneContainerBackgroundDrawable(shape,
@@ -179,42 +193,6 @@ public class PhoneActivity extends Activity {
                     setBackgroundDrawable(drawable);
                 }
             }
-
-            /*
-            if (0 == borderWidth && 0 == borderColor && 0 == cornerRadius) {
-                if (0 != backgroundImageResourceId) {
-                    setBackgroundResource(backgroundImageResourceId);
-                } else if (null != backgroundImagePath) {
-                    try {
-                        setBackgroundDrawable(Drawable.createFromPath(backgroundImagePath));
-                    } catch (Throwable t) {
-                    }
-                } else {
-                    setBackgroundColor(backgroundColor | 0xff000000);
-                }
-                return;
-            }
-            RoundRectShape rect = new RoundRectShape(
-                    new float[] {cornerRadius, cornerRadius, cornerRadius, cornerRadius,
-                            cornerRadius, cornerRadius, cornerRadius, cornerRadius},
-                    null,
-                    null);
-            if (null == maskPath) {
-                maskPath = new Path();
-            }
-            maskPath.addRoundRect(new RectF(cornerRadius, cornerRadius, cornerRadius, cornerRadius),
-                    cornerRadius, cornerRadius, Path.Direction.CW);
-            CustomBorderDrawable drawable = new CustomBorderDrawable(rect);
-            drawable.setFillColour(backgroundColor);
-            if (0 != borderWidth) {
-                drawable.setBorderWidth(borderWidth);
-            }
-            if (0 != borderColor) {
-                drawable.setBorderColor(borderColor);
-            }
-            drawable.setImageResourceId(backgroundImageResourceId);
-            drawable.setImagePath(backgroundImagePath);
-            setBackgroundDrawable(drawable);*/
         }
     }
 

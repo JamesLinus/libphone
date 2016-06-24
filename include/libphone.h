@@ -46,7 +46,8 @@ enum phoneViewEventResult {
   XX(PHONE_VIEW_REQUEST_TABLE_SECTION_HEADER, "requestTableSectionHeader")                      \
   XX(PHONE_VIEW_REQUEST_TABLE_SECTION_FOOTER, "requestTableSectionFooter")                      \
   XX(PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER_TYPE_COUNT, "requestTableCellIdentifierTypeCount")\
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_RENDER, "requestTableCellRender")
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_RENDER, "requestTableCellRender")                            \
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_CLICK, "requestTableCellClick")
 #define XX(code, name) code,
 enum phoneViewEventType {
   phoneViewEventTypeMap(XX)

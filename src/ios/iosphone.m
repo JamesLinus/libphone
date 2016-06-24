@@ -90,26 +90,72 @@ UIImageView *objcContainer = nil;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int phoneTableViewSeparatorStyleToIos(int style) {
+  //UITableViewCellSeparatorStyleNone,
+  //UITableViewCellSeparatorStyleSingleLine,
+  //UITableViewCellSeparatorStyleSingleLineEtched
+  return UITableViewCellSeparatorStyleSingleLine;
+}
+
+static int phoneTableViewStyleToIos(int style) {
+  switch (style) {
+    case PHONE_TABLE_VIEW_STYLE_PLAIN:
+      return UITableViewStylePlain;
+    case PHONE_TABLE_VIEW_STYLE_GROUPED:
+      return UITableViewStyleGrouped;
+    default:
+      assert(0 && "Unknown table view style");
+      return UITableViewStylePlain;
+  }
+}
+
+static int phoneTableViewSelectionStyleToIos(int style) {
+  //UITableViewCellSelectionStyleNone,
+  //UITableViewCellSelectionStyleBlue,
+  //UITableViewCellSelectionStyleGray,
+  //UITableViewCellSelectionStyleDefault
+  return UITableViewCellSelectionStyleGray;
+}
+
 @interface PhoneTableView : UITableView <UITableViewDelegate, UITableViewDataSource>
 @end
 
 @implementation PhoneTableView
 
+- (id)initWithStyle:(UITableViewStyle)style {
+  CGRect frame = {0, 0, 0, 0};
+  self = [super initWithFrame:frame style:style];
+  self.dataSource = self;
+  self.delegate = self;
+  self.tag = 0;
+  return self;
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
   int handle = tableView.tag;
+  if (0 == handle) {
+    return 0;
+  }
+  self.separatorStyle = phoneTableViewSeparatorStyleToIos(
+    shareRequestTableViewCellSeparatorStyle(handle)
+  );
   return shareRequestTableViewSectionCount(handle);
 }
 
 - (NSInteger)tableView:(UITableView *)tableView
     numberOfRowsInSection:(NSInteger)section {
   int handle = tableView.tag;
+  if (0 == handle) {
+    return 0;
+  }
   return shareRequestTableViewRowCount(handle, (int)section);
 }
 
 - (void)tableView: (UITableView *)tableView
 	  didSelectRowAtIndexPath: (NSIndexPath *)indexPath {
   int handle = tableView.tag;
-  shareDispatchTableViewRowClick(handle, indexPath.section, indexPath.row);
+  shareRequestTableViewCellClick(handle, indexPath.section, indexPath.row,
+    [tableView getRenderHandleFromIndexPath:indexPath]);
 }
 
 - (CGFloat)tableView:(UITableView *)tableView
@@ -135,10 +181,31 @@ UIImageView *objcContainer = nil;
   return [NSString stringWithUTF8String:buf];
 }
 
+- (int)getRenderHandleFromIndexPath:(NSIndexPath *)indexPath {
+  UITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+  if (nil != cell && nil != cell.contentView) {
+    for (UIView *loopView in cell.contentView.subviews) {
+      if (loopView.tag > 0) {
+        return loopView.tag;
+      }
+    }
+  }
+  return 0;
+}
+
+- (void)tableView:(UITableView *)tableView
+    willDisplayCell:(UITableViewCell *)cell
+    forRowAtIndexPath:(NSIndexPath *)indexPath {
+  int handle = tableView.tag;
+  shareRequestTableViewCellRender(handle, indexPath.section, indexPath.row,
+    [tableView getRenderHandleFromIndexPath:indexPath]);
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView
     cellForRowAtIndexPath:(NSIndexPath *)indexPath {
   int handle = tableView.tag;
   char buf[4096];
+  UITableViewCell *cell;
   NSString *cellIdentifier;
   shareRequestTableViewCellIdentifier(handle, indexPath.section,
       indexPath.row, buf, sizeof(buf));
@@ -154,20 +221,16 @@ UIImageView *objcContainer = nil;
         indexPath.row);
     if (customView) {
       [cell.contentView addSubview:(UIView *)[objcHandleMap
-        objectForKey:[NSNumber numberWithInt:handle]];
+        objectForKey:[NSNumber numberWithInt:customView]]];
     }
+    cell.accessoryType = UITableViewCellAccessoryNone;
     accessoryView = shareRequestTableViewCellAccessoryView(handle,
         indexPath.section, indexPath.row);
     if (accessoryView) {
       cell.accessoryView = (UIView *)[objcHandleMap
-        objectForKey:[NSNumber numberWithInt:handle];
+        objectForKey:[NSNumber numberWithInt:accessoryView]];
     }
-    cell.accessoryType = UITableViewCellAccessoryNone;
   }
-  cell.separatorStyle = phoneTableViewSeperatorStyleToIos(
-    shareRequestTableViewCellSeparatorStyle(handle,
-        indexPath.section, indexPath.row)
-  );
   shareRequestTableViewCellImageResource(handle, indexPath.section,
       indexPath.row, buf, sizeof(buf));
   if (buf[0]) {
@@ -368,7 +431,7 @@ int shareSetViewBackgroundColor(int handle, unsigned int color) {
   return 0;
 }
 
-int shareSetViewFrame(int handle, int x, int y, int width, int height) {
+int shareSetViewFrame(int handle, float x, float y, float width, float height) {
   UIView *view = (UIView *)[objcHandleMap
     objectForKey:[NSNumber numberWithInt:handle]];
   view.frame = CGRectMake((CGFloat)x,
@@ -427,7 +490,7 @@ int shareShowView(int handle, int display) {
   return 0;
 }
 
-int shareGetViewWidth(int handle) {
+float shareGetViewWidth(int handle) {
   UIView *view;
   if (0 == handle) {
     return objcContainer.frame.size.width;
@@ -437,7 +500,7 @@ int shareGetViewWidth(int handle) {
   return view.frame.size.width;
 }
 
-int shareGetViewHeight(int handle) {
+float shareGetViewHeight(int handle) {
   UIView *view;
   if (0 == handle) {
     return objcContainer.frame.size.height;
@@ -468,7 +531,7 @@ int shareRemoveViewAnimation(int handle) {
 }
 
 int shareCreateViewTranslateAnimation(int handle, int viewHandle,
-    int offsetX, int offsetY) {
+    float offsetX, float offsetY) {
   // need do nothing
   return 0;
 }
@@ -540,7 +603,7 @@ int shareSetViewAlpha(int handle, float alpha) {
   return 0;
 }
 
-int shareSetViewFontSize(int handle, int fontSize) {
+int shareSetViewFontSize(int handle, float fontSize) {
   switch (pHandle(handle)->type) {
     case PHONE_TEXT_VIEW: {
       UILabel *view = (UILabel *)[objcHandleMap
@@ -685,7 +748,7 @@ int shareGetThreadId(void) {
   return (int)tid;
 }
 
-int shareSetViewCornerRadius(int handle, int radius) {
+int shareSetViewCornerRadius(int handle, float radius) {
   UIView *view = (UIView *)[objcHandleMap
     objectForKey:[NSNumber numberWithInt:handle]];
   view.layer.cornerRadius = radius;
@@ -701,7 +764,7 @@ int shareSetViewBorderColor(int handle, unsigned int color) {
   return 0;
 }
 
-int shareSetViewBorderWidth(int handle, int width) {
+int shareSetViewBorderWidth(int handle, float width) {
   UIView *view = (UIView *)[objcHandleMap
     objectForKey:[NSNumber numberWithInt:handle]];
   [view.layer setBorderWidth:(CGFloat)width];
@@ -749,25 +812,20 @@ int shareSetViewVerticalAlign(int handle, int align) {
   return 0;
 }
 
-static int phoneTableViewStyleToIos(int style) {
-  switch (style) {
-    case PHONE_TABLE_VIEW_STYLE_PLAIN:
-      return UITableViewStylePlain;
-    case PHONE_TABLE_VIEW_STYLE_GROUPED:
-      return UITableViewStyleGrouped;
-    default:
-      assert(0 && "Unknown table view style");
-      return UITableViewStylePlain;
-  }
-}
-
 int shareCreateTableView(int style, int handle, int parentHandle) {
-  PhoneTableView *view = [[PhoneTableView alloc] init];
-  view.style = phoneTableViewStyleToIos(style);
+  PhoneTableView *view = [[PhoneTableView alloc]
+    initWithStyle:phoneTableViewStyleToIos(style)];
   [objcHandleMap
     setObject:view
     forKey:[NSNumber numberWithInt:handle]];
   addViewToParent(view, parentHandle);
   view.tag = handle;
+  return 0;
+}
+
+int shareReloadTableView(int handle) {
+  UITableView *view = (UITableView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view reloadData];
   return 0;
 }

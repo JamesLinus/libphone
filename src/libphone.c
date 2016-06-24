@@ -722,12 +722,10 @@ int shareRequestTableViewCellImageResource(int handle, int section, int row,
       &request);
 }
 
-int shareRequestTableViewCellSeparatorStyle(int handle, int section, int row) {
+int shareRequestTableViewCellSeparatorStyle(int handle) {
   phoneHandle *handleData = pHandle(handle);
-  phoneViewRequestTable request = {section, row};
   return handleData->u.view.eventHandler(handle,
-      PHONE_VIEW_REQUEST_TABLE_CELL_SEPARATOR_STYLE,
-      &request);
+      PHONE_VIEW_REQUEST_TABLE_CELL_SEPARATOR_STYLE, 0);
 }
 
 int shareRequestTableViewCellAccessoryView(int handle, int section, int row) {
@@ -819,5 +817,14 @@ int shareRequestTableViewCellRender(int handle, int section, int row,
   phoneViewRequestTable request = {section, row, 0, 0, renderHandle};
   return handleData->u.view.eventHandler(handle,
       PHONE_VIEW_REQUEST_TABLE_CELL_RENDER,
+      &request);
+}
+
+int shareRequestTableViewCellClick(int handle, int section, int row,
+    int renderHandle) {
+  phoneHandle *handleData = pHandle(handle);
+  phoneViewRequestTable request = {section, row, 0, 0, renderHandle};
+  return handleData->u.view.eventHandler(handle,
+      PHONE_VIEW_REQUEST_TABLE_CELL_CLICK,
       &request);
 }
