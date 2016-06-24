@@ -171,6 +171,7 @@ int phoneSetViewShadowColor(int handle, unsigned int color);
 int phoneSetViewShadowOffset(int handle, float offsetX, float offsetY);
 int phoneSetViewShadowOpacity(int handle, float opacity);
 int phoneSetViewShadowRadius(int handle, float radius);
+int phoneSetViewBackgroundImageRepeat(int handle, int repeat);
 
 #if __ANDROID__
 #include <jni.h>

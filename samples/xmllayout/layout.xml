@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<board width="1450" height="2560" statusBarHeight="106" menuBarHeight="192">
+  <searchBar height="160" backgroundColor="7b4655">
+  </searchBar>
+  <tabBar height="160" backgroundColor="fafafa">
+  </tabBar>
+  <padding height="18">
+  </padding>
+  <topHead height="303" backgroundColor="d58395">
+  </topHead>
+  <appointmentPanel height="836" backgroundColor="f7f5f5">
+  </appointmentPanel>
+  <bottomHead height="303" backgroundColor="d58395">
+  </bottomHead>
+  <registrationPanel height="836" backgroundColor="f7f5f5">
+  </registrationPanel>
+</board>

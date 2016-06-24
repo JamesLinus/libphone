@@ -181,5 +181,6 @@ int shareSetViewShadowColor(int handle, unsigned int color);
 int shareSetViewShadowOffset(int handle, float offsetX, float offsetY);
 int shareSetViewShadowOpacity(int handle, float opacity);
 int shareSetViewShadowRadius(int handle, float radius);
+int shareSetViewBackgroundImageRepeat(int handle, int repeat);
 
 #endif

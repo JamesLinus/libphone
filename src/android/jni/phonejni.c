@@ -855,3 +855,12 @@ int shareSetViewShadowRadius(int handle, float radius) {
     (jint)handle, (jfloat)radius);
   return result;
 }
+
+int shareSetViewBackgroundImageRepeat(int handle, int repeat) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewBackgroundImageRepeat", "(IF)I",
+    (jint)handle, (jint)repeat);
+  return result;
+}

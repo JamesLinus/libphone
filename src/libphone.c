@@ -844,3 +844,7 @@ int phoneSetViewShadowOpacity(int handle, float opacity) {
 int phoneSetViewShadowRadius(int handle, float radius) {
   return shareSetViewShadowRadius(handle, radius);
 }
+
+int phoneSetViewBackgroundImageRepeat(int handle, int repeat) {
+  return shareSetViewBackgroundImageRepeat(handle, repeat);
+}

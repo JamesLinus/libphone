@@ -46,6 +46,8 @@ import android.graphics.Path;
 import android.os.Build;
 import android.graphics.BitmapShader;
 import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Shader.TileMode;
 
 public class PhoneActivity extends Activity {
 
@@ -1015,6 +1017,19 @@ public class PhoneActivity extends Activity {
     public int javaSetViewShadowRadius(int handle, float radius) {
         PhoneContainerView view = (PhoneContainerView)findHandleObject(handle);
         view.setShadowRadius(radius);
+        return 0;
+    }
+
+    public int javaSetViewBackgroundImageRepeat(int handle, int repeat) {
+        View view = (View)findHandleObject(handle);
+        if (null != view) {
+            BitmapDrawable drawable = (BitmapDrawable)view.getBackground();
+            if (null != drawable) {
+                if (1 == repeat) {
+                    drawable.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+                }
+            }
+        }
         return 0;
     }
 }
