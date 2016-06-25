@@ -98,12 +98,20 @@ class LayoutToCodeTranslator:
             elem.parent.attrib['offsetY'] = 0
         width = self.getElementWidth(elem)
         height = self.getElementHeight(elem)
-        if elem.tag not in ['padding']:
+        if elem.tag not in ['virtual']:
             self.structOutputs.append('int {};'.format(elem.tag))
             elemType = self.getElementType(elem)
-            if 'text' == elemType:
-                self.bodyOutputs.append('page->{} = phoneCreateTextView({}, 0);'.format(elem.tag,
-                    self.getParentHandleInPage(elem)))
+            if 'text' == elemType or 'editText' == elemType or 'password' == elemType:
+                if 'text' == elemType:
+                    self.bodyOutputs.append('page->{} = phoneCreateTextView({}, 0);'.format(elem.tag,
+                        self.getParentHandleInPage(elem)))
+                elif 'editText' == elemType or 'password' == elemType:
+                    self.bodyOutputs.append('page->{} = phoneCreateEditTextView({}, 0);'.format(elem.tag,
+                        self.getParentHandleInPage(elem)))
+                    if 'password' == elemType:
+                        self.bodyOutputs.append('phoneSetViewInputType(page->{}, PHONE_INPUT_PASSWORD);'.format(
+                            elem.tag
+                        ))
                 if 'fontSize' in elem.attrib:
                     self.bodyOutputs.append('phoneSetViewFontSize(page->{}, {});'.format(
                         elem.tag, self.hor(float(elem.attrib['fontSize']))
@@ -172,9 +180,9 @@ class LayoutToCodeTranslator:
                 self.bodyOutputs.append('phoneSetViewBackgroundImageResource(page->{}, "{}");'.format(
                     elem.tag, elem.attrib['backgroundImageResource']
                 ))
-            for child in elem:
-                child.parent = elem
-                self.outputElement(child)
+        for child in elem:
+            child.parent = elem
+            self.outputElement(child)
         if (self.isElementLayoutHorizontal(elem.parent)):
             elem.parent.attrib['offsetX'] += width
         else:

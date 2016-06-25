@@ -32,7 +32,7 @@ class AndroidResGenerator:
                     os.mkdir('{}/drawable-{}'.format(self.outputPath, dpi[1]))
                 except:
                     pass
-                cmd = 'convert "{}/{}" -background transparent -gravity center -resize {}x{}^ -extent {}x{} "{}/drawable-{}/{}{}x{}.png"'.format(
+                cmd = 'convert "{}/{}" -background transparent -resize "{}x{}>" -gravity center -extent "{}x{}" "{}/drawable-{}/{}{}x{}.png"'.format(
                     self.resPath, f,
                     destWidth, destHeight,
                     destWidth, destHeight,

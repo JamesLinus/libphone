@@ -5,12 +5,10 @@
 #include <android/log.h>
 
 static JavaVM *loadedVm = 0;
-static jobject *currentObject = 0;
+static jobject *activity = 0;
 static int phoneInited = 0;
 static pthread_cond_t notifyMainThreadCond;
 static pthread_mutex_t notifyMainThreadMutex;
-
-#define saveCurrentObject(obj) currentObject = (obj)
 
 int shareInitApplication(void) {
   pthread_mutex_init(&notifyMainThreadMutex, 0);
@@ -30,7 +28,6 @@ JNIEnv *phoneGetJNIEnv(void) {
 
 JNIEXPORT jint nativeNotifyMainThread(JNIEnv *env, jobject obj,
     jlong needNotifyMask) {
-  saveCurrentObject(obj);
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "nativeNotifyMainThread called");
   if (needNotifyMask & NOTIFY_NEED_FLUSH_MAIN_WORK_QUEUE) {
     phoneFlushMainWorkQueue();
@@ -39,13 +36,12 @@ JNIEXPORT jint nativeNotifyMainThread(JNIEnv *env, jobject obj,
 }
 
 JNIEXPORT jint nativeInit(JNIEnv *env, jobject obj) {
-  saveCurrentObject(obj);
+  activity = (*env)->NewGlobalRef(env, obj);
   phoneInitApplication();
   return 0;
 }
 
 JNIEXPORT jint nativeSendAppShowing(JNIEnv *env, jobject obj) {
-  saveCurrentObject(obj);
   if (!phoneInited) {
     phoneMain(0, 0);
     phoneInited = 1;
@@ -55,25 +51,23 @@ JNIEXPORT jint nativeSendAppShowing(JNIEnv *env, jobject obj) {
 }
 
 JNIEXPORT jint nativeSendAppHiding(JNIEnv *env, jobject obj) {
-  saveCurrentObject(obj);
   pApp->handler->hiding();
   return 0;
 }
 
 JNIEXPORT jint nativeSendAppTerminating(JNIEnv *env, jobject obj) {
-  saveCurrentObject(obj);
   pApp->handler->terminating();
   return 0;
 }
 
 JNIEXPORT jint nativeInvokeTimer(JNIEnv *env, jobject obj, jint handle) {
-  saveCurrentObject(obj);
   assert(PHONE_TIMER == pHandle(handle)->type);
   pHandle(handle)->u.timer.runHandler(handle);
   return 0;
 }
 
 JNIEXPORT jint nativeInvokeNotifyThread(JNIEnv *env, jobject obj) {
+  jobject thread = (*env)->NewGlobalRef(env, obj);
   for (;;) {
     unsigned int needFlushMask = 0;
     phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "enter nativeInvokeNotifyThread");
@@ -84,7 +78,8 @@ JNIEXPORT jint nativeInvokeNotifyThread(JNIEnv *env, jobject obj) {
     if (needFlushMask) {
       jint result;
       phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "call javaNotifyMainThread");
-      phoneCallJavaReturnInt(result, env, obj, "javaNotifyMainThread", "(J)I",
+      phoneCallJavaReturnInt(result, env, thread,
+          "javaNotifyMainThread", "(J)I",
           (jlong)needFlushMask);
     }
     pthread_mutex_lock(&notifyMainThreadMutex);
@@ -100,7 +95,6 @@ JNIEXPORT jint nativeAnimationFinished(JNIEnv *env, jobject obj, jint handle) {
   phoneHandle *handleData = pHandle(handle);
   phoneHandle *setHandleData;
   int setHandle;
-  saveCurrentObject(obj);
   setHandle = handleData->u.animation.animationSetHandle;
   setHandleData = pHandle(setHandle);
   setHandleData->u.animationSet.finished++;
@@ -114,7 +108,6 @@ JNIEXPORT jint nativeAnimationFinished(JNIEnv *env, jobject obj, jint handle) {
 JNIEXPORT jint nativeDispatchViewClickEvent(JNIEnv *env, jobject obj,
     jint handle) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_CLICK, 0);
   }
@@ -124,7 +117,6 @@ JNIEXPORT jint nativeDispatchViewClickEvent(JNIEnv *env, jobject obj,
 JNIEXPORT jint nativeDispatchViewLongClickEvent(JNIEnv *env, jobject obj,
     jint handle) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_LONG_CLICK, 0);
   }
@@ -134,7 +126,6 @@ JNIEXPORT jint nativeDispatchViewLongClickEvent(JNIEnv *env, jobject obj,
 JNIEXPORT jint nativeDispatchViewValueChangeEvent(JNIEnv *env, jobject obj,
     jint handle) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_VALUE_CHANGE, 0);
   }
@@ -151,7 +142,6 @@ static void makeTouch(phoneViewTouch *touch, int type, int x, int y) {
 JNIEXPORT jint nativeDispatchViewTouchBeginEvent(JNIEnv *env, jobject obj,
     jint handle, int x, int y) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     phoneViewTouch touch;
     makeTouch(&touch, PHONE_VIEW_TOUCH_BEGIN, x, y);
@@ -163,7 +153,6 @@ JNIEXPORT jint nativeDispatchViewTouchBeginEvent(JNIEnv *env, jobject obj,
 JNIEXPORT jint nativeDispatchViewTouchEndEvent(JNIEnv *env, jobject obj,
     jint handle, int x, int y) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     phoneViewTouch touch;
     makeTouch(&touch, PHONE_VIEW_TOUCH_END, x, y);
@@ -175,7 +164,6 @@ JNIEXPORT jint nativeDispatchViewTouchEndEvent(JNIEnv *env, jobject obj,
 JNIEXPORT jint nativeDispatchViewTouchMoveEvent(JNIEnv *env, jobject obj,
     jint handle, int x, int y) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     phoneViewTouch touch;
     makeTouch(&touch, PHONE_VIEW_TOUCH_MOVE, x, y);
@@ -187,7 +175,6 @@ JNIEXPORT jint nativeDispatchViewTouchMoveEvent(JNIEnv *env, jobject obj,
 JNIEXPORT jint nativeDispatchViewTouchCancelEvent(JNIEnv *env, jobject obj,
     jint handle, int x, int y) {
   phoneHandle *handleData = pHandle(handle);
-  saveCurrentObject(obj);
   if (handleData->u.view.eventHandler) {
     phoneViewTouch touch;
     makeTouch(&touch, PHONE_VIEW_TOUCH_CANCEL, x, y);
@@ -197,53 +184,45 @@ JNIEXPORT jint nativeDispatchViewTouchCancelEvent(JNIEnv *env, jobject obj,
 }
 
 JNIEXPORT jint nativeInitDensity(JNIEnv *env, jobject obj, jfloat density) {
-  saveCurrentObject(obj);
   pApp->displayDensity = density;
   return 0;
 }
 
 JNIEXPORT jint nativeRequestTableViewCellCustomView(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellCustomView(handle, section, row);
 }
 
 JNIEXPORT jstring nativeRequestTableViewCellIdentifier(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewCellIdentifier(handle, section, row, buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
 }
 
 JNIEXPORT jint nativeRequestTableViewSectionCount(JNIEnv *env, jobject obj,
     jint handle) {
-  saveCurrentObject(obj);
   return shareRequestTableViewSectionCount(handle);
 }
 
 JNIEXPORT jint nativeRequestTableViewRowCount(JNIEnv *env, jobject obj,
     jint handle, jint section) {
-  saveCurrentObject(obj);
   return shareRequestTableViewRowCount(handle, section);
 }
 
 JNIEXPORT jint nativeRequestTableViewRowHeight(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
-  saveCurrentObject(obj);
   return shareRequestTableViewRowHeight(handle, section, row);
 }
 
 JNIEXPORT jint nativeRequestTableViewCellIdentifierTypeCount(JNIEnv *env,
     jobject obj, jint handle) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellIdentifierTypeCount(handle);
 }
 
 JNIEXPORT jstring nativeRequestTableViewSectionHeader(JNIEnv *env, jobject obj,
     jint handle, jint section) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewSectionHeader(handle, section, buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
 }
@@ -251,7 +230,6 @@ JNIEXPORT jstring nativeRequestTableViewSectionHeader(JNIEnv *env, jobject obj,
 JNIEXPORT jstring nativeRequestTableViewSectionFooter(JNIEnv *env, jobject obj,
     jint handle, jint section) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewSectionFooter(handle, section, buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
 }
@@ -259,7 +237,6 @@ JNIEXPORT jstring nativeRequestTableViewSectionFooter(JNIEnv *env, jobject obj,
 JNIEXPORT jstring nativeRequestTableViewCellDetailText(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewCellDetailText(handle, section, row, buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
 }
@@ -267,21 +244,18 @@ JNIEXPORT jstring nativeRequestTableViewCellDetailText(JNIEnv *env, jobject obj,
 JNIEXPORT jstring nativeRequestTableViewCellText(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewCellText(handle, section, row, buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
 }
 
 JNIEXPORT jint nativeRequestTableViewCellSelectionStyle(JNIEnv *env,
     jobject obj, jint handle, jint section, jint row) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellSelectionStyle(handle, section, row);
 }
 
 JNIEXPORT jstring nativeRequestTableViewCellImageResource(JNIEnv *env,
     jobject obj, jint handle, jint section, jint row) {
   char buf[4096];
-  saveCurrentObject(obj);
   shareRequestTableViewCellImageResource(handle, section, row,
       buf, sizeof(buf));
   return (*env)->NewStringUTF(env, buf);
@@ -289,19 +263,16 @@ JNIEXPORT jstring nativeRequestTableViewCellImageResource(JNIEnv *env,
 
 JNIEXPORT jint nativeRequestTableViewCellSeparatorStyle(JNIEnv *env,
     jobject obj, jint handle) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellSeparatorStyle(handle);
 }
 
 JNIEXPORT jint nativeRequestTableViewCellAccessoryView(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellAccessoryView(handle, section, row);
 }
 
 JNIEXPORT jint nativeRequestTableViewCellRender(JNIEnv *env, jobject obj,
     jint handle, jint section, jint row, jint renderHandle) {
-  saveCurrentObject(obj);
   return shareRequestTableViewCellRender(handle, section, row, renderHandle);
 }
 
@@ -384,7 +355,7 @@ int shareRemoveTimer(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneHandle *handleData = pHandle(handle);
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaRemoveTimer", "(I)I",
     (jint)handle);
   return result;
@@ -393,7 +364,7 @@ int shareRemoveTimer(int handle) {
 int shareCreateTimer(int handle, unsigned int milliseconds) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateTimer", "(IJ)I",
     (jint)handle, (jlong)milliseconds);
   return result;
@@ -402,7 +373,7 @@ int shareCreateTimer(int handle, unsigned int milliseconds) {
 int shareCreateContainerView(int handle, int parentHandle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateContainerView", "(II)I",
     (jint)handle, (jint)parentHandle);
   return result;
@@ -412,7 +383,7 @@ int shareSetViewFrame(int handle, float x, float y, float width,
     float height) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewFrame", "(IFFFF)I",
     (jint)handle, (jfloat)x, (jfloat)y, (jfloat)width, (jfloat)height);
   return result;
@@ -421,7 +392,7 @@ int shareSetViewFrame(int handle, float x, float y, float width,
 int shareSetViewBackgroundColor(int handle, unsigned int color) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBackgroundColor", "(II)I",
     (jint)handle, (jint)color);
   return result;
@@ -430,7 +401,7 @@ int shareSetViewBackgroundColor(int handle, unsigned int color) {
 int shareCreateTextView(int handle, int parentHandle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateTextView", "(II)I",
     (jint)handle, (jint)parentHandle);
   return result;
@@ -439,7 +410,7 @@ int shareCreateTextView(int handle, int parentHandle) {
 int shareSetViewText(int handle, const char *val) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewText", "(ILjava/lang/String;)I",
     (jint)handle, (*env)->NewStringUTF(env, val));
   return result;
@@ -448,7 +419,7 @@ int shareSetViewText(int handle, const char *val) {
 int shareSetViewFontColor(int handle, unsigned int color) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewFontColor", "(II)I",
     (jint)handle, (jint)color);
   return result;
@@ -457,7 +428,7 @@ int shareSetViewFontColor(int handle, unsigned int color) {
 int shareShowView(int handle, int display) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaShowView", "(II)I",
     (jint)handle, (jint)display);
   return result;
@@ -466,7 +437,7 @@ int shareShowView(int handle, int display) {
 float shareGetViewWidth(int handle) {
   jfloat result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnFloat(result, env, currentObject,
+  phoneCallJavaReturnFloat(result, env, activity,
     "javaGetViewWidth", "(I)F",
     (jint)handle);
   return result;
@@ -475,7 +446,7 @@ float shareGetViewWidth(int handle) {
 float shareGetViewHeight(int handle) {
   jfloat result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnFloat(result, env, currentObject,
+  phoneCallJavaReturnFloat(result, env, activity,
     "javaGetViewHeight", "(I)F",
     (jint)handle);
   return result;
@@ -519,7 +490,7 @@ int shareNeedFlushMainWorkQueue(void) {
 int shareCreateViewAnimationSet(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateViewAnimationSet", "(I)I",
     (jint)handle);
   return result;
@@ -529,7 +500,7 @@ int shareAddViewAnimationToSet(int animationHandle,
     int setHandle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaAddViewAnimationToSet", "(II)I",
     (jint)animationHandle, (jint)setHandle);
   return result;
@@ -538,7 +509,7 @@ int shareAddViewAnimationToSet(int animationHandle,
 int shareRemoveViewAnimationSet(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaRemoveViewAnimationSet", "(I)I",
     (jint)handle);
   return result;
@@ -547,7 +518,7 @@ int shareRemoveViewAnimationSet(int handle) {
 int shareRemoveViewAnimation(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaRemoveViewAnimation", "(I)I",
     (jint)handle);
   return result;
@@ -557,7 +528,7 @@ int shareCreateViewTranslateAnimation(int handle, int viewHandle,
     float offsetX, float offsetY) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateViewTranslateAnimation", "(IIFF)I",
     (jint)handle, (jint)viewHandle,
     (jfloat)offsetX, (jfloat)offsetY);
@@ -567,7 +538,7 @@ int shareCreateViewTranslateAnimation(int handle, int viewHandle,
 int shareBeginAnimationSet(int handle, int duration) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaBeginAnimationSet", "(II)I",
     (jint)handle, (jint)duration);
   return result;
@@ -577,7 +548,7 @@ int shareCreateViewAlphaAnimation(int handle, int viewHandle,
     float fromAlpha, float toAlpha) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateViewAlphaAnimation", "(IIFF)I",
     (jint)handle, (jint)viewHandle, (jfloat)fromAlpha, (jfloat)toAlpha);
   return result;
@@ -586,7 +557,7 @@ int shareCreateViewAlphaAnimation(int handle, int viewHandle,
 int shareBringViewToFront(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaBringViewToFront", "(I)I",
     (jint)handle);
   return result;
@@ -595,7 +566,7 @@ int shareBringViewToFront(int handle) {
 int shareSetViewAlpha(int handle, float alpha) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewAlpha", "(IF)I",
     (jint)handle, (jfloat)alpha);
   return result;
@@ -604,7 +575,7 @@ int shareSetViewAlpha(int handle, float alpha) {
 int shareSetViewFontSize(int handle, float fontSize) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewFontSize", "(IF)I",
     (jint)handle, (jfloat)fontSize);
   return result;
@@ -614,7 +585,7 @@ int shareSetViewBackgroundImageResource(int handle,
     const char *imageResource) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBackgroundImageResource", "(ILjava/lang/String;)I",
     (jint)handle, (*env)->NewStringUTF(env, imageResource));
   return result;
@@ -624,7 +595,7 @@ int shareSetViewBackgroundImagePath(int handle,
     const char *imagePath) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBackgroundImagePath", "(ILjava/lang/String;)I",
     (jint)handle, (*env)->NewStringUTF(env, imagePath));
   return result;
@@ -633,7 +604,7 @@ int shareSetViewBackgroundImagePath(int handle,
 int shareCreateEditTextView(int handle, int parentHandle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateEditTextView", "(II)I",
     (jint)handle, (jint)parentHandle);
   return result;
@@ -642,7 +613,7 @@ int shareCreateEditTextView(int handle, int parentHandle) {
 int shareShowSoftInputOnView(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaShowSoftInputOnView", "(I)I",
     (jint)handle);
   return result;
@@ -651,7 +622,7 @@ int shareShowSoftInputOnView(int handle) {
 int shareHideSoftInputOnView(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaHideSoftInputOnView", "(I)I",
     (jint)handle);
   return result;
@@ -660,7 +631,7 @@ int shareHideSoftInputOnView(int handle) {
 int shareGetViewText(int handle, char *buf, int bufSize) {
   jstring result = 0;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnObject(result, env, currentObject,
+  phoneCallJavaReturnObject(result, env, activity,
     "javaGetViewText", "(I)Ljava/lang/String;",
     (jint)handle);
   return phoneJstringToUtf8(result, buf, bufSize);
@@ -669,7 +640,7 @@ int shareGetViewText(int handle, char *buf, int bufSize) {
 int shareSetViewInputTypeAsVisiblePassword(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewInputTypeAsVisiblePassword", "(I)I",
     (jint)handle);
   return result;
@@ -678,7 +649,7 @@ int shareSetViewInputTypeAsVisiblePassword(int handle) {
 int shareSetViewInputTypeAsPassword(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewInputTypeAsPassword", "(I)I",
     (jint)handle);
   return result;
@@ -687,7 +658,7 @@ int shareSetViewInputTypeAsPassword(int handle) {
 int shareSetViewInputTypeAsText(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewInputTypeAsText", "(I)I",
     (jint)handle);
   return result;
@@ -696,7 +667,7 @@ int shareSetViewInputTypeAsText(int handle) {
 int shareEnableViewClickEvent(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaEnableViewClickEvent", "(I)I",
     (jint)handle);
   return result;
@@ -705,7 +676,7 @@ int shareEnableViewClickEvent(int handle) {
 int shareEnableViewLongClickEvent(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaEnableViewLongClickEvent", "(I)I",
     (jint)handle);
   return result;
@@ -714,7 +685,7 @@ int shareEnableViewLongClickEvent(int handle) {
 int shareEnableViewValueChangeEvent(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaEnableViewValueChangeEvent", "(I)I",
     (jint)handle);
   return result;
@@ -723,7 +694,7 @@ int shareEnableViewValueChangeEvent(int handle) {
 int shareEnableViewTouchEvent(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaEnableViewTouchEvent", "(I)I",
     (jint)handle);
   return result;
@@ -736,7 +707,7 @@ int shareGetThreadId(void) {
 int shareIsLandscape(void) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaIsLandscape", "()I");
   return result;
 }
@@ -751,17 +722,17 @@ int shareSetViewAlign(int handle, int align) {
   JNIEnv *env = phoneGetJNIEnv();
   switch (align) {
     case PHONE_VIEW_ALIGN_CENTER:
-      phoneCallJavaReturnInt(result, env, currentObject,
+      phoneCallJavaReturnInt(result, env, activity,
         "javaSetViewAlignCenter", "(I)I",
         (jint)handle);
       break;
     case PHONE_VIEW_ALIGN_LEFT:
-      phoneCallJavaReturnInt(result, env, currentObject,
+      phoneCallJavaReturnInt(result, env, activity,
         "javaSetViewAlignLeft", "(I)I",
         (jint)handle);
       break;
     case PHONE_VIEW_ALIGN_RIGHT:
-      phoneCallJavaReturnInt(result, env, currentObject,
+      phoneCallJavaReturnInt(result, env, activity,
         "javaSetViewAlignRight", "(I)I",
         (jint)handle);
       break;
@@ -777,7 +748,7 @@ int shareSetViewVerticalAlign(int handle, int align) {
 int shareSetViewCornerRadius(int handle, float radius) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewCornerRadius", "(IF)I",
     (jint)handle, (jfloat)radius);
   return result;
@@ -786,7 +757,7 @@ int shareSetViewCornerRadius(int handle, float radius) {
 int shareSetViewBorderColor(int handle, unsigned int color) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBorderColor", "(II)I",
     (jint)handle, (jint)color);
   return result;
@@ -795,7 +766,7 @@ int shareSetViewBorderColor(int handle, unsigned int color) {
 int shareSetViewBorderWidth(int handle, float width) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBorderWidth", "(IF)I",
     (jint)handle, (jfloat)width);
   return result;
@@ -805,7 +776,7 @@ int shareCreateTableView(int style, int handle, int parentHandle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   jint isGrouped = PHONE_TABLE_VIEW_STYLE_GROUPED == style ? 1 : 0;
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaCreateTableView", "(III)I",
     (jint)isGrouped, (jint)handle, (jint)parentHandle);
   return result;
@@ -814,7 +785,7 @@ int shareCreateTableView(int style, int handle, int parentHandle) {
 int shareReloadTableView(int handle) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaReloadTableView", "(I)I",
     (jint)handle);
   return result;
@@ -823,7 +794,7 @@ int shareReloadTableView(int handle) {
 int shareSetViewShadowColor(int handle, unsigned int color) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewShadowColor", "(II)I",
     (jint)handle, (jint)color);
   return result;
@@ -832,7 +803,7 @@ int shareSetViewShadowColor(int handle, unsigned int color) {
 int shareSetViewShadowOffset(int handle, float offsetX, float offsetY) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewShadowOffset", "(IFF)I",
     (jint)handle, (jfloat)offsetX, (jfloat)offsetY);
   return result;
@@ -841,7 +812,7 @@ int shareSetViewShadowOffset(int handle, float offsetX, float offsetY) {
 int shareSetViewShadowOpacity(int handle, float opacity) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewShadowOpacity", "(IF)I",
     (jint)handle, (jfloat)opacity);
   return result;
@@ -850,7 +821,7 @@ int shareSetViewShadowOpacity(int handle, float opacity) {
 int shareSetViewShadowRadius(int handle, float radius) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewShadowRadius", "(IF)I",
     (jint)handle, (jfloat)radius);
   return result;
@@ -859,7 +830,7 @@ int shareSetViewShadowRadius(int handle, float radius) {
 int shareSetViewBackgroundImageRepeat(int handle, int repeat) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewBackgroundImageRepeat", "(II)I",
     (jint)handle, (jint)repeat);
   return result;
@@ -868,7 +839,7 @@ int shareSetViewBackgroundImageRepeat(int handle, int repeat) {
 int shareSetViewFontBold(int handle, int bold) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
-  phoneCallJavaReturnInt(result, env, currentObject,
+  phoneCallJavaReturnInt(result, env, activity,
     "javaSetViewFontBold", "(II)I",
     (jint)handle, (jint)bold);
   return result;
