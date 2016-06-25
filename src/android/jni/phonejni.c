@@ -860,7 +860,16 @@ int shareSetViewBackgroundImageRepeat(int handle, int repeat) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, currentObject,
-    "javaSetViewBackgroundImageRepeat", "(IF)I",
+    "javaSetViewBackgroundImageRepeat", "(II)I",
     (jint)handle, (jint)repeat);
+  return result;
+}
+
+int shareSetViewFontBold(int handle, int bold) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, currentObject,
+    "javaSetViewFontBold", "(II)I",
+    (jint)handle, (jint)bold);
   return result;
 }

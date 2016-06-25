@@ -9,10 +9,17 @@ typedef struct board {
   float displayHeight;
   int searchBar;
   int tabBar;
-  int padding;
   int topHead;
-  int appointmentPanel;
+  int topTitle;
+  int infoPanel;
+  int firstInfoBox;
+  int firstInfoNumber;
+  int firstInfoDesc;
+  int secondInfoBox;
+  int thirdInfoBox;
+  int forthInfoBox;
   int bottomHead;
+  int bottomTitle;
   int registrationPanel;
 } board;
 

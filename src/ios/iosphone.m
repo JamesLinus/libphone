@@ -609,11 +609,22 @@ int shareSetViewFontSize(int handle, float fontSize) {
       UILabel *view = (UILabel *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
       [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+      if ([view.font.fontName isEqualToString:[UIFont
+          systemFontOfSize:(GLfloat)fontSize].fontName]) {
+        [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+      } else {
+        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)fontSize]];
+      }
     } break;
     case PHONE_EDIT_TEXT_VIEW: {
       UITextField *view = (UITextField *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
-      [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+      if ([view.font.fontName isEqualToString:[UIFont
+          systemFontOfSize:(GLfloat)fontSize].fontName]) {
+        [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+      } else {
+        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)fontSize]];
+      }
     } break;
   }
   return 0;
@@ -857,5 +868,34 @@ int shareSetViewShadowRadius(int handle, float radius) {
   UIView *view = (UIView *)[objcHandleMap
     objectForKey:[NSNumber numberWithInt:handle]];
   [view.layer setShadowRadius:(CGFloat)radius];
+  return 0;
+}
+
+int shareSetViewBackgroundImageRepeat(int handle, int repeat) {
+  // TODO:
+  return 0;
+}
+
+int shareSetViewFontBold(int handle, int bold) {
+  switch (pHandle(handle)->type) {
+    case PHONE_TEXT_VIEW: {
+      UILabel *view = (UILabel *)[objcHandleMap
+        objectForKey:[NSNumber numberWithInt:handle]];
+      if (bold) {
+        [view setFont:[UIFont boldSystemFontOfSize:view.font.pointSize]];
+      } else {
+        [view setFont:[UIFont systemFontOfSize:view.font.pointSize]];
+      }
+    } break;
+    case PHONE_EDIT_TEXT_VIEW: {
+      UITextField *view = (UITextField *)[objcHandleMap
+        objectForKey:[NSNumber numberWithInt:handle]];
+      if (bold) {
+        [view setFont:[UIFont boldSystemFontOfSize:view.font.pointSize]];
+      } else {
+        [view setFont:[UIFont systemFontOfSize:view.font.pointSize]];
+      }
+    } break;
+  }
   return 0;
 }

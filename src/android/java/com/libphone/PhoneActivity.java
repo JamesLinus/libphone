@@ -48,6 +48,8 @@ import android.graphics.BitmapShader;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.Shader.TileMode;
+import android.graphics.Typeface;
+import android.util.TypedValue;
 
 public class PhoneActivity extends Activity {
 
@@ -785,7 +787,8 @@ public class PhoneActivity extends Activity {
 
     public int javaSetViewFontSize(int handle, float fontSize) {
         TextView view = (TextView)findHandleObject(handle);
-        view.setTextSize(fontSize);
+        view.setPadding(0, 0, 0, 0);
+        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
         return 0;
     }
 
@@ -1029,6 +1032,16 @@ public class PhoneActivity extends Activity {
                     drawable.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
                 }
             }
+        }
+        return 0;
+    }
+
+    public int javaSetViewFontBold(int handle, int bold) {
+        TextView view = (TextView)findHandleObject(handle);
+        if (1 == bold) {
+            view.setTypeface(Typeface.DEFAULT_BOLD);
+        } else {
+            view.setTypeface(Typeface.DEFAULT);
         }
         return 0;
     }
