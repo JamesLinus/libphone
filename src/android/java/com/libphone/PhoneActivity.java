@@ -787,8 +787,7 @@ public class PhoneActivity extends Activity {
 
     public int javaSetViewFontSize(int handle, float fontSize) {
         TextView view = (TextView)findHandleObject(handle);
-        view.setPadding(0, 0, 0, 0);
-        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
+        view.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize * (float)0.75);
         return 0;
     }
 

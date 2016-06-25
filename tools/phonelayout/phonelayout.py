@@ -66,6 +66,8 @@ class LayoutToCodeTranslator:
                 left = self.getElementLeft(elem.parent) + float(elem.parent.attrib['offsetX'])
             else:
                 left = self.getElementLeft(elem.parent)
+        if 'marginLeft' in elem.attrib:
+            left += float(elem.attrib['marginLeft'])
         return left
 
     def getElementTop(self, elem):
@@ -77,6 +79,8 @@ class LayoutToCodeTranslator:
                 top = self.getElementTop(elem.parent) + float(elem.parent.attrib['offsetY'])
             else:
                 top = self.getElementTop(elem.parent)
+        if 'marginTop' in elem.attrib:
+            top += float(elem.attrib['marginTop'])
         return top
 
     def getParentHandleInPage(self, elem):
@@ -163,6 +167,10 @@ class LayoutToCodeTranslator:
             if 'borderWidth' in elem.attrib:
                 self.bodyOutputs.append('phoneSetViewBorderWidth(page->{}, dp({}));'.format(
                     elem.tag, elem.attrib['borderWidth']
+                ))
+            if 'backgroundImageResource' in elem.attrib:
+                self.bodyOutputs.append('phoneSetViewBackgroundImageResource(page->{}, "{}");'.format(
+                    elem.tag, elem.attrib['backgroundImageResource']
                 ))
             for child in elem:
                 child.parent = elem
