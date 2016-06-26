@@ -2,6 +2,7 @@ package com.libphone;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.os.Handler;
 import android.view.ViewTreeObserver;
@@ -497,11 +498,9 @@ public class PhoneActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         container = new PhoneContainerView(this);
         container.setId(0);
         setContentView(container);
-
         ViewTreeObserver viewTreeObserver = container.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -512,6 +511,45 @@ public class PhoneActivity extends Activity {
                 }
             }
         });
+    }
+
+    public void onStart() {
+        super.onStart();
+    }
+
+    public void onResume() {
+        if (lunched) {
+            nativeSendAppShowing();
+        }
+        super.onResume();
+    }
+
+    public void onRestart() {
+        super.onRestart();
+    }
+
+    public void onPause() {
+        if (lunched) {
+            nativeSendAppHiding();
+        }
+        super.onPause();
+    }
+
+    public void onStop() {
+        super.onStop();
+    }
+
+    public void onDestroy() {
+        if (lunched) {
+            nativeSendAppTerminating();
+        }
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
+            }
+        }, 0);
+        super.onDestroy();
     }
 
     private void lunchWithNative() {

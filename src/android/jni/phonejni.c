@@ -7,6 +7,7 @@
 static JavaVM *loadedVm = 0;
 static jobject *activity = 0;
 static int phoneInited = 0;
+static int nativeInited = 0;
 static pthread_cond_t notifyMainThreadCond;
 static pthread_mutex_t notifyMainThreadMutex;
 
@@ -36,8 +37,11 @@ JNIEXPORT jint nativeNotifyMainThread(JNIEnv *env, jobject obj,
 }
 
 JNIEXPORT jint nativeInit(JNIEnv *env, jobject obj) {
-  activity = (*env)->NewGlobalRef(env, obj);
-  phoneInitApplication();
+  if (!nativeInited) {
+    activity = (*env)->NewGlobalRef(env, obj);
+    phoneInitApplication();
+    nativeInited = 1;
+  }
   return 0;
 }
 
