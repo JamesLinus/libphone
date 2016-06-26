@@ -823,6 +823,7 @@ public class PhoneActivity extends Activity {
         EditText view = new EditText(this);
         setHandleObject(handle, view);
         view.setId(handle);
+        view.setPadding(0, 0, 0, 0);
         addViewToParent(view, parentHandle);
         return 0;
     }

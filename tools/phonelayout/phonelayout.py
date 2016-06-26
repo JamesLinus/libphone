@@ -112,6 +112,15 @@ class LayoutToCodeTranslator:
                         self.bodyOutputs.append('phoneSetViewInputType(page->{}, PHONE_INPUT_PASSWORD);'.format(
                             elem.tag
                         ))
+                if 'align' in elem.attrib:
+                    if 'left' == elem.attrib['align']:
+                        self.bodyOutputs.append('phoneSetViewAlign(page->{}, PHONE_VIEW_ALIGN_LEFT);'.format(
+                            elem.tag
+                        ))
+                    elif 'right' == elem.attrib['align']:
+                        self.bodyOutputs.append('phoneSetViewAlign(page->{}, PHONE_VIEW_ALIGN_RIGHT);'.format(
+                            elem.tag
+                        ))
                 if 'fontSize' in elem.attrib:
                     self.bodyOutputs.append('phoneSetViewFontSize(page->{}, {});'.format(
                         elem.tag, self.hor(float(elem.attrib['fontSize']))
@@ -143,6 +152,10 @@ class LayoutToCodeTranslator:
             print '{} x:{} y:{} {} left:{} top:{} mockStatusBarHeight:{}'.format(elem.tag, x, y, elem.parent.tag, self.getElementLeft(elem.parent), self.getElementTop(elem.parent), self.mockStatusBarHeight)
             self.bodyOutputs.append('phoneSetViewFrame(page->{}, {}, {}, {}, {});'.
                 format(elem.tag, self.hor(x), self.ver(y), self.hor(width), self.ver(height)))
+            if 'alpha' in elem.attrib:
+                self.bodyOutputs.append('phoneSetViewAlpha(page->{}, {});'.format(
+                    elem.tag, elem.attrib['alpha']
+                ))
             if 'backgroundColor' in elem.attrib:
                 self.bodyOutputs.append('phoneSetViewBackgroundColor(page->{}, 0x{});'.format(
                     elem.tag, elem.attrib['backgroundColor']
@@ -208,7 +221,7 @@ class LayoutToCodeTranslator:
             header.write('\n  '.join(self.structOutputs))
             header.write('\n}} {};\n'.format(self.root.tag))
             header.write('\n')
-            header.write('{} *{}Create(void);\n'.format(self.root.tag, self.root.tag))
+            header.write('{} *{}Create(int parent);\n'.format(self.root.tag, self.root.tag))
             header.write('\n')
             header.write('#endif\n')
             header.write('\n')
@@ -218,10 +231,10 @@ class LayoutToCodeTranslator:
             source.write('#include "libphone.h"\n')
             source.write('#include "{}"\n'.format(self.headerPath))
             source.write('\n')
-            source.write('{} *{}Create(void) {{\n'.format(self.root.tag, self.root.tag))
+            source.write('{} *{}Create(int parent) {{\n'.format(self.root.tag, self.root.tag))
             source.write('  {} *page = ({} *)calloc(1, sizeof({}));\n'.format(self.root.tag, self.root.tag, self.root.tag))
-            source.write('  page->displayWidth = phoneGetViewWidth(0);\n')
-            source.write('  page->displayHeight = phoneGetViewHeight(0);\n')
+            source.write('  page->displayWidth = phoneGetViewWidth(parent);\n')
+            source.write('  page->displayHeight = phoneGetViewHeight(parent);\n')
             source.write('  ')
             source.write('\n  '.join(self.bodyOutputs))
             source.write('\n  return page;\n')
