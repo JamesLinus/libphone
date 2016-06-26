@@ -2,7 +2,6 @@ package com.libphone;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.SparseArray;
 import android.os.Handler;
 import android.view.ViewTreeObserver;
@@ -40,9 +39,7 @@ import android.widget.BaseAdapter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Path;
 import android.os.Build;
 import android.graphics.BitmapShader;
 import android.graphics.Shader;
@@ -50,6 +47,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.util.TypedValue;
+import android.view.Window;
+import android.view.WindowManager;
+import android.annotation.TargetApi;
 
 public class PhoneActivity extends Activity {
 
@@ -1044,5 +1044,17 @@ public class PhoneActivity extends Activity {
             view.setTypeface(Typeface.DEFAULT);
         }
         return 0;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public int javaSetStatusBarBackgroundColor(int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(0xff000000 | color);
+            return 0;
+        };
+        return -1;
     }
 }

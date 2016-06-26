@@ -713,8 +713,11 @@ int shareIsLandscape(void) {
 }
 
 int shareSetStatusBarBackgroundColor(unsigned int color) {
-  // TODO:
-  return 0;
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaSetStatusBarBackgroundColor", "(I)I", (jint)color);
+  return result;
 }
 
 int shareSetViewAlign(int handle, int align) {
