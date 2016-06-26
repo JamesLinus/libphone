@@ -115,7 +115,7 @@ JNIEXPORT jint nativeDispatchViewClickEvent(JNIEnv *env, jobject obj,
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_CLICK, 0);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeDispatchViewLongClickEvent(JNIEnv *env, jobject obj,
@@ -124,7 +124,7 @@ JNIEXPORT jint nativeDispatchViewLongClickEvent(JNIEnv *env, jobject obj,
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_LONG_CLICK, 0);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeDispatchViewValueChangeEvent(JNIEnv *env, jobject obj,
@@ -133,7 +133,7 @@ JNIEXPORT jint nativeDispatchViewValueChangeEvent(JNIEnv *env, jobject obj,
   if (handleData->u.view.eventHandler) {
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_VALUE_CHANGE, 0);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 static void makeTouch(phoneViewTouch *touch, int type, int x, int y) {
@@ -151,7 +151,7 @@ JNIEXPORT jint nativeDispatchViewTouchBeginEvent(JNIEnv *env, jobject obj,
     makeTouch(&touch, PHONE_VIEW_TOUCH_BEGIN, x, y);
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_TOUCH, &touch);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeDispatchViewTouchEndEvent(JNIEnv *env, jobject obj,
@@ -162,7 +162,7 @@ JNIEXPORT jint nativeDispatchViewTouchEndEvent(JNIEnv *env, jobject obj,
     makeTouch(&touch, PHONE_VIEW_TOUCH_END, x, y);
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_TOUCH, &touch);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeDispatchViewTouchMoveEvent(JNIEnv *env, jobject obj,
@@ -173,7 +173,7 @@ JNIEXPORT jint nativeDispatchViewTouchMoveEvent(JNIEnv *env, jobject obj,
     makeTouch(&touch, PHONE_VIEW_TOUCH_MOVE, x, y);
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_TOUCH, &touch);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeDispatchViewTouchCancelEvent(JNIEnv *env, jobject obj,
@@ -184,7 +184,7 @@ JNIEXPORT jint nativeDispatchViewTouchCancelEvent(JNIEnv *env, jobject obj,
     makeTouch(&touch, PHONE_VIEW_TOUCH_CANCEL, x, y);
     return handleData->u.view.eventHandler(handle, PHONE_VIEW_TOUCH, &touch);
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
 }
 
 JNIEXPORT jint nativeInitDensity(JNIEnv *env, jobject obj, jfloat density) {
@@ -280,6 +280,13 @@ JNIEXPORT jint nativeRequestTableViewCellRender(JNIEnv *env, jobject obj,
   return shareRequestTableViewCellRender(handle, section, row, renderHandle);
 }
 
+JNIEXPORT jint nativeSendAppBackClick(JNIEnv *env, jobject obj) {
+  if (pApp->handler->backClick) {
+    return pApp->handler->backClick();
+  }
+  return PHONE_DONTCARE;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -287,6 +294,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeSendAppShowing", "()I", nativeSendAppShowing},
     {"nativeSendAppHiding", "()I", nativeSendAppHiding},
     {"nativeSendAppTerminating", "()I", nativeSendAppTerminating},
+    {"nativeSendAppBackClick", "()I", nativeSendAppBackClick},
     {"nativeInvokeTimer", "(I)I", nativeInvokeTimer},
     {"nativeNotifyMainThread", "(J)I", nativeNotifyMainThread},
     {"nativeAnimationFinished", "(I)I", nativeAnimationFinished},

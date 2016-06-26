@@ -8,10 +8,17 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 
+enum phoneHandleResult {
+  PHONE_DONTCARE,
+  PHONE_YES,
+  PHONE_NO
+};
+
 typedef struct phoneAppNotificationHandler {
   void (*showing)(void);
   void (*hiding)(void);
   void (*terminating)(void);
+  int (*backClick)(void);
 } phoneAppNotificationHandler;
 
 extern int phoneMain(int optionNum, const char *options[]);
@@ -22,11 +29,6 @@ void *phoneGetHandleContext(int handle);
 int phoneAllocHandleTypeRange(int count);
 int phoneSetHandleType(int handle, int type);
 int phoneGetHandleType(int handle);
-enum phoneViewEventResult {
-  PHONE_VIEW_EVENT_DONTCARE,
-  PHONE_VIEW_EVENT_YES,
-  PHONE_VIEW_EVENT_NO
-};
 #define phoneViewEventTypeMap(XX)                                                               \
   XX(PHONE_VIEW_CLICK, "click")                                                                 \
   XX(PHONE_VIEW_LONG_CLICK, "longClick")                                                        \

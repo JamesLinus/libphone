@@ -51,6 +51,7 @@ import android.util.TypedValue;
 import android.view.Window;
 import android.view.WindowManager;
 import android.annotation.TargetApi;
+import android.view.KeyEvent;
 
 public class PhoneActivity extends Activity {
 
@@ -552,6 +553,16 @@ public class PhoneActivity extends Activity {
         super.onDestroy();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            if (1 == nativeSendAppBackClick()) {
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private void lunchWithNative() {
         nativeInit();
         nativeInitDensity(getResources().getDisplayMetrics().density);
@@ -606,6 +617,7 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewCellSeparatorStyle(int handle);
     private native int nativeRequestTableViewCellAccessoryView(int handle, int section, int row);
     private native int nativeRequestTableViewCellRender(int handle, int section, int row, int renderHandle);
+    private native int nativeSendAppBackClick();
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
