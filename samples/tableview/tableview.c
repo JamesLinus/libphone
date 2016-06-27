@@ -4,6 +4,7 @@
 
 static int backgroundView = 0;
 static int tableView = 0;
+static int topView = 0;
 
 static void appShowing(void) {
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app showing");
@@ -20,6 +21,12 @@ static void appTerminating(void) {
 typedef struct cellContext {
   int iconView;
 } cellContext;
+
+static int onCellEvent(int handle, int eventType, void *param) {
+    phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "table event:%s",
+             phoneViewEventTypeToName(eventType));
+    return PHONE_DONTCARE;
+}
 
 static int onTableEvent(int handle, int eventType, void *param) {
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "table event:%s",
@@ -41,7 +48,7 @@ static int onTableEvent(int handle, int eventType, void *param) {
       return dp(70);
     case PHONE_VIEW_REQUEST_TABLE_CELL_CUSTOM_VIEW: {
       phoneViewRequestTable *request = (phoneViewRequestTable *)param;
-      int customView = phoneCreateContainerView(0, 0);
+      int customView = phoneCreateContainerView(0, onCellEvent);
       cellContext *cell = (cellContext *)calloc(1, sizeof(cellContext));
       phoneLog(PHONE_LOG_DEBUG, __FUNCTION__,
           "custom view(handle:%d) created for section %d row %d",
@@ -52,8 +59,9 @@ static int onTableEvent(int handle, int eventType, void *param) {
       cell->iconView = phoneCreateContainerView(customView, 0);
       phoneSetViewFrame(cell->iconView, dp(10), dp(10), dp(50), dp(50));
       phoneSetViewCornerRadius(cell->iconView, dp(25));
-      phoneSetViewBackgroundColor(cell->iconView, 0xff0000);
-      phoneSetViewBackgroundImageResource(cell->iconView, "asset1.png");
+      phoneSetViewBackgroundColor(cell->iconView, 0xefefef);
+      phoneEnableViewEvent(customView, PHONE_VIEW_TOUCH);
+      //phoneSetViewBackgroundImageResource(cell->iconView, "asset1.png");
       //phoneSetViewBorderColor(cell->iconView, 0x00ffff);
       //phoneSetViewBorderWidth(cell->iconView, dp(1));
       return customView;
@@ -72,7 +80,13 @@ static int onTableEvent(int handle, int eventType, void *param) {
       }
     } break;
   }
-  return PHONE_VIEW_EVENT_DONTCARE;
+  return PHONE_DONTCARE;
+}
+
+static int onTopViewEvent(int handle, int eventType, void *param) {
+    phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "top event:%s",
+             phoneViewEventTypeToName(eventType));
+    return PHONE_DONTCARE;
 }
 
 int phoneMain(int argc, const char *argv[]) {
@@ -92,10 +106,15 @@ int phoneMain(int argc, const char *argv[]) {
     phoneGetViewHeight(0));
   phoneSetViewBackgroundColor(backgroundView, BACKGROUND_COLOR);
 
+  topView = phoneCreateContainerView(backgroundView, onTopViewEvent);
+  phoneSetViewFrame(topView, 0, 0, phoneGetViewWidth(0),
+    phoneGetViewHeight(0) / 2);
+  phoneEnableViewEvent(topView, PHONE_VIEW_TOUCH);
+
   tableView = phoneCreateTableView(PHONE_TABLE_VIEW_STYLE_PLAIN,
     backgroundView, onTableEvent);
-  phoneSetViewFrame(tableView, 0, 0, phoneGetViewWidth(0),
-    phoneGetViewHeight(0));
+  phoneSetViewFrame(tableView, 0, phoneGetViewHeight(0) / 2, phoneGetViewWidth(0),
+    phoneGetViewHeight(0) / 2);
   phoneReloadTableView(tableView);
 
   return 0;
