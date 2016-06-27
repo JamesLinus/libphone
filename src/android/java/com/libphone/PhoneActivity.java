@@ -608,14 +608,6 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewRowCount(int handle, int section);
     private native int nativeRequestTableViewRowHeight(int handle, int section, int row);
     private native int nativeRequestTableViewCellIdentifierTypeCount(int handle);
-    private native String nativeRequestTableViewSectionHeader(int handle, int section);
-    private native String nativeRequestTableViewSectionFooter(int handle, int section);
-    private native String nativeRequestTableViewCellDetailText(int handle, int section, int row);
-    private native String nativeRequestTableViewCellText(int handle, int section, int row);
-    private native int nativeRequestTableViewCellSelectionStyle(int handle, int section, int row);
-    private native String nativeRequestTableViewCellImageResource(int handle, int section, int row);
-    private native int nativeRequestTableViewCellSeparatorStyle(int handle);
-    private native int nativeRequestTableViewCellAccessoryView(int handle, int section, int row);
     private native int nativeRequestTableViewCellRender(int handle, int section, int row, int renderHandle);
     private native int nativeSendAppBackClick();
 

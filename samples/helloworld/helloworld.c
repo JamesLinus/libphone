@@ -43,6 +43,12 @@ static void disposeAtUiThread(int handle) {
   phoneRemoveWorkItem(handle);
 }
 
+static int onTextBackgroundViewEvent(int handle, int eventType, void *param) {
+    phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "onTextBackgroundViewEvent:%s",
+             phoneViewEventTypeToName(eventType));
+    return PHONE_DONTCARE;
+}
+
 int phoneMain(int argc, const char *argv[]) {
   static phoneAppNotificationHandler handler = {
     appShowing,
@@ -59,13 +65,15 @@ int phoneMain(int argc, const char *argv[]) {
     phoneGetViewHeight(0));
   phoneSetViewBackgroundColor(backgroundView, BACKGROUND_COLOR);
 
-  textBackgroundView = phoneCreateContainerView(backgroundView, 0);
+  textBackgroundView = phoneCreateContainerView(backgroundView,
+    onTextBackgroundViewEvent);
   phoneSetViewFrame(textBackgroundView, phoneDipToPix(20), phoneGetViewHeight(0) / 2 - phoneDipToPix(31),
     phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewBackgroundColor(textBackgroundView, FONT_BACKGROUND_COLOR);
   phoneSetViewCornerRadius(textBackgroundView, phoneDipToPix(3));
   //phoneSetViewBorderColor(textBackgroundView, 0xff0000);
   //phoneSetViewBorderWidth(textBackgroundView, phoneDipToPix(1));
+  phoneEnableViewEvent(textBackgroundView, PHONE_VIEW_TOUCH);
 
   phoneSetViewShadowColor(textBackgroundView, 0x00ffff);
   phoneSetViewShadowOffset(textBackgroundView, dp(0), dp(0));

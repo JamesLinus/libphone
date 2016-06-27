@@ -34,22 +34,17 @@ int phoneGetHandleType(int handle);
   XX(PHONE_VIEW_LONG_CLICK, "longClick")                                                        \
   XX(PHONE_VIEW_VALUE_CHANGE, "valueChange")                                                    \
   XX(PHONE_VIEW_TOUCH, "touch")                                                                 \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_DETAIL_TEXT, "requestTableCellDetailText")                   \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_TEXT, "requestTableCellText")                                \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_SELECTION_STYLE, "requestTableCellSelectionStyle")           \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_IMAGE_RESOURCE, "requestTableCellImageResource")             \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_SEPARATOR_STYLE, "requestTableCellSeparatorStyle")           \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_ACCESSORY_VIEW, "requestTableCellAccessoryView")             \
   XX(PHONE_VIEW_REQUEST_TABLE_CELL_CUSTOM_VIEW, "requestTableCellCustomView")                   \
   XX(PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER, "requestTableCellIdentifier")                    \
   XX(PHONE_VIEW_REQUEST_TABLE_SECTION_COUNT, "requestTableSectionCount")                        \
   XX(PHONE_VIEW_REQUEST_TABLE_ROW_COUNT, "requestTableRowCount")                                \
   XX(PHONE_VIEW_REQUEST_TABLE_ROW_HEIGHT, "requestTableRowHeight")                              \
-  XX(PHONE_VIEW_REQUEST_TABLE_SECTION_HEADER, "requestTableSectionHeader")                      \
-  XX(PHONE_VIEW_REQUEST_TABLE_SECTION_FOOTER, "requestTableSectionFooter")                      \
   XX(PHONE_VIEW_REQUEST_TABLE_CELL_IDENTIFIER_TYPE_COUNT, "requestTableCellIdentifierTypeCount")\
   XX(PHONE_VIEW_REQUEST_TABLE_CELL_RENDER, "requestTableCellRender")                            \
-  XX(PHONE_VIEW_REQUEST_TABLE_CELL_CLICK, "requestTableCellClick")
+  XX(PHONE_VIEW_REQUEST_TABLE_CELL_CLICK, "requestTableCellClick")                              \
+  XX(PHONE_VIEW_REQUEST_TABLE_REFRESH, "requestTableRefresh")                                   \
+  XX(PHONE_VIEW_REQUEST_TABLE_UPDATE_REFRESH_VIEW, "requestTableUpdateRefreshView")             \
+  XX(PHONE_VIEW_REQUEST_TABLE_REFRESH_VIEW, "requestTableRefreshView")
 #define XX(code, name) code,
 enum phoneViewEventType {
   phoneViewEventTypeMap(XX)
@@ -164,7 +159,7 @@ enum phoneTableViewStyle {
   PHONE_TABLE_VIEW_STYLE_PLAIN,
   PHONE_TABLE_VIEW_STYLE_GROUPED
 };
-int phoneCreateTableView(int style, int parentHandle,
+int phoneCreateTableView(int parentHandle,
     phoneViewEventHandler eventHandler);
 float phoneDipToPix(int dip);
 #define dp(dip) phoneDipToPix(dip)
@@ -175,6 +170,11 @@ int phoneSetViewShadowOpacity(int handle, float opacity);
 int phoneSetViewShadowRadius(int handle, float radius);
 int phoneSetViewBackgroundImageRepeat(int handle, int repeat);
 int phoneSetViewFontBold(int handle, int bold);
+int phoneBeginTableViewRefresh(int handle);
+int phoneEndTableViewRefresh(int handle);
+float phoneGetTableViewRefreshHeight(int handle);
+float phoneGetTableViewStableRefreshHeight(void);
+int phoneRotateView(int handle, float degree);
 
 #if __ANDROID__
 #include <jni.h>

@@ -171,7 +171,7 @@ int shareRequestTableViewSectionHeader(int handle, int section,
 int shareRequestTableViewSectionFooter(int handle, int section,
     char *buf, int bufSize);
 int shareRequestTableViewCellIdentifierTypeCount(int handle);
-int shareCreateTableView(int style, int handle, int parentHandle);
+int shareCreateTableView(int handle, int parentHandle);
 int shareReloadTableView(int handle);
 int shareRequestTableViewCellRender(int handle, int section, int row,
     int renderHandle);
@@ -183,5 +183,12 @@ int shareSetViewShadowOpacity(int handle, float opacity);
 int shareSetViewShadowRadius(int handle, float radius);
 int shareSetViewBackgroundImageRepeat(int handle, int repeat);
 int shareSetViewFontBold(int handle, int bold);
+int shareBeginTableViewRefresh(int handle);
+int shareEndTableViewRefresh(int handle);
+float shareGetTableViewRefreshHeight(int handle);
+int shareRequestTableViewRefresh(int handle);
+int shareRequestTableViewUpdateRefreshView(int handle, int renderHandle);
+int shareRequestTableViewRefreshView(int handle);
+int shareRotateView(int handle, float degree);
 
 #endif
