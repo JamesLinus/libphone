@@ -596,7 +596,7 @@ public class PhoneActivity extends Activity {
                                     ((View)findHandleObject(refreshContainerView.getId())).
                                             setVisibility(View.VISIBLE);
                                 }
-                                if (height > refreshStableHeight + refreshStableHeight) {
+                                if (height > refreshStableHeight + refreshStableHeight / 2) {
                                     if (!isRefreshing) {
                                         needNotify = true;
                                     }
