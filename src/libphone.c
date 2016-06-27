@@ -14,6 +14,16 @@ static phoneApplication phoneAppStruct;
 phoneApplication *pApp = &phoneAppStruct;
 pthread_mutex_t handleLock;
 
+phoneHandle *pHandle(int handle) {
+  assert(handle > 0 && handle <= pApp->handleArrayCapacity);
+  assert(phoneGetThreadId() == pApp->mainThreadId);
+  return &pApp->handleArray[handle - 1];
+}
+
+#define pHandleDebug(handle) pHandle(handle)
+#define pHandle(handle) (assert(handle > 0 && \
+    handle <= pApp->handleArrayCapacity), pHandleDebug(handle))
+
 int phoneInitApplication(void) {
   memset(pApp, 0, sizeof(phoneApplication));
   pApp->mainThreadId = phoneGetThreadId();
@@ -82,12 +92,6 @@ int phoneAllocHandle(void) {
   ++pApp->inuseHandleCount;
   unlockAllHandleData();
   return handle;
-}
-
-phoneHandle *pHandle(int handle) {
-  assert(handle > 0 && handle <= pApp->handleArrayCapacity);
-  assert(phoneGetThreadId() == pApp->mainThreadId);
-  return &pApp->handleArray[handle - 1];
 }
 
 phoneHandle *pHandleNoCheck(int handle) {

@@ -1,5 +1,12 @@
 #include "libphone.h"
 
+#if __ANDROID__
+jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+   phoneInitJava(vm);
+   return JNI_VERSION_1_6;
+}
+#endif
+
 #define BACKGROUND_COLOR 0xefefef
 
 static int backgroundView = 0;
@@ -19,7 +26,7 @@ static void stopRefreshAnimation(void) {
 static void playRefreshAnimation(int timer) {
   refreshAnimationLastRotateDegree -= 36;
   phoneRotateView(refreshAnimationView, refreshAnimationLastRotateDegree);
-  if (refreshAnimationLastRotateDegree <= -3600) {
+  if (refreshAnimationLastRotateDegree <= -1800) {
     phoneEndTableViewRefresh(tableView);
     stopRefreshAnimation();
   }
@@ -67,8 +74,10 @@ static int onTableEvent(int handle, int eventType, void *param) {
     case PHONE_VIEW_REQUEST_TABLE_ROW_HEIGHT:
       return dp(70);
     case PHONE_VIEW_REQUEST_TABLE_REFRESH_VIEW: {
-      int refreshView = phoneCreateContainerView(0, 0);
-      int refreshIconView = phoneCreateContainerView(refreshView, 0);
+      int refreshView;
+      int refreshIconView;
+      refreshView = phoneCreateContainerView(0, 0);
+      refreshIconView = phoneCreateContainerView(refreshView, 0);
       refreshAnimationView = refreshIconView;
       phoneSetViewFrame(refreshView, 0, 0, phoneGetViewWidth(0),
         phoneGetTableViewStableRefreshHeight() +
@@ -87,7 +96,7 @@ static int onTableEvent(int handle, int eventType, void *param) {
       int iconView = (int)phoneGetHandleTag(request->renderHandle);
       if (!refreshAnimationTimer) {
         float degree = -360 * phoneGetTableViewRefreshHeight(tableView) /
-          phoneGetTableViewStableRefreshHeight();
+          (phoneGetTableViewStableRefreshHeight() * 2);
         refreshAnimationLastRotateDegree = degree;
         phoneRotateView(iconView, degree);
       }
@@ -111,7 +120,7 @@ static int onTableEvent(int handle, int eventType, void *param) {
       cell->iconView = phoneCreateContainerView(customView, 0);
       phoneSetViewFrame(cell->iconView, dp(10), dp(10), dp(50), dp(50));
       phoneSetViewCornerRadius(cell->iconView, dp(25));
-      phoneSetViewBackgroundColor(cell->iconView, 0xefefef);
+      phoneSetViewBackgroundColor(cell->iconView, 0x555555);
       phoneEnableViewEvent(customView, PHONE_VIEW_TOUCH);
       //phoneSetViewBackgroundImageResource(cell->iconView, "asset1.png");
       //phoneSetViewBorderColor(cell->iconView, 0x00ffff);

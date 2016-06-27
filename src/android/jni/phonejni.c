@@ -236,6 +236,21 @@ JNIEXPORT jint nativeSendAppBackClick(JNIEnv *env, jobject obj) {
   return PHONE_DONTCARE;
 }
 
+JNIEXPORT jint nativeRequestTableViewRefresh(JNIEnv *env, jobject obj,
+    int handle) {
+  return shareRequestTableViewRefresh(handle);
+}
+
+JNIEXPORT jint nativeRequestTableViewUpdateRefreshView(JNIEnv *env, jobject obj,
+    int handle, int renderHandle) {
+  return shareRequestTableViewUpdateRefreshView(handle, renderHandle);
+}
+
+JNIEXPORT jint nativeRequestTableViewRefreshView(JNIEnv *env, jobject obj,
+    int handle) {
+  return shareRequestTableViewRefreshView(handle);
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -263,6 +278,9 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeRequestTableViewRowHeight", "(III)I", nativeRequestTableViewRowHeight},
     {"nativeRequestTableViewCellIdentifierTypeCount", "(I)I", nativeRequestTableViewCellIdentifierTypeCount},
     {"nativeRequestTableViewCellRender", "(IIII)I", nativeRequestTableViewCellRender},
+    {"nativeRequestTableViewRefresh", "(I)I", nativeRequestTableViewRefresh},
+    {"nativeRequestTableViewUpdateRefreshView", "(II)I", nativeRequestTableViewUpdateRefreshView},
+    {"nativeRequestTableViewRefreshView", "(I)I", nativeRequestTableViewRefreshView},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -832,7 +850,7 @@ int shareRotateView(int handle, float degree) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, activity,
-    "javaEndTableViewRefresh", "(IF)I",
+    "javaRotateView", "(IF)I",
     (jint)handle, (jfloat)degree);
   return result;
 }

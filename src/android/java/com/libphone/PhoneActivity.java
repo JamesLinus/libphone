@@ -6,6 +6,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.os.Handler;
 import android.view.ViewTreeObserver;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.animation.AlphaAnimation;
 import android.widget.AbsoluteLayout;
@@ -52,6 +53,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.annotation.TargetApi;
 import android.view.KeyEvent;
+import android.widget.AbsListView.OnScrollListener;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 
 public class PhoneActivity extends Activity {
 
@@ -471,6 +475,11 @@ public class PhoneActivity extends Activity {
     public class PhoneTableView extends ListView {
         public boolean isGrouped = false;
         private PhoneTableViewAdapter adapter = null;
+        private float lastMotionY = 0;
+        private PhoneContainerView refreshContainerView = null;
+        final int refreshStableHeight = (int)PhoneActivity.this.dp(60);
+        private boolean isRefreshing = false;
+        private boolean needShowRefreshView = false;
 
         public PhoneTableView(Context context) {
             super(context);
@@ -484,10 +493,133 @@ public class PhoneActivity extends Activity {
 
         public void reload() {
             if (null == adapter) {
+                if (null == refreshContainerView) {
+                    int handle = getId();
+                    int refreshHandle = nativeRequestTableViewRefreshView(handle);
+                    if (0 != refreshHandle) {
+                        View view = (View)findHandleObject(refreshHandle);
+                        refreshContainerView =
+                                new PhoneContainerView(PhoneActivity.this);
+                        refreshContainerView.setBackgroundColor(0xff000000 | 0xaaaaaa);
+                        refreshContainerView.setLayoutParams(new AbsListView.LayoutParams(getWidth(),
+                                (int)0));
+                        refreshContainerView.setId(refreshHandle);
+                        ((ViewGroup)view.getParent()).removeView(view);
+                        refreshContainerView.addView(view);
+                        view.setVisibility(View.GONE);
+                        needShowRefreshView = true;
+                        addHeaderView(refreshContainerView);
+                    }
+                }
                 adapter = new PhoneTableViewAdapter(this, isGrouped);
                 setAdapter(adapter);
             }
             adapter.rebuildSectionRowNumMap();
+        }
+
+        private void resetRefreshToHidden() {
+            if (null != refreshContainerView) {
+                refreshContainerView.setLayoutParams(new AbsListView.LayoutParams(getWidth(),
+                        (int) 0));
+                nativeRequestTableViewUpdateRefreshView(getId(),
+                        refreshContainerView.getId());
+                lastMotionY = 0;
+                ((View)findHandleObject(refreshContainerView.getId())).
+                        setVisibility(View.GONE);
+                needShowRefreshView = true;
+            }
+        }
+
+        private void resetRefreshToStable() {
+            if (null != refreshContainerView) {
+                if (refreshContainerView.getHeight() != refreshStableHeight) {
+                    refreshContainerView.setLayoutParams(new AbsListView.LayoutParams(getWidth(),
+                            (int) refreshStableHeight));
+                    nativeRequestTableViewUpdateRefreshView(getId(),
+                            refreshContainerView.getId());
+                    lastMotionY = 0;
+                }
+            }
+        }
+
+        public void beginRefreshing() {
+            if (!isRefreshing) {
+                isRefreshing = true;
+                resetRefreshToStable();
+            }
+        }
+
+        public void endRefreshing() {
+            if (isRefreshing) {
+                if (null != refreshContainerView) {
+                    resetRefreshToHidden();
+                }
+                isRefreshing = false;
+            }
+        }
+
+        public float getRefreshHeight() {
+            if (null != refreshContainerView) {
+                return refreshContainerView.getHeight();
+            }
+            return 0;
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            if (null != refreshContainerView)
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_UP:
+                    if (isRefreshing) {
+                        resetRefreshToStable();
+                    } else {
+                        resetRefreshToHidden();
+                    }
+                    break;
+                case MotionEvent.ACTION_DOWN:
+                    lastMotionY = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (0 == lastMotionY) {
+                        lastMotionY = event.getY();
+                    }
+                    if (0 == getFirstVisiblePosition()) {
+                        if (null != refreshContainerView) {
+                            boolean needNotify = false;
+                            int height = (int) ((event.getY() - lastMotionY) / 1.7);
+                            if (height < 0) {
+                                height = 0;
+                            }
+                            if (height > refreshContainerView.getHeight()) {
+                                if (needShowRefreshView) {
+                                    needShowRefreshView = false;
+                                    ((View)findHandleObject(refreshContainerView.getId())).
+                                            setVisibility(View.VISIBLE);
+                                }
+                                if (height > refreshStableHeight + refreshStableHeight) {
+                                    if (!isRefreshing) {
+                                        needNotify = true;
+                                    }
+                                }
+                            }
+                            if (needNotify) {
+                                isRefreshing = true;
+                                nativeRequestTableViewRefresh(getId());
+                            }
+                            if (isRefreshing) {
+                                height += refreshStableHeight;
+                            }
+                            nativeRequestTableViewUpdateRefreshView(getId(),
+                                    refreshContainerView.getId());
+                            refreshContainerView.setLayoutParams(new AbsListView.LayoutParams(getWidth(),
+                                    height));
+                        }
+                    } else {
+                        lastMotionY = event.getY();
+                    }
+                    break;
+            }
+            return super.onTouchEvent(event);
         }
     }
 
@@ -610,6 +742,9 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewCellIdentifierTypeCount(int handle);
     private native int nativeRequestTableViewCellRender(int handle, int section, int row, int renderHandle);
     private native int nativeSendAppBackClick();
+    private native int nativeRequestTableViewRefresh(int handle);
+    private native int nativeRequestTableViewUpdateRefreshView(int handle, int renderHandle);
+    private native int nativeRequestTableViewRefreshView(int handle);
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -1098,5 +1233,34 @@ public class PhoneActivity extends Activity {
             return 0;
         };
         return -1;
+    }
+
+    public int javaRotateView(int handle, float degree) {
+        View view = (View)findHandleObject(handle);
+        RotateAnimation ani = new RotateAnimation(degree, degree, view.getWidth() / 2,
+                view.getHeight() / 2);
+        ani.setFillAfter(true);
+        ani.setDuration(0);
+        ani.setRepeatCount(0);
+        ani.setRepeatMode(Animation.REVERSE);
+        view.startAnimation(ani);
+        return 0;
+    }
+
+    public float javaGetTableViewRefreshHeight(int handle) {
+        PhoneTableView view = (PhoneTableView)findHandleObject(handle);
+        return view.getRefreshHeight();
+    }
+
+    public int javaBeginTableViewRefresh(int handle) {
+        PhoneTableView view = (PhoneTableView)findHandleObject(handle);
+        view.beginRefreshing();
+        return 0;
+    }
+
+    public int javaEndTableViewRefresh(int handle) {
+        PhoneTableView view = (PhoneTableView)findHandleObject(handle);
+        view.endRefreshing();
+        return 0;
     }
 }
