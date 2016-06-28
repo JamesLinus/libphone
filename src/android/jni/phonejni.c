@@ -251,6 +251,14 @@ JNIEXPORT jint nativeRequestTableViewRefreshView(JNIEnv *env, jobject obj,
   return shareRequestTableViewRefreshView(handle);
 }
 
+JNIEXPORT jint nativeSendAppLayoutChanging(JNIEnv *env, jobject obj,
+    int handle) {
+  if (pApp->handler->layoutChanging) {
+    pApp->handler->layoutChanging();
+  }
+  return 0;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -281,6 +289,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeRequestTableViewRefresh", "(I)I", nativeRequestTableViewRefresh},
     {"nativeRequestTableViewUpdateRefreshView", "(II)I", nativeRequestTableViewUpdateRefreshView},
     {"nativeRequestTableViewRefreshView", "(I)I", nativeRequestTableViewRefreshView},
+    {"nativeSendAppLayoutChanging", "()I", nativeSendAppLayoutChanging},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -852,5 +861,15 @@ int shareRotateView(int handle, float degree) {
   phoneCallJavaReturnInt(result, env, activity,
     "javaRotateView", "(IF)I",
     (jint)handle, (jfloat)degree);
+  return result;
+}
+
+int shareSetEditTextViewPlaceholder(int handle, const char *text,
+    unsigned int color) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaSetEditTextViewPlaceholder", "(ILjava/lang/String;I)I",
+    (jint)handle, (*env)->NewStringUTF(env, text), (jint)color);
   return result;
 }

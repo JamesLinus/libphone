@@ -19,6 +19,7 @@ typedef struct phoneAppNotificationHandler {
   void (*hiding)(void);
   void (*terminating)(void);
   int (*backClick)(void);
+  void (*layoutChanging)(void);
 } phoneAppNotificationHandler;
 
 extern int phoneMain(int optionNum, const char *options[]);
@@ -175,6 +176,8 @@ int phoneEndTableViewRefresh(int handle);
 float phoneGetTableViewRefreshHeight(int handle);
 float phoneGetTableViewStableRefreshHeight(void);
 int phoneRotateView(int handle, float degree);
+int phoneSetEditTextViewPlaceholder(int handle, const char *text,
+    unsigned int color);
 
 #if __ANDROID__
 #include <jni.h>

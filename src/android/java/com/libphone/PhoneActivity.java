@@ -627,6 +627,8 @@ public class PhoneActivity extends Activity {
 
     private PhoneContainerView container;
     private boolean lunched = false;
+    private int lastWindowWidth = 0;
+    private int lastWindowHeight = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -640,7 +642,16 @@ public class PhoneActivity extends Activity {
             public void onGlobalLayout() {
                 if (!lunched) {
                     lunched = true;
+                    lastWindowWidth = container.getWidth();
+                    lastWindowHeight = container.getHeight();
                     lunchWithNative();
+                } else {
+                    if (lastWindowWidth != container.getWidth() ||
+                            lastWindowHeight != container.getHeight()) {
+                        lastWindowWidth = container.getWidth();
+                        lastWindowHeight = container.getHeight();
+                        nativeSendAppLayoutChanging();
+                    }
                 }
             }
         });
@@ -745,6 +756,7 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewRefresh(int handle);
     private native int nativeRequestTableViewUpdateRefreshView(int handle, int renderHandle);
     private native int nativeRequestTableViewRefreshView(int handle);
+    private native int nativeSendAppLayoutChanging();
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -771,6 +783,16 @@ public class PhoneActivity extends Activity {
                 handler.postDelayed(this, period);
             }
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        /*
+        if (Configuration.ORIENTATION_PORTRAIT == newConfig.orientation ||
+                Configuration.ORIENTATION_LANDSCAPE == newConfig.orientation) {
+            nativeSendAppLayoutChanging();
+        }*/
     }
 
     public int javaCreateTimer(int handle, long milliseconds) {
@@ -1261,6 +1283,13 @@ public class PhoneActivity extends Activity {
     public int javaEndTableViewRefresh(int handle) {
         PhoneTableView view = (PhoneTableView)findHandleObject(handle);
         view.endRefreshing();
+        return 0;
+    }
+
+    public int javaSetEditTextViewPlaceholder(int handle, String text, int color) {
+        EditText view = (EditText)findHandleObject(handle);
+        view.setHint(text);
+        view.setHintTextColor(0xff000000 | color);
         return 0;
     }
 }

@@ -190,5 +190,9 @@ int shareRequestTableViewRefresh(int handle);
 int shareRequestTableViewUpdateRefreshView(int handle, int renderHandle);
 int shareRequestTableViewRefreshView(int handle);
 int shareRotateView(int handle, float degree);
+int shareSetEditTextViewPlaceholderText(int handle, const char *text);
+int shareSetEditTextViewPlaceholderColor(int handle, unsigned int color);
+int shareSetEditTextViewPlaceholder(int handle, const char *text,
+    unsigned int color);
 
 #endif

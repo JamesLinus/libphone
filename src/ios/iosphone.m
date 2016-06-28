@@ -932,3 +932,18 @@ int shareRotateView(int handle, float degree) {
   view.transform = transform;
   return 0;
 }
+
+int shareSetEditTextViewPlaceholder(int handle, const char *text,
+    unsigned int color) {
+  UITextField *view = (UITextField *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  if ([view respondsToSelector:@selector(setAttributedPlaceholder:)]) {
+    view.attributedPlaceholder = [[NSAttributedString alloc]
+      initWithString:[NSString stringWithUTF8String:text]
+      attributes:@{NSForegroundColorAttributeName:[objcDelegate
+        makeColor:(0xff000000 | color)]}];
+  } else {
+    view.placeholder = [NSString stringWithUTF8String:text];
+  }
+  return 0;
+}

@@ -824,3 +824,8 @@ float phoneGetTableViewStableRefreshHeight(void) {
 int phoneRotateView(int handle, float degree) {
   return shareRotateView(handle, degree);
 }
+
+int phoneSetEditTextViewPlaceholder(int handle, const char *text,
+    unsigned int color) {
+  return shareSetEditTextViewPlaceholder(handle, text, color);
+}

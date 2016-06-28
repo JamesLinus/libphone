@@ -15,6 +15,7 @@ static int topView = 0;
 static int refreshAnimationTimer = 0;
 static float refreshAnimationLastRotateDegree = 0;
 static int refreshAnimationView = 0;
+static void layout(void);
 
 static void stopRefreshAnimation(void) {
   if (refreshAnimationTimer) {
@@ -49,6 +50,15 @@ static void appHiding(void) {
 
 static void appTerminating(void) {
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app terminating");
+}
+
+static int appBackClick(void) {
+  return PHONE_DONTCARE;
+}
+
+static void appLayoutChanging(void) {
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app layoutChanging");
+  layout();
 }
 
 typedef struct cellContext {
@@ -154,17 +164,14 @@ int phoneMain(int argc, const char *argv[]) {
   static phoneAppNotificationHandler handler = {
     appShowing,
     appHiding,
-    appTerminating
+    appTerminating,
+    appBackClick,
+    appLayoutChanging
   };
   phoneSetAppNotificationHandler(&handler);
 
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "display size: %f x %f",
-    phoneGetViewWidth(0), phoneGetViewHeight(0));
-
   phoneSetStatusBarBackgroundColor(BACKGROUND_COLOR);
   backgroundView = phoneCreateContainerView(0, 0);
-  phoneSetViewFrame(backgroundView, 0, 0, phoneGetViewWidth(0),
-    phoneGetViewHeight(0));
   phoneSetViewBackgroundColor(backgroundView, BACKGROUND_COLOR);
 
   /*
@@ -174,9 +181,18 @@ int phoneMain(int argc, const char *argv[]) {
   phoneEnableViewEvent(topView, PHONE_VIEW_TOUCH);*/
 
   tableView = phoneCreateTableView(backgroundView, onTableEvent);
+
+  layout();
+  return 0;
+}
+
+void layout(void) {
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "display size: %f x %f",
+    phoneGetViewWidth(0), phoneGetViewHeight(0));
+
+  phoneSetViewFrame(backgroundView, 0, 0, phoneGetViewWidth(0),
+    phoneGetViewHeight(0));
   phoneSetViewFrame(tableView, 0, 0, phoneGetViewWidth(0),
     phoneGetViewHeight(0));
   phoneReloadTableView(tableView);
-
-  return 0;
 }
