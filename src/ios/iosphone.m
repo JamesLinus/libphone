@@ -205,8 +205,7 @@ CGFloat statusBarSize = 0;
   return nil;
 }
 
-- (int)getRenderHandleFromIndexPath:(NSIndexPath *)indexPath {
-  UITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+- (int)getRenderHandleFromCell:(UITableViewCell *)cell {
   if (nil != cell && nil != cell.contentView) {
     for (UIView *loopView in cell.contentView.subviews) {
       if (loopView.tag > 0) {
@@ -217,12 +216,23 @@ CGFloat statusBarSize = 0;
   return 0;
 }
 
+- (int)getRenderHandleFromIndexPath:(NSIndexPath *)indexPath {
+  UITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+  if (nil != cell) {
+    return [self getRenderHandleFromCell:cell];
+  }
+  return 0;
+}
+
 - (void)tableView:(UITableView *)tableView
     willDisplayCell:(UITableViewCell *)cell
     forRowAtIndexPath:(NSIndexPath *)indexPath {
   int handle = tableView.tag;
+  if (0 == handle) {
+    return;
+  }
   shareRequestTableViewCellRender(handle, indexPath.section, indexPath.row,
-    [tableView getRenderHandleFromIndexPath:indexPath]);
+    [tableView getRenderHandleFromCell:cell]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -237,7 +247,6 @@ CGFloat statusBarSize = 0;
   cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
   if (nil == cell) {
     int customView;
-    int accessoryView;
     cell = [[UITableViewCell alloc]
         initWithStyle:UITableViewCellStyleDefault
         reuseIdentifier:cellIdentifier];
@@ -265,22 +274,12 @@ CGFloat statusBarSize = 0;
     [UIApplication sharedApplication].statusBarOrientation;
   switch (orient) {
     case UIInterfaceOrientationPortrait:
-      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "Portrait");
-      containerFrame.origin.y += statusBarSize;
-      containerFrame.size.height -= statusBarSize;
-      break;
     case UIInterfaceOrientationPortraitUpsideDown:
-      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "PortraitUpsideDown");
       containerFrame.origin.y += statusBarSize;
       containerFrame.size.height -= statusBarSize;
       break;
     case UIInterfaceOrientationLandscapeLeft:
-      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "LandscapeLeft");
-      containerFrame.origin.y += statusBarSize;
-      containerFrame.size.height -= statusBarSize;
-      break;
     case UIInterfaceOrientationLandscapeRight:
-      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "LandscapeRight");
       containerFrame.origin.y += statusBarSize;
       containerFrame.size.height -= statusBarSize;
       break;
@@ -506,6 +505,8 @@ int shareCreateTextView(int handle, int parentHandle) {
     forKey:[NSNumber numberWithInt:handle]];
   addViewToParent(view, parentHandle);
   view.tag = handle;
+  view.lineBreakMode = UILineBreakModeWordWrap;
+  view.numberOfLines = 0;
   return 0;
 }
 
