@@ -8,6 +8,7 @@ phoneAppDelegate *objcDelegate = nil;
 NSMutableDictionary *objcHandleMap = nil;
 UIWindow *objcWindow = nil;
 UIImageView *objcContainer = nil;
+CGFloat statusBarSize = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,10 +19,24 @@ UIImageView *objcContainer = nil;
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  [self.view becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
+}
+
+
+- (BOOL)shouldAutorotate {
+  return YES;
+}
+
+- (BOOL)prefersStatusBarHidden {
+  return NO;
+}
+
+- (BOOL)becomeFirstResponder {
+  return YES;
 }
 
 @end
@@ -116,9 +131,10 @@ UIImageView *objcContainer = nil;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
   if (nil != self.refreshControl) {
     CGRect overlayFrame = self.refreshControl.bounds;
+    phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "overlayFrame: %f,%f",
+      self.refreshControl.bounds.size.width,
+      self.refreshControl.bounds.size.height);
     overlayFrame.size.height = -scrollView.contentOffset.y;
-    phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "contentOffset: %f",
-      scrollView.contentOffset.y);
     self.refreshOverlayView.frame = overlayFrame;
     shareRequestTableViewUpdateRefreshView(self.tag,
       self.refreshOverlayView.tag);
@@ -243,32 +259,74 @@ UIImageView *objcContainer = nil;
 
 @implementation phoneAppDelegate
 
+- (void)layoutContainer {
+  CGRect containerFrame = [[UIScreen mainScreen] bounds];
+  UIInterfaceOrientation orient =
+    [UIApplication sharedApplication].statusBarOrientation;
+  switch (orient) {
+    case UIInterfaceOrientationPortrait:
+      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "Portrait");
+      containerFrame.origin.y += statusBarSize;
+      containerFrame.size.height -= statusBarSize;
+      break;
+    case UIInterfaceOrientationPortraitUpsideDown:
+      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "PortraitUpsideDown");
+      containerFrame.origin.y += statusBarSize;
+      containerFrame.size.height -= statusBarSize;
+      break;
+    case UIInterfaceOrientationLandscapeLeft:
+      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "LandscapeLeft");
+      containerFrame.origin.y += statusBarSize;
+      containerFrame.size.height -= statusBarSize;
+      break;
+    case UIInterfaceOrientationLandscapeRight:
+      phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "LandscapeRight");
+      containerFrame.origin.y += statusBarSize;
+      containerFrame.size.height -= statusBarSize;
+      break;
+    default:
+      assert(0 && "Unknown orientation");
+  }
+  objcContainer.frame = containerFrame;
+}
+
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  CGRect containerFrame = [[UIScreen mainScreen] bounds];
-  CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
-  containerFrame.origin.y += statusBarHeight;
-  containerFrame.size.height -= statusBarHeight;
+  UselessViewController *controller = [[UselessViewController alloc] init];
+  statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size.height;
+  if (statusBarSize > 100) {
+    statusBarSize = 20;
+  }
   objcDelegate = self;
   _handleMap = [[NSMutableDictionary alloc] init];
   objcHandleMap = _handleMap;
+  _container = [[UIImageView alloc] init];
+  _container.backgroundColor = [UIColor whiteColor];
+  _container.userInteractionEnabled = YES;
+  objcContainer = _container;
+  controller.view = [[UIView alloc] initWithFrame:[[UIScreen
+      mainScreen] bounds]];
+  [controller.view addSubview:_container];
   _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   _window.backgroundColor = [UIColor whiteColor];
   _window.userInteractionEnabled = YES;
-  _window.rootViewController = [[UselessViewController alloc] init];
+  _window.rootViewController = controller;
   objcWindow = _window;
-  _container = [[UIImageView alloc] initWithFrame:containerFrame];
-  _container.backgroundColor = [UIColor whiteColor];
-  _container.userInteractionEnabled = YES;
-  [_window addSubview:_container];
-  objcContainer = _container;
+  [self layoutContainer];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+      selector:@selector(statusBarOrientationChange:)
+      name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
   phoneInitApplication();
   phoneMain(0, 0);
   [_window makeKeyAndVisible];
-  dispatch_async(dispatch_get_main_queue(), ^{
-    _window.rootViewController = nil;
-  });
   return YES;
+}
+
+- (void)statusBarOrientationChange:(NSNotification *)notification {
+  [self layoutContainer];
+  if (pApp->handler->layoutChanging) {
+    pApp->handler->layoutChanging();
+  }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -783,7 +841,8 @@ int shareSetViewBorderWidth(int handle, float width) {
 }
 
 int shareIsLandscape(void) {
-  UIInterfaceOrientation orient = [[UIDevice currentDevice] orientation];
+  UIInterfaceOrientation orient =
+    [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(orient)) {
     return 1;
   }

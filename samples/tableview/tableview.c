@@ -57,7 +57,7 @@ static int appBackClick(void) {
 }
 
 static void appLayoutChanging(void) {
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app layoutChanging");
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app orientationChanging");
   layout();
 }
 
