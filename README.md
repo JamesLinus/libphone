@@ -6,6 +6,11 @@ Code once, target both.
 
 *Note: This project is still in the very early stage, NOT suggest used in product environment, because the api is not stable and may be changed in the future. The beta version will be released in a few weeks, from that point, the api will be stable.*
 
+Contributing
+----------------
+Don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
+*Note: Please follow the coding style of the existed codes.*
+
 Screenshoots
 -----------------
 <img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshoots/ios.png" width="240" height="360"/>
@@ -152,8 +157,3 @@ Generate different kinds of specific image resources which required by both plat
 
 **tools/phonelayout.py**   
 Generate C codes for view layout based on xml
-
-Contributing
-----------------
-Don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
-*Note: Please follow the coding style of the existed codes.*
