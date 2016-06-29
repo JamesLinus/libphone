@@ -185,7 +185,8 @@ CGFloat statusBarSize = 0;
 	  didSelectRowAtIndexPath: (NSIndexPath *)indexPath {
   int handle = tableView.tag;
   shareRequestTableViewCellClick(handle, indexPath.section, indexPath.row,
-    [tableView getRenderHandleFromIndexPath:indexPath]);
+    [(PhoneTableView *)tableView
+      getRenderHandleFromIndexPath:indexPath]);
 }
 
 - (CGFloat)tableView:(UITableView *)tableView
@@ -232,7 +233,7 @@ CGFloat statusBarSize = 0;
     return;
   }
   shareRequestTableViewCellRender(handle, indexPath.section, indexPath.row,
-    [tableView getRenderHandleFromCell:cell]);
+    [(PhoneTableView *)tableView getRenderHandleFromCell:cell]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
