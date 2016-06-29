@@ -119,17 +119,17 @@ libphone is not an IDE, so it's still a requirement that following the official 
 
 Screenshoots
 -----------------
-<img src="samples/tableview/screenshoots/ios.png" width="240" height="360"/>
-<img src="samples/tableview/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/tableview/screenshoots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/tableview/screenshoots/android.png" width="240" height="360"/>  
 
-<img src="samples/helloworld/screenshoots/ios.png" width="240" height="360"/>
-<img src="samples/helloworld/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/helloworld/screenshoots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/helloworld/screenshoots/android.png" width="240" height="360"/>  
 
-<img src="samples/xmllayout/screenshoots/ios.png" width="240" height="360"/>
-<img src="samples/xmllayout/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/xmllayout/screenshoots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/xmllayout/screenshoots/android.png" width="240" height="360"/>  
 
-<img src="samples/viewstack/screenshoots/ios.png" width="240" height="360"/>
-<img src="samples/viewstack/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/viewstack/screenshoots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/c-block/master/samples/viewstack/screenshoots/android.png" width="240" height="360"/>  
 
 Features
 -------------
@@ -156,5 +156,5 @@ Generate C codes for view layout based on xml
 
 Contributing
 ----------------
-Don't hesitate to make a pull request or post some ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
-*Note: Please just follow the coding style of the existed codes.*
+Don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
+*Note: Please follow the coding style of the existed codes.*
