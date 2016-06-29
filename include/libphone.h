@@ -198,44 +198,58 @@ JNIEnv *phoneGetJNIEnv(void);
 void phoneRegisterNativeMethod(const char *className, const char *methodName,
     const char *methodSig, void *func);
 #define phonePrepareForCallJava(obj, methodName, methodSig) \
-  jclass objClass = (*env)->GetObjectClass(env, obj); \
-  jmethodID methodId = (*env)->GetMethodID(env, \
+  jclass objClass;                                          \
+  jmethodID methodId;                                       \
+  objClass = (*env)->GetObjectClass(env, obj);              \
+  objClass = (*env)->NewGlobalRef(env, objClass);           \
+  methodId = (*env)->GetMethodID(env,                       \
       objClass, methodName, (methodSig));
-#define phoneCallJava(env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  (*env)->CallVoidMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneAfterCallJava()                                \
+  (*env)->DeleteGlobalRef(env, objClass)
+#define phoneCallJava(env, obj, methodName, methodSig, ...) do {                    \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  (*env)->CallVoidMethod(env, obj, methodId, ##__VA_ARGS__);                        \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnBoolean(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallBooleanMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnBoolean(ret, env, obj, methodName, methodSig, ...) do {  \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallBooleanMethod(env, obj, methodId, ##__VA_ARGS__);               \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnByte(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallByteMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnByte(ret, env, obj, methodName, methodSig, ...) do {     \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallByteMethod(env, obj, methodId, ##__VA_ARGS__);                  \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnChar(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallCharMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnChar(ret, env, obj, methodName, methodSig, ...) do {     \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallCharMethod(env, obj, methodId, ##__VA_ARGS__);                  \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnDouble(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallDoubleMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnDouble(ret, env, obj, methodName, methodSig, ...) do {   \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallDoubleMethod(env, obj, methodId, ##__VA_ARGS__);                \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnFloat(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallFloatMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnFloat(ret, env, obj, methodName, methodSig, ...) do {    \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallFloatMethod(env, obj, methodId, ##__VA_ARGS__);                 \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnInt(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallIntMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnInt(ret, env, obj, methodName, methodSig, ...) do {      \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallIntMethod(env, obj, methodId, ##__VA_ARGS__);                   \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnLong(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallLongMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnLong(ret, env, obj, methodName, methodSig, ...) do {     \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallLongMethod(env, obj, methodId, ##__VA_ARGS__);                  \
+  phoneAfterCallJava();                                                             \
 } while (0)
-#define phoneCallJavaReturnObject(ret, env, obj, methodName, methodSig, ...) do { \
-  phonePrepareForCallJava(obj, methodName, methodSig); \
-  ret = (*env)->CallObjectMethod(env, obj, methodId, ##__VA_ARGS__); \
+#define phoneCallJavaReturnObject(ret, env, obj, methodName, methodSig, ...) do {   \
+  phonePrepareForCallJava(obj, methodName, methodSig);                              \
+  ret = (*env)->CallObjectMethod(env, obj, methodId, ##__VA_ARGS__);                \
+  phoneAfterCallJava();                                                             \
 } while (0)
 int phoneJstringToUtf8Length(jstring jstr);
 int phoneJstringToUtf8(jstring jstr, char *buf, int bufSize);

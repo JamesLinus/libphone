@@ -61,11 +61,11 @@ CGFloat statusBarSize = 0;
   //self.state = UIGestureRecognizerStatePossible;
 }
 
-- (void)touchesBegin:(NSSet *)touches withEvent:(UIEvent *)event {
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
   int handle = (int)((UIView *)self.target).tag;
   phoneHandle *handleData = pHandle(handle);
-  [super touchesBegin:touches withEvent:event];
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "touchesBegin");
+  [super touchesBegan:touches withEvent:event];
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "touchesBegan");
   if (handleData->u.view.eventHandler) {
     phoneViewTouch touch;
     memset(&touch, 0, sizeof(touch));
@@ -663,26 +663,27 @@ int shareSetViewAlpha(int handle, float alpha) {
 }
 
 int shareSetViewFontSize(int handle, float fontSize) {
+  float realFontSize = fontSize * 0.9;
   switch (pHandle(handle)->type) {
     case PHONE_TEXT_VIEW: {
       UILabel *view = (UILabel *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
-      [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+      [view setFont:[UIFont systemFontOfSize:(GLfloat)realFontSize]];
       if ([view.font.fontName isEqualToString:[UIFont
-          systemFontOfSize:(GLfloat)fontSize].fontName]) {
-        [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+          systemFontOfSize:(GLfloat)realFontSize].fontName]) {
+        [view setFont:[UIFont systemFontOfSize:(GLfloat)realFontSize]];
       } else {
-        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)fontSize]];
+        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)realFontSize]];
       }
     } break;
     case PHONE_EDIT_TEXT_VIEW: {
       UITextField *view = (UITextField *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
       if ([view.font.fontName isEqualToString:[UIFont
-          systemFontOfSize:(GLfloat)fontSize].fontName]) {
-        [view setFont:[UIFont systemFontOfSize:(GLfloat)fontSize]];
+          systemFontOfSize:(GLfloat)realFontSize].fontName]) {
+        [view setFont:[UIFont systemFontOfSize:(GLfloat)realFontSize]];
       } else {
-        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)fontSize]];
+        [view setFont:[UIFont boldSystemFontOfSize:(GLfloat)realFontSize]];
       }
     } break;
   }

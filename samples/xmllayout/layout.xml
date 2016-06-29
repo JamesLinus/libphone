@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<signInPage width="1450" height="2560" statusBarHeight="0" left="0" menuBarHeight="192">
+  <backgroundImage backgroundColor="ffffff">
+    <logoText type="text" top="442.202" height="244.198" fontColor="333333" value="libphone">
+    </logoText>
+    <usernameTitle type="text" height="70.839" left="60" top="1294.177" fontColor="333333" value="Username" align="left">
+    </usernameTitle>
+    <usernameInputUnderline height="7" left="59" top="1514" backgroundColor="aaaaaa" width="1322">
+    </usernameInputUnderline>
+    <usernameInput type="editText" height="70.839" left="60" top="1405.326" fontColor="aaaaaa" placeholderText="helloworld@gmail.com" placeholderColor="cccccc">
+    </usernameInput>
+    <passwordTitle type="text" height="70.839" left="60" top="1597.177" fontColor="333333" value="123456" align="left">
+    </passwordTitle>
+    <forgotPasswordTitle type="text" height="70.839" width="431.136" left="948" top="1707.177" fontColor="333333" value="Forgot" align="right">
+    </forgotPasswordTitle>
+    <passwordInputUnderline height="7" left="59" top="1817" backgroundColor="aaaaaa" width="1322">
+    </passwordInputUnderline>
+    <passwordInput type="password" height="70.839" width="900" left="60" top="1707.177" fontColor="aaaaaa" value="123456" align="left">
+    </passwordInput>
+    <signInButton top="2011" left="60" width="1319.524" height="230.141" backgroundColor="21c064" cornerRadius="20">
+      <signInButtonText top="2091.345" height="82.495" type="text" value="Sign In" fontColor="ffffff">
+      </signInButtonText>
+    </signInButton>
+  </backgroundImage>
+</signInPage>

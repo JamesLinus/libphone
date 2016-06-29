@@ -920,13 +920,22 @@ public class PhoneActivity extends Activity {
         TranslateAnimation ani = new TranslateAnimation(0, offsetX, 0, offsetY);
         View view = (View)findHandleObject(viewHandle);
         ani.setFillAfter(true);
+        ani.setFillBefore(false);
         final int finalHandle = handle;
+        final int finalViewHandle = viewHandle;
+        final float finalOffsetX = offsetX;
+        final float finalOffsetY = offsetY;
         ani.setAnimationListener(new AnimationListener(){
             public void onAnimationStart(Animation ani) {
             };
             public void onAnimationRepeat(Animation ani) {
             };
             public void onAnimationEnd(Animation ani) {
+                View view = (View)findHandleObject(finalViewHandle);
+                view.setLayoutParams(new AbsoluteLayout.LayoutParams((int)view.getWidth(),
+                        (int)view.getHeight(), (int)(view.getLeft() + finalOffsetX),
+                        (int)(view.getTop() + finalOffsetY)));
+                view.clearAnimation();
                 nativeAnimationFinished(finalHandle);
             };
         });
