@@ -1,9 +1,28 @@
 #include "libphone.h"
+#include "customcall.h"
 
 #if __ANDROID__
+static jobject customActivity = 0;
+
+JNIEXPORT jint customNativeInit(JNIEnv *env, jobject obj) {
+  customActivity = (*env)->NewGlobalRef(env, obj);
+  return 0;
+}
+
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
    phoneInitJava(vm);
+   phoneRegisterNativeMethod("com/example/jeremy/test/MainActivity",
+       "customNativeInit",
+       "()I", customNativeInit);
    return JNI_VERSION_1_6;
+}
+
+int customGetSystemVersionDisplayText(char *buf, int bufSize) {
+  jstring result = 0;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnObject(result, env, customActivity,
+    "customJavaGetSystemVersionDisplayText", "()Ljava/lang/String;");
+  return phoneJstringToUtf8(result, buf, bufSize);
 }
 #endif
 
@@ -28,26 +47,6 @@ static void appHiding(void) {
 
 static void appTerminating(void) {
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "app terminating");
-}
-
-static void onAnimationSetFinish(int handle) {
-  phoneRemoveViewAnimationSet(handle);
-  animationSet = 0;
-}
-
-static void doCpuIntensiveWorkInBackgroundThread(int handle) {
-  void *tag = phoneGetHandleTag(handle);
-  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "get user defined data:%d", (int)tag);
-}
-
-static void disposeAtUiThread(int handle) {
-  animationSet = phoneCreateViewAnimationSet(500, onAnimationSetFinish);
-  phoneAddViewAnimationToSet(
-      phoneCreateViewTranslateAnimation(textBackgroundView, 0, -50),
-      animationSet);
-  phoneBeginViewAnimationSet(animationSet);
-
-  phoneRemoveWorkItem(handle);
 }
 
 static int onTextBackgroundViewEvent(int handle, int eventType, void *param) {
@@ -88,15 +87,14 @@ int phoneMain(int argc, const char *argv[]) {
   phoneSetViewShadowOpacity(textBackgroundView, 1);
 
   textView = phoneCreateTextView(textBackgroundView, 0);
-  phoneSetViewText(textView, "Hello World");
+  {
+    char buf[1024];
+    customGetSystemVersionDisplayText(buf, sizeof(buf));
+    phoneSetViewText(textView, buf);
+  }
   phoneSetViewFontSize(textView, phoneDipToPix(14));
   phoneSetViewFrame(textView, 0, 0, phoneGetViewWidth(0) - phoneDipToPix(40), phoneDipToPix(31));
   phoneSetViewFontColor(textView, FONT_COLOR);
-
-  delayedTask = phoneCreateWorkItem(doCpuIntensiveWorkInBackgroundThread,
-    disposeAtUiThread);
-  phoneSetHandleTag(delayedTask, (void *)123456);
-  phonePostToMainWorkQueue(delayedTask);
 
   return 0;
 }
