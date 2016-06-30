@@ -157,3 +157,7 @@ Generate different kinds of specific image resources which required by both plat
 
 **tools/phonelayout.py**   
 Generate C codes for view layout based on xml
+
+Licensing
+-----------------
+libphone is licensed under the MIT license.  
