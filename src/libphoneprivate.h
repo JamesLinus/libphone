@@ -14,6 +14,7 @@ enum phoneHandleType {
   PHONE_VIEW_ALPHA_ANIMATION = 7,
   PHONE_EDIT_TEXT_VIEW = 8,
   PHONE_TABLE_VIEW = 9,
+  PHONE_OPENGL_VIEW = 10,
   PHONE_USER_DEFINED = 10000
 };
 
@@ -53,6 +54,11 @@ typedef struct phoneHandle {
   union {
     struct {
       phoneViewEventHandler eventHandler;
+      union {
+        struct {
+          phoneOpenGLViewRenderHandler renderHandler;
+        } opengl;
+      } u;
     } view;
     struct {
       phoneTimerRunHandler runHandler;
@@ -194,5 +200,10 @@ int shareSetEditTextViewPlaceholderText(int handle, const char *text);
 int shareSetEditTextViewPlaceholderColor(int handle, unsigned int color);
 int shareSetEditTextViewPlaceholder(int handle, const char *text,
     unsigned int color);
+int shareSetViewParent(int handle, int parentHandle);
+int shareRemoveView(int handle);
+int shareCreateOpenGLView(int handle, int parentHandle);
+int shareBeginOpenGLViewRender(int handle,
+    phoneOpenGLViewRenderHandler renderHandler);
 
 #endif

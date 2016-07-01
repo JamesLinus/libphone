@@ -56,6 +56,12 @@ import android.view.KeyEvent;
 import android.widget.AbsListView.OnScrollListener;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.opengl.GLSurfaceView;
+import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.egl.EGLConfig;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class PhoneActivity extends Activity {
 
@@ -629,6 +635,36 @@ public class PhoneActivity extends Activity {
     private boolean lunched = false;
     private int lastWindowWidth = 0;
     private int lastWindowHeight = 0;
+    private List<GLSurfaceView> openGLViewList = null;
+
+    private void addOpenGLViewToList(GLSurfaceView view) {
+        if (null == openGLViewList) {
+            openGLViewList = new LinkedList<GLSurfaceView>();
+        }
+        openGLViewList.add(view);
+    }
+
+    private void removeOpenGLViewFromList(GLSurfaceView view) {
+        openGLViewList.remove(view);
+    }
+
+    private void pauseAllOpenGLViews() {
+        if (null != openGLViewList) {
+            Iterator<GLSurfaceView> iterator = openGLViewList.iterator();
+            while (iterator.hasNext()) {
+                iterator.next().onPause();
+            }
+        }
+    }
+
+    private void resumeAllOpenGLViews() {
+        if (null != openGLViewList) {
+            Iterator<GLSurfaceView> iterator = openGLViewList.iterator();
+            while (iterator.hasNext()) {
+                iterator.next().onResume();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -666,6 +702,7 @@ public class PhoneActivity extends Activity {
             nativeSendAppShowing();
         }
         super.onResume();
+        resumeAllOpenGLViews();
     }
 
     public void onRestart() {
@@ -673,6 +710,7 @@ public class PhoneActivity extends Activity {
     }
 
     public void onPause() {
+        pauseAllOpenGLViews();
         if (lunched) {
             nativeSendAppHiding();
         }
@@ -757,6 +795,7 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewUpdateRefreshView(int handle, int renderHandle);
     private native int nativeRequestTableViewRefreshView(int handle);
     private native int nativeSendAppLayoutChanging();
+    private native int nativeInvokeOpenGLViewRender(int handle, long func);
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -788,11 +827,6 @@ public class PhoneActivity extends Activity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        /*
-        if (Configuration.ORIENTATION_PORTRAIT == newConfig.orientation ||
-                Configuration.ORIENTATION_LANDSCAPE == newConfig.orientation) {
-            nativeSendAppLayoutChanging();
-        }*/
     }
 
     public int javaCreateTimer(int handle, long milliseconds) {
@@ -1299,6 +1333,66 @@ public class PhoneActivity extends Activity {
         EditText view = (EditText)findHandleObject(handle);
         view.setHint(text);
         view.setHintTextColor(0xff000000 | color);
+        return 0;
+    }
+
+    public int javaSetViewParent(int handle, int parentHandle) {
+        View view = (View)findHandleObject(handle);
+        ViewGroup newParentView = (ViewGroup)findHandleObject(parentHandle);
+        if (null != view.getParent()) {
+            ((ViewGroup)view.getParent()).removeView(view);
+        }
+        newParentView.addView(view);
+        return 0;
+    }
+
+    public int javaRemoveView(int handle) {
+        View view = (View)findHandleObject(handle);
+        if (null != view.getParent()) {
+            ((ViewGroup)view.getParent()).removeView(view);
+        }
+        removeHandleObject(handle);
+        removeOpenGLViewFromList((GLSurfaceView)view);
+        return 0;
+    }
+
+    public int javaCreateOpenGLView(int handle, int parentHandle) {
+        GLSurfaceView view = new GLSurfaceView(this);
+        setHandleObject(handle, view);
+        view.setId(handle);
+        addViewToParent(view, parentHandle);
+        view.setEGLContextClientVersion(2);
+        addOpenGLViewToList(view);
+        return 0;
+    }
+
+    public class PhoneOpenGLViewRender implements GLSurfaceView.Renderer {
+        private int invokeHandle = 0;
+        private long invokeFunc = 0;
+
+        public PhoneOpenGLViewRender(int handle, long func) {
+            invokeHandle = handle;
+            invokeFunc = func;
+        }
+
+        @Override
+        public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        }
+
+        @Override
+        public void onSurfaceChanged(GL10 gl, int width, int height) {
+            // No-op
+        }
+
+        @Override
+        public void onDrawFrame(GL10 gl) {
+            nativeInvokeOpenGLViewRender(invokeHandle, invokeFunc);
+        }
+    }
+
+    public int javaBeginOpenGLViewRender(int handle, long func) {
+        GLSurfaceView view = (GLSurfaceView)findHandleObject(handle);
+        view.setRenderer(new PhoneOpenGLViewRender(handle, func));
         return 0;
     }
 }

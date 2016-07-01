@@ -193,9 +193,18 @@ float phoneGetTableViewStableRefreshHeight(void);
 int phoneRotateView(int handle, float degree);
 int phoneSetEditTextViewPlaceholder(int handle, const char *text,
     unsigned int color);
+int phoneSetViewEventHandler(int handle, phoneViewEventHandler eventHandler);
+int phoneSetViewParent(int handle, int parentHandle);
+int phoneRemoveView(int handle);
+int phoneCreateOpenGLView(int parentHandle,
+    phoneViewEventHandler eventHandler);
+typedef void (*phoneOpenGLViewRenderHandler)(int handle);
+int phoneSetOpenGLViewRenderHandler(int handle,
+    phoneOpenGLViewRenderHandler renderHandler);
 
 #if __ANDROID__
 #include <jni.h>
+#include <GLES2/gl2.h>
 
 #define PHONE_ACTIVITY_CLASSNAME "com/libphone/PhoneActivity"
 #define PHONE_NOTIFY_THREAD_CLASSNAME "com/libphone/PhoneNotifyThread"
@@ -275,8 +284,9 @@ int phoneJstringToUtf8(jstring jstr, char *buf, int bufSize);
 }
 #endif
 
-#if __OBJC__
 #ifdef __APPLE__
+#include <OpenGLES/ES2/gl.h>
+#if __OBJC__
 #import <UIKit/UIKit.h>
 @interface phoneAppDelegate : UIResponder <UIApplicationDelegate>
 @property (strong, nonatomic) UIWindow *window;

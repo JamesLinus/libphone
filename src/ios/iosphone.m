@@ -3,6 +3,7 @@
 #include <pthread.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
 #import <QuartzCore/QuartzCore.h>
+#import <GLKit/GLKit.h>
 
 phoneAppDelegate *objcDelegate = nil;
 NSMutableDictionary *objcHandleMap = nil;
@@ -98,6 +99,20 @@ CGFloat statusBarSize = 0;
     touch.touchType = PHONE_VIEW_TOUCH_END;
     handleData->u.view.eventHandler(handle, PHONE_VIEW_TOUCH, &touch);
   }
+}
+
+@end
+
+///////////////////////////////////////////////////////////////////////////////
+
+@interface PhoneOpenGLView : GLKView
+@property (nonatomic, strong) CADisplayLink *displayLink;
+@end
+
+@implementation PhoneOpenGLView
+
+- (void)render:(CADisplayLink *)displayLink {
+  [self display];
 }
 
 @end
@@ -396,6 +411,14 @@ CGFloat statusBarSize = 0;
     if (handleData->u.view.eventHandler) {
       handleData->u.view.eventHandler(handle, PHONE_VIEW_LONG_CLICK, 0);
     }
+  }
+}
+
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
+  int handle = view.tag;
+  phoneHandle *handleData = pHandle(handle);
+  if (handleData->u.view.u.opengl.renderHandler) {
+    handleData->u.view.u.opengl.renderHandler(handle);
   }
 }
 
@@ -1006,6 +1029,68 @@ int shareSetEditTextViewPlaceholder(int handle, const char *text,
         makeColor:(0xff000000 | color)]}];
   } else {
     view.placeholder = [NSString stringWithUTF8String:text];
+  }
+  return 0;
+}
+
+int shareSetViewParent(int handle, int parentHandle) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  UIView *newParentView = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:parentHandle]];
+  [newParentView addSubview:view];
+  return 0;
+}
+
+int shareRemoveView(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  [view removeFromSuperview];
+  [objcHandleMap removeObjectForKey:[NSNumber numberWithInt:handle]];
+  if (PHONE_OPENGL_VIEW == handleData->type) {
+    PhoneOpenGLView *glView = (PhoneOpenGLView *)view;
+    if (nil != glView.displayLink) {
+      [glView.displayLink invalidate];
+      glView.displayLink = nil;
+    }
+    if ([EAGLContext currentContext] == glView.context) {
+      [EAGLContext setCurrentContext:nil];
+    }
+  }
+  return 0;
+}
+
+int shareCreateOpenGLView(int handle, int parentHandle) {
+  PhoneOpenGLView *view = [[PhoneOpenGLView alloc] init];
+  [objcHandleMap
+    setObject:view
+    forKey:[NSNumber numberWithInt:handle]];
+  addViewToParent(view, parentHandle);
+  view.tag = handle;
+  view.context = nil;
+  view.enableSetNeedsDisplay = NO;
+  view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+  view.delegate = objcDelegate;
+  view.displayLink = nil;
+  return 0;
+}
+
+int shareBeginOpenGLViewRender(int handle,
+    phoneOpenGLViewRenderHandler renderHandler) {
+  PhoneOpenGLView *view = (PhoneOpenGLView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  if (nil == view.context) {
+    view.context = [[EAGLContext alloc]
+      initWithAPI:kEAGLRenderingAPIOpenGLES2];
+  }
+  if (nil != view.context) {
+    [EAGLContext setCurrentContext:view.context];
+    view.displayLink = [CADisplayLink
+      displayLinkWithTarget:view
+      selector:@selector(render:)];
+    [view.displayLink addToRunLoop:[NSRunLoop currentRunLoop]
+      forMode:NSDefaultRunLoopMode];
   }
   return 0;
 }

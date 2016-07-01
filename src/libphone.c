@@ -679,7 +679,6 @@ int phoneCreateTableView(int parentHandle,
   }
   handleData = pHandle(handle);
   handleData->type = PHONE_TABLE_VIEW;
-  assert(eventHandler);
   handleData->u.view.eventHandler = eventHandler;
   if (0 != shareCreateTableView(handle, parentHandle)) {
     phoneFreeHandle(handle);
@@ -828,4 +827,45 @@ int phoneRotateView(int handle, float degree) {
 int phoneSetEditTextViewPlaceholder(int handle, const char *text,
     unsigned int color) {
   return shareSetEditTextViewPlaceholder(handle, text, color);
+}
+
+int phoneSetViewEventHandler(int handle, phoneViewEventHandler eventHandler) {
+  phoneHandle *handleData = pHandle(handle);
+  handleData->u.view.eventHandler = eventHandler;
+  return 0;
+}
+
+int phoneSetViewParent(int handle, int parentHandle) {
+  return shareSetViewParent(handle, parentHandle);
+}
+
+int phoneRemoveView(int handle) {
+  int result = shareRemoveView(handle);
+  phoneFreeHandle(handle);
+  return result;
+}
+
+int phoneCreateOpenGLView(int parentHandle,
+    phoneViewEventHandler eventHandler) {
+  int handle = phoneAllocHandle();
+  phoneHandle *handleData;
+  if (!handle) {
+    return 0;
+  }
+  handleData = pHandle(handle);
+  handleData->type = PHONE_OPENGL_VIEW;
+  handleData->u.view.eventHandler = eventHandler;
+  if (0 != shareCreateOpenGLView(handle, parentHandle)) {
+    phoneFreeHandle(handle);
+    return 0;
+  }
+  return handle;
+}
+
+int phoneSetOpenGLViewRenderHandler(int handle,
+    phoneOpenGLViewRenderHandler renderHandler) {
+  phoneHandle *handleData = pHandle(handle);
+  assert(PHONE_OPENGL_VIEW == handleData->type);
+  handleData->u.view.u.opengl.renderHandler = renderHandler;
+  return shareBeginOpenGLViewRender(handle, renderHandler);
 }

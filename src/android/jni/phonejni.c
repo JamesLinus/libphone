@@ -259,6 +259,12 @@ JNIEXPORT jint nativeSendAppLayoutChanging(JNIEnv *env, jobject obj,
   return 0;
 }
 
+JNIEXPORT jint nativeInvokeOpenGLViewRender(JNIEnv *env, jobject obj,
+    int handle, jlong func) {
+  ((phoneOpenGLViewRenderHandler)func)(handle);
+  return 0;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -290,6 +296,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeRequestTableViewUpdateRefreshView", "(II)I", nativeRequestTableViewUpdateRefreshView},
     {"nativeRequestTableViewRefreshView", "(I)I", nativeRequestTableViewRefreshView},
     {"nativeSendAppLayoutChanging", "()I", nativeSendAppLayoutChanging},
+    {"nativeInvokeOpenGLViewRender", "(IJ)I", nativeInvokeOpenGLViewRender},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -871,5 +878,42 @@ int shareSetEditTextViewPlaceholder(int handle, const char *text,
   phoneCallJavaReturnInt(result, env, activity,
     "javaSetEditTextViewPlaceholder", "(ILjava/lang/String;I)I",
     (jint)handle, (*env)->NewStringUTF(env, text), (jint)color);
+  return result;
+}
+
+int shareSetViewParent(int handle, int parentHandle) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaSetViewParent", "(II)I",
+    (jint)handle, (jint)parentHandle);
+  return result;
+}
+
+int shareRemoveView(int handle) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaRemoveView", "(I)I",
+    (jint)handle);
+  return result;
+}
+
+int shareCreateOpenGLView(int handle, int parentHandle) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaCreateOpenGLView", "(II)I",
+    (jint)handle, (jint)parentHandle);
+  return result;
+}
+
+int shareBeginOpenGLViewRender(int handle,
+    phoneOpenGLViewRenderHandler renderHandler) {
+  jint result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaBeginOpenGLViewRender", "(IJ)I",
+    (jint)handle, (jlong)renderHandler);
   return result;
 }
