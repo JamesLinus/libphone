@@ -56,6 +56,8 @@ static void runOnMainThread(int handle) {
   free(ctx->fileContent);
   free(ctx);
   phoneRemoveWorkItem(handle);
+  phoneJoinThread(thread);
+  phoneRemoveThread(thread);
 }
 
 static void loadAssetInThread(int handle) {
