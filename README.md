@@ -97,6 +97,7 @@ libphone is not an IDE, so it's still a requirement that following the official 
             CFlags.add("-I/Users/jeremy/Repositories/libphone/src")
             ldLibs.add("log")
             ldLibs.add("GLESv2")
+            ldLibs.add("android")
         }
 
         android.sources.main {
