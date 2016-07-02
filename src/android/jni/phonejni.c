@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <libphoneprivate.h>
 #include <android/log.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 static JavaVM *loadedVm = 0;
 static jobject *activity = 0;
@@ -10,6 +12,7 @@ static int phoneInited = 0;
 static int nativeInited = 0;
 static pthread_cond_t notifyMainThreadCond;
 static pthread_mutex_t notifyMainThreadMutex;
+static AAssetManager *assetManager = 0;
 
 int shareInitApplication(void) {
   pthread_mutex_init(&notifyMainThreadMutex, 0);
@@ -42,6 +45,11 @@ JNIEXPORT jint nativeInit(JNIEnv *env, jobject obj) {
     phoneInitApplication();
     nativeInited = 1;
   }
+  return 0;
+}
+
+JNIEXPORT jint nativeInitAssetManager(JNIEnv *env, jobject obj, jobject mgr) {
+  assetManager = AAssetManager_fromJava(env, (*env)->NewGlobalRef(env, mgr));
   return 0;
 }
 
@@ -265,6 +273,12 @@ JNIEXPORT jint nativeInvokeOpenGLViewRender(JNIEnv *env, jobject obj,
   return 0;
 }
 
+JNIEXPORT jint nativeInvokeThread(JNIEnv *env, jobject obj, jint handle,
+    jlong func) {
+  ((phoneThreadRunHandler)func)(handle);
+  return 0;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -285,6 +299,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeDispatchViewTouchCancelEvent", "(III)I", nativeDispatchViewTouchCancelEvent},
     {"nativeInitDensity", "(F)I", nativeInitDensity},
     {"nativeInit", "()I", nativeInit},
+    {"nativeInitAssetManager", "(Landroid/content/res/AssetManager;)I", nativeInitAssetManager},
     {"nativeRequestTableViewCellCustomView", "(III)I", nativeRequestTableViewCellCustomView},
     {"nativeRequestTableViewCellIdentifier", "(III)Ljava/lang/String;", nativeRequestTableViewCellIdentifier},
     {"nativeRequestTableViewSectionCount", "(I)I", nativeRequestTableViewSectionCount},
@@ -297,6 +312,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeRequestTableViewRefreshView", "(I)I", nativeRequestTableViewRefreshView},
     {"nativeSendAppLayoutChanging", "()I", nativeSendAppLayoutChanging},
     {"nativeInvokeOpenGLViewRender", "(IJ)I", nativeInvokeOpenGLViewRender},
+    {"nativeInvokeThread", "(IJ)I", nativeInvokeThread},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -916,4 +932,77 @@ int shareBeginOpenGLViewRender(int handle,
     "javaBeginOpenGLViewRender", "(IJ)I",
     (jint)handle, (jlong)renderHandler);
   return result;
+}
+
+int shareCreateThread(int handle, const char *threadName) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaCreateThread", "(ILjava/lang/String;)I",
+    (jint)handle, (*env)->NewStringUTF(env, threadName));
+  return handle;
+}
+
+int shareStartThread(int handle) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneHandle *handleData = pHandle(handle);
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaStartThread", "(IJJ)I",
+    (jint)handle, (jlong)handleData->u.thread.runHandler);
+  return 0;
+}
+
+int shareJoinThread(int handle) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaJoinThread", "(I)I",
+    (jint)handle);
+  return 0;
+}
+
+int shareRemoveThread(int handle) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaRemoveThread", "(I)I",
+    (jint)handle);
+  return 0;
+}
+
+int shareWorkQueueThreadInit(void) {
+  JNIEnv *env;
+  (*loadedVm)->AttachCurrentThread(loadedVm, &env, 0);
+  return 0;
+}
+
+int shareWorkQueueThreadUninit(void) {
+  (*loadedVm)->DetachCurrentThread(loadedVm);
+  return 0;
+}
+
+static int assetRead(void *cookie, char *buf, int size) {
+  return AAsset_read((AAsset *)cookie, buf, size);
+}
+
+static int assetWrite(void *cookie, const char *buf, int size) {
+  return 0;
+}
+
+static fpos_t assetSeek(void *cookie, fpos_t offset, int whence) {
+  return AAsset_seek((AAsset *)cookie, offset, whence);
+}
+
+static int assetClose(void *cookie) {
+  AAsset_close((AAsset *)cookie);
+  return 0;
+}
+
+FILE *shareOpenAsset(const char *filename) {
+  AAsset *asset = AAssetManager_open(assetManager, filename, 0);
+  if (!asset) {
+    return 0;
+  }
+  return funopen(asset, assetRead, assetWrite, assetSeek, assetClose);
 }

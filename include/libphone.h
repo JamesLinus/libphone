@@ -201,6 +201,13 @@ int phoneCreateOpenGLView(int parentHandle,
 typedef void (*phoneOpenGLViewRenderHandler)(int handle);
 int phoneSetOpenGLViewRenderHandler(int handle,
     phoneOpenGLViewRenderHandler renderHandler);
+typedef void (*phoneThreadRunHandler)(int handle);
+int phoneCreateThread(const char *threadName,
+    phoneThreadRunHandler runHandler);
+int phoneStartThread(int handle);
+int phoneJoinThread(int handle);
+int phoneRemoveThread(int handle);
+FILE *phoneOpenAsset(const char *filename);
 
 #if __ANDROID__
 #include <jni.h>

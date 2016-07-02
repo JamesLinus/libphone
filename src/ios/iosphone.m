@@ -594,28 +594,28 @@ float shareGetViewHeight(int handle) {
 }
 
 int shareCreateViewAnimationSet(int handle) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
 int shareAddViewAnimationToSet(int animationHandle, int setHandle) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
 int shareRemoveViewAnimationSet(int handle) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
 int shareRemoveViewAnimation(int handle) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
 int shareCreateViewTranslateAnimation(int handle, int viewHandle,
     float offsetX, float offsetY) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
@@ -668,7 +668,7 @@ int shareBeginAnimationSet(int handle, int duration) {
 
 int shareCreateViewAlphaAnimation(int handle, int viewHandle,
     float fromAlpha, float toAlpha) {
-  // need do nothing
+  // no-op
   return 0;
 }
 
@@ -1093,4 +1093,86 @@ int shareBeginOpenGLViewRender(int handle,
       forMode:NSDefaultRunLoopMode];
   }
   return 0;
+}
+
+int shareWorkQueueThreadInit(void) {
+  // no-op
+  return 0;
+}
+
+int shareWorkQueueThreadUninit(void) {
+  // no-op
+  return 0;
+}
+
+typedef struct threadContext {
+  int handle;
+  char *threadName;
+  pthread_t threadId;
+  phoneThreadRunHandler runHandler;
+} threadContext;
+
+static void *runThread(void *arg) {
+  threadContext *ctx = (threadContext *)arg;
+  if (ctx->threadName) {
+    [[NSThread currentThread] setName:[NSString
+      stringWithUTF8String:ctx->threadName]];
+  }
+  ctx->runHandler(ctx->handle);
+  return 0;
+}
+
+int shareCreateThread(int handle, const char *threadName) {
+  threadContext *ctx = (threadContext *)calloc(1, sizeof(threadContext));
+  phoneHandle *handleData = pHandle(handle);
+  if (!ctx) {
+    phoneSetHandleContext(handle, 0);
+    return -1;
+  }
+  phoneSetHandleContext(handle, ctx);
+  if (threadName) {
+    int threadNameLen = strlen(threadName);
+    ctx->threadName = malloc(threadNameLen + 1);
+    memcpy(ctx->threadName, threadName, threadNameLen + 1);
+  }
+  ctx->handle = handle;
+  ctx->runHandler = handleData->u.thread.runHandler;
+  return 0;
+}
+
+int shareStartThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
+  pthread_create(&ctx->threadId, 0, runThread, ctx);
+  return 0;
+}
+
+int shareJoinThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
+  if (ctx) {
+    void *threadReturn = 0;
+    pthread_join(&ctx->threadId, &threadReturn);
+  }
+  return 0;
+}
+
+int shareRemoveThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
+  if (ctx) {
+    if (ctx->threadName) {
+      free(ctx->threadName);
+      ctx->threadName = 0;
+    }
+    free(ctx);
+    phoneSetHandleContext(handle, 0);
+  }
+  return 0;
+}
+
+FILE *shareOpenAsset(const char *filename) {
+  return fopen([[[[NSBundle mainBundle] resourcePath]
+      stringByAppendingPathComponent:[NSString stringWithUTF8String:filename]]
+    UTF8String], "rb");
 }

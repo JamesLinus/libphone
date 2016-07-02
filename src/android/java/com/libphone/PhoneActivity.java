@@ -59,9 +59,9 @@ import android.view.animation.RotateAnimation;
 import android.opengl.GLSurfaceView;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
-
 import java.util.LinkedList;
 import java.util.List;
+import android.content.res.AssetManager;
 
 public class PhoneActivity extends Activity {
 
@@ -747,6 +747,8 @@ public class PhoneActivity extends Activity {
     private void lunchWithNative() {
         nativeInit();
         nativeInitDensity(getResources().getDisplayMetrics().density);
+        assetManager = getResources().getAssets();
+        nativeInitAssetManager(assetManager);
 
         nativeSendAppShowing();
 
@@ -770,6 +772,7 @@ public class PhoneActivity extends Activity {
 
     private SparseArray<Object> handleMap = new SparseArray<Object>();
     private Handler handler = new Handler();
+    private AssetManager assetManager = null;
 
     private native int nativeSendAppShowing();
     private native int nativeSendAppHiding();
@@ -783,6 +786,7 @@ public class PhoneActivity extends Activity {
     private native int nativeDispatchViewTouchCancelEvent(int handle, int x, int y);
     private native int nativeInitDensity(float density);
     private native int nativeInit();
+    private native int nativeInitAssetManager(AssetManager assetManager);
     private native int nativeRequestTableViewCellCustomView(int handle, int section, int row);
     private native String nativeRequestTableViewCellIdentifier(int handle, int section, int row);
     private native int nativeRequestTableViewSectionCount(int handle);
@@ -796,6 +800,7 @@ public class PhoneActivity extends Activity {
     private native int nativeRequestTableViewRefreshView(int handle);
     private native int nativeSendAppLayoutChanging();
     private native int nativeInvokeOpenGLViewRender(int handle, long func);
+    private native int nativeInvokeThread(int handle, long func);
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -1393,6 +1398,45 @@ public class PhoneActivity extends Activity {
     public int javaBeginOpenGLViewRender(int handle, long func) {
         GLSurfaceView view = (GLSurfaceView)findHandleObject(handle);
         view.setRenderer(new PhoneOpenGLViewRender(handle, func));
+        return 0;
+    }
+
+    class PhoneThread extends Thread {
+        public int handle;
+        public long func;
+        public void run() {
+            nativeInvokeThread(handle, func);
+        }
+    }
+
+    public int javaCreateThread(int handle, String name) {
+        PhoneThread thread = new PhoneThread();
+        thread.setName(name);
+        setHandleObject(handle, thread);
+        return 0;
+    }
+
+    public int javaStartThread(int handle, long func) {
+        PhoneThread thread = (PhoneThread)findHandleObject(handle);
+        thread.handle = handle;
+        thread.func = func;
+        thread.start();
+        return 0;
+    }
+
+    public int javaJoinThread(int handle) {
+        PhoneThread thread = (PhoneThread)findHandleObject(handle);
+        try {
+            thread.join();
+            return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public int javaRemoveThread(int handle) {
+        removeHandleObject(handle);
         return 0;
     }
 }

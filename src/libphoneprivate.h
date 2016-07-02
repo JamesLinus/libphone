@@ -15,6 +15,7 @@ enum phoneHandleType {
   PHONE_EDIT_TEXT_VIEW = 8,
   PHONE_TABLE_VIEW = 9,
   PHONE_OPENGL_VIEW = 10,
+  PHONE_THREAD = 11,
   PHONE_USER_DEFINED = 10000
 };
 
@@ -83,6 +84,9 @@ typedef struct phoneHandle {
       int total;
       int finished;
     } animationSet;
+    struct {
+      phoneThreadRunHandler runHandler;
+    } thread;
   } u;
 } phoneHandle;
 
@@ -205,5 +209,12 @@ int shareRemoveView(int handle);
 int shareCreateOpenGLView(int handle, int parentHandle);
 int shareBeginOpenGLViewRender(int handle,
     phoneOpenGLViewRenderHandler renderHandler);
+int shareWorkQueueThreadInit(void);
+int shareWorkQueueThreadUninit(void);
+int shareCreateThread(int handle, const char *threadName);
+int shareStartThread(int handle);
+int shareJoinThread(int handle);
+int shareRemoveThread(int handle);
+FILE *shareOpenAsset(const char *filename);
 
 #endif

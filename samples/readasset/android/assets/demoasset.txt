@@ -1,0 +1,1 @@
+Hi! I am read from the demoasset.txt which sit in the android/assets folder

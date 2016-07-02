@@ -242,6 +242,7 @@ int phoneFlushMainWorkQueue(void) {
 static void *runWorkItem(void *arg) {
   phoneWorkQueueContext *workQueue = &pApp->mainWorkQueue;
   phoneWorkItemContext *workItem;
+  shareWorkQueueThreadInit();
   for (;;) {
     if (!workQueue->firstWaitingItem) {
       pthread_mutex_lock(&workQueue->condLock);
@@ -275,6 +276,7 @@ static void *runWorkItem(void *arg) {
       shareNeedFlushMainWorkQueue();
     }
   }
+  shareWorkQueueThreadUninit();
   return 0;
 }
 
@@ -868,4 +870,45 @@ int phoneSetOpenGLViewRenderHandler(int handle,
   assert(PHONE_OPENGL_VIEW == handleData->type);
   handleData->u.view.u.opengl.renderHandler = renderHandler;
   return shareBeginOpenGLViewRender(handle, renderHandler);
+}
+
+int phoneCreateThread(const char *threadName,
+    phoneThreadRunHandler runHandler) {
+  int handle = phoneAllocHandle();
+  phoneHandle *handleData;
+  if (!handle) {
+    return 0;
+  }
+  handleData = pHandle(handle);
+  handleData->type = PHONE_THREAD;
+  handleData->u.thread.runHandler = runHandler;
+  if (0 != shareCreateThread(handle, threadName)) {
+    phoneFreeHandle(handle);
+    return 0;
+  }
+  return handle;
+}
+
+int phoneStartThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  assert(PHONE_THREAD == handleData->type);
+  return shareStartThread(handle);
+}
+
+int phoneJoinThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  assert(PHONE_THREAD == handleData->type);
+  return shareJoinThread(handle);
+}
+
+int phoneRemoveThread(int handle) {
+  phoneHandle *handleData = pHandle(handle);
+  assert(PHONE_THREAD == handleData->type);
+  shareRemoveThread(handle);
+  phoneFreeHandle(handle);
+  return 0;
+}
+
+FILE *phoneOpenAsset(const char *filename) {
+  return shareOpenAsset(filename);
 }
