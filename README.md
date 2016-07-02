@@ -11,19 +11,19 @@ Contributing
 Don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
 *Note: Please follow the coding style of the existed codes.*
 
-Screenshoots
+Screenshots
 -----------------
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshoots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/android.png" width="240" height="360"/>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshoots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/android.png" width="240" height="360"/>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshoots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/android.png" width="240" height="360"/>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshoots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshoots/android.png" width="240" height="360"/>  
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/ios.png" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/android.png" width="240" height="360"/>  
 
 Quick Start
 -------------
