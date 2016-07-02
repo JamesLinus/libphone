@@ -1113,17 +1113,19 @@ typedef struct threadContext {
 } threadContext;
 
 static void *runThread(void *arg) {
-  threadContext *ctx = (threadContext *)arg;
-  if (ctx->threadName) {
-    [[NSThread currentThread] setName:[NSString
-      stringWithUTF8String:ctx->threadName]];
+  @autoreleasepool {
+    threadContext *ctx = (threadContext *)arg;
+    if (ctx->threadName) {
+      [[NSThread currentThread] setName:[NSString
+        stringWithUTF8String:ctx->threadName]];
+    }
+    ctx->runHandler(ctx->handle);
   }
-  ctx->runHandler(ctx->handle);
   return 0;
 }
 
 int shareCreateThread(int handle, const char *threadName) {
-  threadContext *ctx = (threadContext *)calloc(1, sizeof(threadContext));
+  threadContext *ctx = (threadContext *)shareCalloc(1, sizeof(threadContext));
   phoneHandle *handleData = pHandle(handle);
   if (!ctx) {
     phoneSetHandleContext(handle, 0);
@@ -1132,7 +1134,7 @@ int shareCreateThread(int handle, const char *threadName) {
   phoneSetHandleContext(handle, ctx);
   if (threadName) {
     int threadNameLen = strlen(threadName);
-    ctx->threadName = malloc(threadNameLen + 1);
+    ctx->threadName = shareMalloc(threadNameLen + 1);
     memcpy(ctx->threadName, threadName, threadNameLen + 1);
   }
   ctx->handle = handle;

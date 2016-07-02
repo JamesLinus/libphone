@@ -940,7 +940,7 @@ int shareCreateThread(int handle, const char *threadName) {
   phoneCallJavaReturnInt(result, env, activity,
     "javaCreateThread", "(ILjava/lang/String;)I",
     (jint)handle, (*env)->NewStringUTF(env, threadName));
-  return handle;
+  return result;
 }
 
 int shareStartThread(int handle) {
@@ -948,9 +948,9 @@ int shareStartThread(int handle) {
   JNIEnv *env = phoneGetJNIEnv();
   phoneHandle *handleData = pHandle(handle);
   phoneCallJavaReturnInt(result, env, activity,
-    "javaStartThread", "(IJJ)I",
+    "javaStartThread", "(IJ)I",
     (jint)handle, (jlong)handleData->u.thread.runHandler);
-  return 0;
+  return result;
 }
 
 int shareJoinThread(int handle) {
@@ -959,7 +959,7 @@ int shareJoinThread(int handle) {
   phoneCallJavaReturnInt(result, env, activity,
     "javaJoinThread", "(I)I",
     (jint)handle);
-  return 0;
+  return result;
 }
 
 int shareRemoveThread(int handle) {
@@ -968,7 +968,7 @@ int shareRemoveThread(int handle) {
   phoneCallJavaReturnInt(result, env, activity,
     "javaRemoveThread", "(I)I",
     (jint)handle);
-  return 0;
+  return result;
 }
 
 int shareWorkQueueThreadInit(void) {

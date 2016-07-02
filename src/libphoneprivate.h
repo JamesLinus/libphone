@@ -216,5 +216,7 @@ int shareStartThread(int handle);
 int shareJoinThread(int handle);
 int shareRemoveThread(int handle);
 FILE *shareOpenAsset(const char *filename);
+void *shareMalloc(int size);
+void *shareCalloc(int count, int size);
 
 #endif

@@ -120,7 +120,7 @@ int phoneSetHandleContext(int handle, void *context) {
 }
 
 void *phoneGetHandleContext(int handle) {
-  return pHandle(handle);
+  return pHandle(handle)->context;
 }
 
 int phoneCopyString(char *destBuf, int destSize, const char *src) {
@@ -911,4 +911,12 @@ int phoneRemoveThread(int handle) {
 
 FILE *phoneOpenAsset(const char *filename) {
   return shareOpenAsset(filename);
+}
+
+void *shareMalloc(int size) {
+  return malloc(size);
+}
+
+void *shareCalloc(int count, int size) {
+  return calloc(count, size);
 }
