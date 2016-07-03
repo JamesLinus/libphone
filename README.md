@@ -13,6 +13,9 @@ Don't hesitate to make a pull request or share ideas on *[trello](https://trello
 
 Screenshots
 -----------------
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/mmorpg.gif" width="240" height="360"/>
+<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/android.png" width="240" height="360"/>  
+
 <img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/ios.png" width="240" height="360"/>
 <img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/android.png" width="240" height="360"/>  
 
@@ -145,9 +148,12 @@ Features
   - Animation
   - Alpha
   - Rotate
-  - Pull to Refresh
+  - Pull to Refresh  
+  - OpenGL ES 2.0  
 - Work Queue
 - Timer  
+- Native Thread  
+- Asset Reader  
 
 *(More functions are under heavy development.)*
 
