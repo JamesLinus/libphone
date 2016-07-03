@@ -416,6 +416,9 @@ CGFloat statusBarSize = 0;
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
   int handle = view.tag;
+  if (nil == view.context) {
+    return;
+  }
   phoneHandle *handleData = pHandle(handle);
   if (handleData->u.view.u.opengl.renderHandler) {
     handleData->u.view.u.opengl.renderHandler(handle);

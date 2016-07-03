@@ -1367,6 +1367,7 @@ public class PhoneActivity extends Activity {
         view.setId(handle);
         addViewToParent(view, parentHandle);
         view.setEGLContextClientVersion(2);
+        view.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         addOpenGLViewToList(view);
         return 0;
     }
