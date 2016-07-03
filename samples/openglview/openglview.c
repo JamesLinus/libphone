@@ -48,9 +48,9 @@ static int onTextBackgroundViewEvent(int handle, int eventType, void *param) {
 }
 
 static void renderGameFrame(int handle) {
-  glClearColor(((FONT_BACKGROUND_COLOR & 0xff0000) >> 16) / 256.0,
-    ((FONT_BACKGROUND_COLOR & 0x00ff00) >> 8) / 256.0,
-    (FONT_BACKGROUND_COLOR & 0x0000ff) / 256.0,
+  glClearColor(((FONT_BACKGROUND_COLOR & 0xff0000) >> 16) / 255.0,
+    ((FONT_BACKGROUND_COLOR & 0x00ff00) >> 8) / 255.0,
+    (FONT_BACKGROUND_COLOR & 0x0000ff) / 255.0,
     0.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "renderThreadId: %d",
