@@ -107,7 +107,11 @@ static void createTexForImage(image *img) {
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height,
       0, GL_RGBA, GL_UNSIGNED_BYTE, img->imageData);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (img->imageData) {
+      free(img->imageData);
+      img->imageData = 0;
+    }
+    //glGenerateMipmap(GL_TEXTURE_2D);
   }
 }
 
@@ -259,7 +263,7 @@ image *createImageFromAsset(const char *assetName) {
   int fileSize;
   unsigned char *fileContent;
   int err;
-  image *img = (image *)calloc(1, sizeof(img));
+  image *img = (image *)calloc(1, sizeof(image));
   if (!img) {
     return 0;
   }
@@ -294,8 +298,8 @@ image *createImageFromAsset(const char *assetName) {
     if (!upng) {
       phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "upng decode %s failed",
         assetName);
-      fclose(fp);
       free(img);
+      free(fileContent);
       return 0;
     }
     upng_decode(upng);
@@ -557,7 +561,6 @@ static void renderGameFrame(int handle) {
       moveSpriteFrameSetToNextFrame(game->manBladeAnimation);
     }
   }
-
 
   if (game->cursedGraveStillAnimation) {
     renderSpriteFrameSet(game->cursedGraveStillAnimation);
