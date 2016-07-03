@@ -18,6 +18,7 @@ static int backgroundView = 0;
 static int openGLView = 0;
 static int gameWidth = 0;
 static int gameHeight = 0;
+static int noteView = 0;
 
 static void layout(void);
 
@@ -597,10 +598,16 @@ int phoneMain(int argc, const char *argv[]) {
 
   openGLView = phoneCreateOpenGLView(backgroundView, 0);
   phoneSetOpenGLViewRenderHandler(openGLView, renderGameFrame);
-  layout();
+
+  noteView = phoneCreateTextView(backgroundView, 0);
+  phoneSetViewFontColor(noteView, 0x333333);
+  phoneSetViewText(noteView, "Note: An Embryonic MMORPG Game Using libphone");
+  phoneSetViewAlign(noteView, PHONE_VIEW_ALIGN_LEFT);
 
   phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "mainThreadId: %d",
     phoneGetThreadId());
+
+  layout();
 
   return 0;
 }
@@ -625,9 +632,13 @@ static void layout(void) {
     openGLViewWidth = openGLViewHeight * 480 / 320;
   }
   openGLViewTop = (phoneGetViewHeight(0) -
-    openGLViewHeight) / 2;
+    openGLViewHeight) / 2 - dp(40);
   phoneSetViewFrame(openGLView, margin, openGLViewTop,
     openGLViewWidth, openGLViewHeight);
+
+  phoneSetViewFrame(noteView, margin, openGLViewTop + openGLViewHeight + dp(10),
+    openGLViewWidth, dp(12));
+  phoneSetViewFontSize(noteView, dp(12));
 
   gameWidth = (int)openGLViewWidth;
   gameHeight = (int)openGLViewHeight;
