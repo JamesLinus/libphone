@@ -80,7 +80,7 @@ libphone is not an IDE, so it's still a requirement that following the official 
 
             defaultConfig {
                 applicationId "com.example.jeremy.test"
-                minSdkVersion.apiLevel 15
+                minSdkVersion.apiLevel 7
                 targetSdkVersion.apiLevel 23
                 versionCode 1
                 versionName "1.0"
@@ -165,7 +165,7 @@ Tools
 Generate different kinds of specific image resources which required by both platforms automatically.
 
 **tools/phonelayout.py**   
-Generate C codes for view layout based on xml
+Generate C codes for view layout based on xml  
 
 Licensing
 -----------------
