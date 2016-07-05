@@ -80,7 +80,7 @@ libphone is not an IDE, so it's still a requirement that following the official 
 
             defaultConfig {
                 applicationId "com.example.jeremy.test"
-                minSdkVersion.apiLevel 7
+                minSdkVersion.apiLevel 8
                 targetSdkVersion.apiLevel 23
                 versionCode 1
                 versionName "1.0"

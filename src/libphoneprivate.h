@@ -228,5 +228,6 @@ int shareStopShakeDetection(void);
 int shareDispatchShake(void);
 int shareAddHandleToLink(int handle, int *link);
 int shareRemoveHandleFromLink(int handle, int *link);
+int shareIsShakeSensorSupported(void);
 
 #endif
