@@ -1,6 +1,8 @@
 package com.libphone;
 
 import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -62,6 +64,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 import java.util.LinkedList;
 import java.util.List;
 import android.content.res.AssetManager;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorEvent;
+import android.util.FloatMath;
 
 public class PhoneActivity extends Activity {
 
@@ -801,6 +806,7 @@ public class PhoneActivity extends Activity {
     private native int nativeSendAppLayoutChanging();
     private native int nativeInvokeOpenGLViewRender(int handle, long func);
     private native int nativeInvokeThread(int handle, long func);
+    private native int nativeDispatchShake();
 
     private Object findHandleObject(int handle) {
         return handleMap.get(handle);
@@ -1438,6 +1444,63 @@ public class PhoneActivity extends Activity {
 
     public int javaRemoveThread(int handle) {
         removeHandleObject(handle);
+        return 0;
+    }
+
+    public int javaIsShakeDetectionSupported() {
+        SensorManager sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        return null != sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ? 1 : 0;
+    }
+
+    private SensorEventListener shakeEventListener = null;
+    private float shakeAccelerometer = 0;
+    private float shakeLastAccelerometer = 0;
+    private float shakeCurrentAccelerometer = 0;
+    private long shakeLastTime = 0;
+    private long shakeRegisterTime = 0;
+
+    public int javaStartShakeDetection() {
+        if (null == shakeEventListener) {
+            shakeRegisterTime = System.currentTimeMillis();
+            shakeEventListener = new SensorEventListener() {
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // ignore
+                }
+
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    float x = event.values[0];
+                    float y = event.values[1];
+                    float z = event.values[2];
+                    long currentTime = System.currentTimeMillis();
+                    shakeLastAccelerometer = shakeCurrentAccelerometer;
+                    shakeCurrentAccelerometer = (float)Math.sqrt(x*x + y*y + z*z);
+                    float delta = shakeCurrentAccelerometer - shakeLastAccelerometer;
+                    shakeAccelerometer = shakeAccelerometer * 0.9f + delta;
+                    if (shakeAccelerometer > 5) {
+                        if (shakeLastTime > 0 && currentTime - shakeLastTime < 500 &&
+                                currentTime - shakeLastTime > 60) {
+                            if (currentTime - shakeRegisterTime > 500) {
+                                nativeDispatchShake();
+                            }
+                        }
+                        shakeLastTime = System.currentTimeMillis();
+                    }
+                }
+            };
+            SensorManager sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+            Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            sensorManager.registerListener(shakeEventListener, sensor,
+                    SensorManager.SENSOR_DELAY_UI);
+        }
+        return 0;
+    }
+
+    public int javaStopShakeDetection() {
+        SensorManager sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        sensorManager.unregisterListener(shakeEventListener);
+        shakeEventListener = null;
         return 0;
     }
 }

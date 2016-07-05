@@ -20,13 +20,11 @@ CGFloat statusBarSize = 0;
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  [self.view becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
 }
-
 
 - (BOOL)shouldAutorotate {
   return YES;
@@ -38,6 +36,12 @@ CGFloat statusBarSize = 0;
 
 - (BOOL)becomeFirstResponder {
   return YES;
+}
+
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
+  if (UIEventSubtypeMotionShake == motion) {
+    shareDispatchShake();
+  }
 }
 
 @end
@@ -1180,4 +1184,18 @@ FILE *shareOpenAsset(const char *filename) {
   return fopen([[[[NSBundle mainBundle] resourcePath]
       stringByAppendingPathComponent:[NSString stringWithUTF8String:filename]]
     UTF8String], "rb");
+}
+
+int shareStartShakeDetection(void) {
+  // no-op
+  return 0;
+}
+
+int shareStopShakeDetection(void) {
+  // no-op
+  return 0;
+}
+
+int shareIsShakeSensorSupported(void) {
+  return 1;
 }

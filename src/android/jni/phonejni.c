@@ -279,6 +279,11 @@ JNIEXPORT jint nativeInvokeThread(JNIEnv *env, jobject obj, jint handle,
   return 0;
 }
 
+JNIEXPORT jint nativeDispatchShake(JNIEnv *env, jobject obj) {
+  shareDispatchShake();
+  return 0;
+}
+
 void phoneInitJava(JavaVM *vm) {
   JNIEnv *env;
   jclass objClass;
@@ -313,6 +318,7 @@ void phoneInitJava(JavaVM *vm) {
     {"nativeSendAppLayoutChanging", "()I", nativeSendAppLayoutChanging},
     {"nativeInvokeOpenGLViewRender", "(IJ)I", nativeInvokeOpenGLViewRender},
     {"nativeInvokeThread", "(IJ)I", nativeInvokeThread},
+    {"nativeDispatchShake", "()I", nativeDispatchShake},
   };
   JNINativeMethod nativeNotifyThreadMethods[] = {
     {"nativeInvokeNotifyThread", "()I", nativeInvokeNotifyThread}
@@ -1005,4 +1011,28 @@ FILE *shareOpenAsset(const char *filename) {
     return 0;
   }
   return funopen(asset, assetRead, assetWrite, assetSeek, assetClose);
+}
+
+int shareStartShakeDetection(void) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaStartShakeDetection", "()I");
+  return result;
+}
+
+int shareStopShakeDetection(void) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaStopShakeDetection", "()I");
+  return result;
+}
+
+int shareIsShakeSensorSupported(void) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaIsShakeDetectionSupported", "()I");
+  return result;
 }

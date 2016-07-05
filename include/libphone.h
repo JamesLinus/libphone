@@ -105,7 +105,6 @@ int phoneLog(int level, const char *tag, const char *fmt, ...);
 int phoneGetThreadId(void);
 int phoneSleep(unsigned int milliseconds);
 int phoneCopyString(char *destBuf, int destSize, const char *src);
-int phoneFormatString(char *destBuf, int destSize, const char *fmt, ...);
 int phoneSetHandleTag(int handle, void *tag);
 void *phoneGetHandleTag(int handle);
 int phoneRemoveTimer(int handle);
@@ -208,6 +207,20 @@ int phoneStartThread(int handle);
 int phoneJoinThread(int handle);
 int phoneRemoveThread(int handle);
 FILE *phoneOpenAsset(const char *filename);
+#define phoneSensorEventTypeMap(XX)                                                             \
+  XX(PHONE_SENSOR_SHAKE, "shake")
+#define XX(code, name) code,
+enum phoneSensorEventType {
+  phoneSensorEventTypeMap(XX)
+};
+#undef XX
+typedef int (*phoneSensorEventHandler)(int handle, int eventType,
+    void *eventParam);
+int phoneCreateShakeSensor(phoneSensorEventHandler eventHandler);
+int phoneRemoveShakeSensor(int handle);
+int phoneStartSensor(int handle);
+int phoneStopSensor(int handle);
+int phoneIsShakeSensorSupported(void);
 
 #if __ANDROID__
 #include <jni.h>

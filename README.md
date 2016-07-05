@@ -13,20 +13,20 @@ Don't hesitate to make a pull request or share ideas on *[trello](https://trello
 
 Screenshots
 -----------------
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/mmorpg.gif" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/android.png" width="240" height="360"/>  
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/rpggame"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/mmorpg.gif" width="240" height="360"/></a>
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/rpggame"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/rpggame/screenshots/android.png" width="240" height="360"/></a>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/android.png" width="240" height="360"/>  
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/tableview"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/ios.png" width="240" height="360"/></a>
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/tableview"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/tableview/screenshots/android.png" width="240" height="360"/></a>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/android.png" width="240" height="360"/>  
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/helloworld"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/ios.png" width="240" height="360"/></a>
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/helloworld"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/helloworld/screenshots/android.png" width="240" height="360"/></a>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/android.png" width="240" height="360"/>  
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/xmllayout"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/ios.png" width="240" height="360"/></a>
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/xmllayout"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/xmllayout/screenshots/android.png" width="240" height="360"/></a>  
 
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/ios.png" width="240" height="360"/>
-<img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/android.png" width="240" height="360"/>  
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/viewstack"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/ios.png" width="240" height="360"/></a>
+<a href="https://github.com/huxingyi/libphone/tree/master/samples/viewstack"><img src="https://raw.githubusercontent.com/huxingyi/libphone/master/samples/viewstack/screenshots/android.png" width="240" height="360"/></a>  
 
 Quick Start
 -------------
@@ -150,6 +150,8 @@ Features
   - Rotate
   - Pull to Refresh  
   - OpenGL ES 2.0  
+- Sensor  
+  - Shake  
 - Work Queue
 - Timer  
 - Native Thread  
