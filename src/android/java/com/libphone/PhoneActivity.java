@@ -1503,4 +1503,10 @@ public class PhoneActivity extends Activity {
         shakeEventListener = null;
         return 0;
     }
+
+    public int javaGetViewParent(int handle) {
+        View view = (View)findHandleObject(handle);
+        View parentView = (View)view.getParent();
+        return parentView.getId();
+    }
 }

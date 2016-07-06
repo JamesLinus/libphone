@@ -1007,3 +1007,10 @@ int shareDispatchShake(void) {
 int phoneIsShakeSensorSupported(void) {
   return shareIsShakeSensorSupported();
 }
+
+int phoneGetViewParent(int handle) {
+  if (0 == handle) {
+    return 0;
+  }
+  return shareGetViewParent(handle);
+}

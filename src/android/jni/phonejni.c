@@ -1036,3 +1036,12 @@ int shareIsShakeSensorSupported(void) {
     "javaIsShakeDetectionSupported", "()I");
   return result;
 }
+
+int shareGetViewParent(int handle) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaGetViewParent", "(I)I",
+    (jint)handle);
+  return result;
+}

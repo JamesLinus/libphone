@@ -456,7 +456,12 @@ static const char *phoneLogLevelToString(int level) {
 }
 
 int shareDumpLog(int level, const char *tag, const char *log, int len) {
-  return printf("%s %s %.*s\n", phoneLogLevelToString(level), tag, len, log);
+  if (level >= PHONE_LOG_INFO) {
+    NSLog(@"%@", [NSString stringWithUTF8String:log]);
+  } else {
+    printf("%s %s %.*s\n", phoneLogLevelToString(level), tag, len, log);
+  }
+  return 0;
 }
 
 int shareNeedFlushMainWorkQueue(void) {
@@ -1198,4 +1203,10 @@ int shareStopShakeDetection(void) {
 
 int shareIsShakeSensorSupported(void) {
   return 1;
+}
+
+int shareGetViewParent(int handle) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  return [view superview].tag;
 }

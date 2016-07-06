@@ -221,6 +221,7 @@ int phoneRemoveShakeSensor(int handle);
 int phoneStartSensor(int handle);
 int phoneStopSensor(int handle);
 int phoneIsShakeSensorSupported(void);
+int phoneGetViewParent(int handle);
 
 #if __ANDROID__
 #include <jni.h>
