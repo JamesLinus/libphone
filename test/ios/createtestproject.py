@@ -30,5 +30,6 @@ with open('project.pbxproj', 'r') as seedFile:
     '$(SRCROOT)/../../src', '$(SRCROOT)/../../test']});
   project.add_single_valued_flag('INFOPLIST_FILE', '$(SRCROOT)/Info.plist')
   project.add_single_valued_flag('PRODUCT_BUNDLE_IDENTIFIER', 'libphone.test')
+  project.add_single_valued_flag('IPHONEOS_DEPLOYMENT_TARGET', '8.2')
   project.remove_single_valued_flag('ASSETCATALOG_COMPILER_APPICON_NAME')
   project.save()
