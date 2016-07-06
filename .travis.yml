@@ -3,4 +3,4 @@ os:
 
 language: c
 script:
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; python .travis/testios.py
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then python .travis/testios.py; fi
