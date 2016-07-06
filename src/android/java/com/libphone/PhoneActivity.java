@@ -1363,7 +1363,9 @@ public class PhoneActivity extends Activity {
             ((ViewGroup)view.getParent()).removeView(view);
         }
         removeHandleObject(handle);
-        removeOpenGLViewFromList((GLSurfaceView)view);
+        if (view instanceof GLSurfaceView) {
+            removeOpenGLViewFromList((GLSurfaceView) view);
+        }
         return 0;
     }
 
