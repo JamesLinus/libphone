@@ -7,23 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		05B648E29BBCF2DAB80C8932 /* testview.c */ = {isa = PBXBuildFile; fileRef = 4564450BB56D97035C97BC8F /* testview.c */; };
-		25534F83973942DB6E894CB8 /* testtimer.c */ = {isa = PBXBuildFile; fileRef = 6C0E46C780BB50CF8919DBCF /* testtimer.c */; };
-		42984BFEA8EFCF9D6FD9E861 /* test.c */ = {isa = PBXBuildFile; fileRef = 7CEA489F8AD2A73CBA035A1C /* test.c */; };
-		46D5436C8B5DD451CF7E81DE /* libphone.c */ = {isa = PBXBuildFile; fileRef = 2E334AF3AA41FCC15FA21C6A /* libphone.c */; };
-		7717409EBE3CEB29049BADA5 /* main.m */ = {isa = PBXBuildFile; fileRef = BC44461C8CBD00C1AE72CE96 /* main.m */; };
-		C8EF47578E44E83FBE274ECE /* iosphone.m */ = {isa = PBXBuildFile; fileRef = 13E9403BA0193C64B480D23A /* iosphone.m */; };
+		119F4258A7F598CDB0DF5A12 /* main.m */ = {isa = PBXBuildFile; fileRef = 09174A89AEFBB813F3AB0450 /* main.m */; };
+		1C24478D8705BD9CB933A4F1 /* testview.c */ = {isa = PBXBuildFile; fileRef = 4BEC4FB8832925AE6A0D681C /* testview.c */; };
+		83314374996A8A28A9AB52A6 /* libphone.c */ = {isa = PBXBuildFile; fileRef = 57574D1BB1B64D3AFE8A3CD3 /* libphone.c */; };
+		A59A41F08E712BDCFFE61296 /* testtimer.c */ = {isa = PBXBuildFile; fileRef = 6DD14FE4800807FA0F6C2710 /* testtimer.c */; };
+		ABC14A0880C7B0F50DB545D8 /* test.c */ = {isa = PBXBuildFile; fileRef = FD71419BA71DBDAF57C7DBBE /* test.c */; };
+		C6FC4DB18DDFB20E1E1A1848 /* iosphone.m */ = {isa = PBXBuildFile; fileRef = 117D42E8922319383EDA3251 /* iosphone.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13E9403BA0193C64B480D23A /* iosphone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = iosphone.m; path = ../../src/ios/iosphone.m; sourceTree = SOURCE_ROOT; };
-		2E334AF3AA41FCC15FA21C6A /* libphone.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = libphone.c; path = ../../src/libphone.c; sourceTree = SOURCE_ROOT; };
+		09174A89AEFBB813F3AB0450 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../test/ios/main.m; sourceTree = SOURCE_ROOT; };
+		117D42E8922319383EDA3251 /* iosphone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = iosphone.m; path = ../../src/ios/iosphone.m; sourceTree = SOURCE_ROOT; };
 		3FA169A51D2C978C00B82066 /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FA169B91D2C978C00B82066 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4564450BB56D97035C97BC8F /* testview.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = testview.c; path = ../../test/testview.c; sourceTree = SOURCE_ROOT; };
-		6C0E46C780BB50CF8919DBCF /* testtimer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = testtimer.c; path = ../../test/testtimer.c; sourceTree = SOURCE_ROOT; };
-		7CEA489F8AD2A73CBA035A1C /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = test.c; path = ../../test/test.c; sourceTree = SOURCE_ROOT; };
-		BC44461C8CBD00C1AE72CE96 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../test/ios/main.m; sourceTree = SOURCE_ROOT; };
+		4BEC4FB8832925AE6A0D681C /* testview.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = testview.c; path = ../../test/testview.c; sourceTree = SOURCE_ROOT; };
+		57574D1BB1B64D3AFE8A3CD3 /* libphone.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = libphone.c; path = ../../src/libphone.c; sourceTree = SOURCE_ROOT; };
+		6DD14FE4800807FA0F6C2710 /* testtimer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = testtimer.c; path = ../../test/testtimer.c; sourceTree = SOURCE_ROOT; };
+		FD71419BA71DBDAF57C7DBBE /* test.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = test.c; path = ../../test/test.c; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,12 +42,12 @@
 			children = (
 				3FA169A71D2C978C00B82066 /* test */,
 				3FA169A61D2C978C00B82066 /* Products */,
-				2E334AF3AA41FCC15FA21C6A /* libphone.c */,
-				13E9403BA0193C64B480D23A /* iosphone.m */,
-				7CEA489F8AD2A73CBA035A1C /* test.c */,
-				6C0E46C780BB50CF8919DBCF /* testtimer.c */,
-				4564450BB56D97035C97BC8F /* testview.c */,
-				BC44461C8CBD00C1AE72CE96 /* main.m */,
+				57574D1BB1B64D3AFE8A3CD3 /* libphone.c */,
+				117D42E8922319383EDA3251 /* iosphone.m */,
+				FD71419BA71DBDAF57C7DBBE /* test.c */,
+				6DD14FE4800807FA0F6C2710 /* testtimer.c */,
+				4BEC4FB8832925AE6A0D681C /* testview.c */,
+				09174A89AEFBB813F3AB0450 /* main.m */,
 			);
 			sourceTree = "<group>";
 		};
@@ -134,12 +134,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46D5436C8B5DD451CF7E81DE /* libphone.c */,
-				C8EF47578E44E83FBE274ECE /* iosphone.m */,
-				42984BFEA8EFCF9D6FD9E861 /* test.c */,
-				25534F83973942DB6E894CB8 /* testtimer.c */,
-				05B648E29BBCF2DAB80C8932 /* testview.c */,
-				7717409EBE3CEB29049BADA5 /* main.m */,
+				83314374996A8A28A9AB52A6 /* libphone.c */,
+				C6FC4DB18DDFB20E1E1A1848 /* iosphone.m */,
+				ABC14A0880C7B0F50DB545D8 /* test.c */,
+				A59A41F08E712BDCFFE61296 /* testtimer.c */,
+				1C24478D8705BD9CB933A4F1 /* testview.c */,
+				119F4258A7F598CDB0DF5A12 /* main.m */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
