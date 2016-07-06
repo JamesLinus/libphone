@@ -108,10 +108,10 @@ class SimulatorController:
         while count < self.maxRetryTimes:
             result, out = executeCmd('xcrun simctl install booted {}'.format(appPath))
             if 0 == result:
-                break
+                return True
             count += 1
             time.sleep(1)
-        return True
+        return False
 
     def runAppOnBootedSimulator(self, appName):
         result, out = executeCmd('xcrun simctl launch booted {}'.format(appName))
