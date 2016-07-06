@@ -35,6 +35,21 @@ class SimulatorController:
     def __init__(self):
         self.maxBootWaitSeconds = 300
         self.maxRetryTimes = 30
+        self.xcodeVer = None
+
+    def getXcodeVersion(self):
+        if None != self.xcodeVer:
+            return self.xcodeVer
+        result, out = executeCmd('xcodebuild -version')
+        if 0 != result:
+            self.xcodeVer = 'Xcode Notfound'
+            return self.xcodeVer
+        matchResult = re.search('(Xcode .+)', out)
+        if None != matchResult:
+            self.xcodeVer = matchResult.group(1)
+            return self.xcodeVer
+        self.xcodeVer = 'Xcode Unknown'
+        return self.xcodeVer
 
     def getSimulatorList(self):
         result, out = executeCmd('xcrun simctl list')
@@ -65,6 +80,11 @@ class SimulatorController:
                     return False
         return False
 
+    def getSimulatorProcessName(self):
+        if -1 != self.getXcodeVersion().find('Xcode 7'):
+            return 'Simulator'
+        return 'iOS Simulator'
+
     def bootSimulator(self, UDID):
         needKill = True
         countSecondsForBoot = 0;
@@ -73,10 +93,10 @@ class SimulatorController:
                 return True
             if needKill:
                 needKill = False
-                executeCmd('killall "Simulator"')
+                executeCmd('killall "{}"'.format(self.getSimulatorProcessName()))
             if countSecondsForBoot > self.maxBootWaitSeconds:
-                break;
-            result, out = executeCmd('open -a Simulator --args -CurrentDeviceUDID {}'.format(device['UDID']))
+                break
+            result, out = executeCmd('open -a "{}" --args -CurrentDeviceUDID {}'.format(self.getSimulatorProcessName(), device['UDID']))
             if 0 != result:
                 return False
             time.sleep(1)
@@ -133,8 +153,9 @@ class SimulatorController:
 
 if __name__ == "__main__":
     simctrl = SimulatorController()
+    print('{}'.format(simctrl.getXcodeVersion()))
     testList = simctrl.getOrderedTestList()
-    maxWaitLogSeconds = 20
+    maxWaitLogSeconds = 10
     if 0 == len(testList):
         die('getOrderedTestList failed')
     print('will build')
@@ -160,6 +181,7 @@ if __name__ == "__main__":
             output = logWather.read()
             if None != output:
                 if -1 != output.find('TEST[libphone]'):
+                    countSecondsForWait = 0
                     print(output)
                     if -1 != output.find('All Test Succeed('):
                         break

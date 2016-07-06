@@ -1,4 +1,4 @@
-Overview <img src="https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000" width="122" height="20"/>
+Overview <img src="https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000" width="122" height="20"/> [![Build Status](https://travis-ci.org/huxingyi/libphone.svg?branch=master)](https://travis-ci.org/huxingyi/libphone)
 -------------
 libphone is a cross-platform library which supports iOS and Android development in C language, with a focus on a core set features.
 
