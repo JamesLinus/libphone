@@ -20,8 +20,12 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 28 --no-ui --force > /dev/null; fi
 
 before_script:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeScript; fi
 
 script:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then python .travis/testios.py; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py script; fi
