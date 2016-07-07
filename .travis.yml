@@ -4,6 +4,9 @@ os:
 
 language: c
 
+before_install:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeInstall; fi
+
 before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeScript; fi
 
