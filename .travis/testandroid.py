@@ -145,24 +145,6 @@ class EmulatorController:
             return False
         return True
 
-def beforeInstall():
-    print('will download sdk')
-    result, out = executeCmd('wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz')
-    if 0 != result:
-        die('failed to download sdk')
-    result, out = executeCmd('tar xzf android-sdk_r23.0.2-linux.tgz')
-    if 0 != result:
-        die('failed to tar package')
-    executeCmd('export ANDROID_HOME=$PWD/android-sdk-linux')
-    executeCmd('echo $ANDROID_HOME')
-    executeCmd('export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools')
-    executeCmd('echo $PATH')
-    print('will update sdk')
-    result, out = executeCmd('echo "y" | android update sdk --filter platform-tools,build-tools-25.1.7,android-23,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null')
-    if 0 != result:
-        die('failed to update sdk')
-    print('will leave before_install')
-
 def beforeScript():
     emuctrl = EmulatorController()
     print('will fetch supported platforms')
@@ -220,10 +202,8 @@ def script():
 if __name__ == "__main__":
     action = sys.argv[1] if len(sys.argv) >= 2 else None
     if None == action:
-        die('usage: python .travis/testandroid.py <beforeInstall/beforeScript/script>')
-    if 'beforeInstall' == action:
-        beforeInstall()
-    elif 'beforeScript' == action:
+        die('usage: python .travis/testandroid.py <beforeScript/script>')
+    if 'beforeScript' == action:
         beforeScript()
     elif 'script' == action:
         script()
