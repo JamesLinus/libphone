@@ -9,7 +9,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --filter; fi platform-tools,build-tools-25.1.7,android-23,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --filter platform-tools,build-tools-25.1.7,android-23,extra-android-support,$ANDROID_SDKS --no-ui --force > /dev/null; fi
 
 before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeScript; fi
