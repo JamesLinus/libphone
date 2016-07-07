@@ -1,6 +1,12 @@
 os:
   - osx
+  - linux
 
 language: c
+
+before_script:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeScript; fi
+
 script:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then python .travis/testios.py; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py script; fi

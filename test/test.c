@@ -30,6 +30,7 @@ static struct {
 struct testContext {
   testItem *firstTestItem;
   testItem *lastTestItem;
+  int postedExit:1;
 };
 
 typedef struct testItem {
@@ -130,6 +131,21 @@ void testAddItem(const char *testName, testItemHandler testHandler) {
   testHandler(item);
 }
 
+static void realExit(int handle) {
+  int code = phoneGetHandleTag(handle);
+  exit(code);
+}
+
+static void testExit(int code) {
+  int delayHandle;
+  if (test->postedExit) {
+    return;
+  }
+  test->postedExit = 1;
+  delayHandle = phoneCreateTimer(500, realExit);
+  phoneSetHandleTag(delayHandle, code);
+}
+
 static void testCheck(void) {
   testItem *loop = test->firstTestItem;
   int total = 0;
@@ -151,10 +167,11 @@ static void testCheck(void) {
   if (total != succeed) {
     phoneLog(PHONE_LOG_ERROR, TEST_TAG, TEST_TAG "Test Failed(%d/%d)", total - succeed,
       total);
-    exit(total - succeed);
+    testExit(total - succeed);
+    return;
   }
   phoneLog(PHONE_LOG_INFO, TEST_TAG, TEST_TAG "All Test Succeed(%d)", total);
-  exit(0);
+  testExit(0);
 }
 
 void testSucceed(testItem *item) {

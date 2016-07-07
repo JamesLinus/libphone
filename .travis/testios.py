@@ -3,8 +3,6 @@ import os
 import re
 import subprocess
 import time
-from threading import Thread
-from Queue import Queue, Empty
 
 def executeCmd(cmd):
     try:
@@ -186,10 +184,10 @@ if __name__ == "__main__":
                     if -1 != output.find('All Test Succeed('):
                         break
                     if -1 != output.find('Test Failed('):
-                        die('will quit travis because test not passed')
+                        die('will quit because test not passed')
             else:
                 if countSecondsForWait > maxWaitLogSeconds:
                     die('waiting too long for log')
                 time.sleep(1)
                 countSecondsForWait += 1
-    print('will quit travis because test done')
+    print('will quit because test done')

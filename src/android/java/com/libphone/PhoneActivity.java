@@ -1299,13 +1299,18 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public int javaSetStatusBarBackgroundColor(int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= 21) {
             Window window = getWindow();
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(0xff000000 | color);
+            window.addFlags(0x80000000);
+            //window.setStatusBarColor(0xff000000 | color);
+            try {
+                window.getClass().getDeclaredMethod("setStatusBarColor", int.class).invoke(window,
+                        0xff000000 | color);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return 0;
         };
         return -1;
