@@ -9,7 +9,15 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --filter platform-tools,build-tools-25.1.7,android-23,extra-android-support,android-23,sysimg-23 --no-ui --force > /dev/null; fi
+  # - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --filter platform-tools,build-tools-25.1.7,android-23,extra-android-support,android-23,sysimg-23 --no-ui --force > /dev/null; fi
+  # --filter 1: build-tools-25.1.7
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 1 --no-ui --force > /dev/null; fi
+  # --filter 57: sys-img-armeabi-v7a-android-23
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 57 --no-ui --force > /dev/null; fi
+  # --filter 5: build-tools-23.0.2
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 5 --no-ui --force > /dev/null; fi
+  # --filter 28: android-23
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 28 --no-ui --force > /dev/null; fi
 
 before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then python .travis/testandroid.py beforeScript; fi
