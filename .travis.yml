@@ -18,7 +18,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 5 --no-ui --force > /dev/null; fi
   # --filter 28: android-23
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 28 --no-ui --force > /dev/null; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then chmod -R +x ${ANDROID_HOME}; fi
+  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then chmod -R +x ${ANDROID_HOME}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then apt-get install ia32-libs; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then adb version; fi
 
 before_script:
