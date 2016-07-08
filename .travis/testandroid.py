@@ -5,11 +5,8 @@ import subprocess
 import time
 
 def executeCmd(cmd):
-    extraEnv = os.environ.copy()
-    print(extraEnv)
-    #extraEnv["PATH"] = "" + extraEnv["PATH"]
     try:
-        out = subprocess.check_output(cmd, env=extraEnv, shell=True)
+        out = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         return (e.returncode, e.output)
     return (0, out)
