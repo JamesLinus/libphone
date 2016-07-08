@@ -3,7 +3,9 @@
 #include <pthread.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
 #import <QuartzCore/QuartzCore.h>
-#import <GLKit/GLKit.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 phoneAppDelegate *objcDelegate = nil;
 NSMutableDictionary *objcHandleMap = nil;
@@ -125,7 +127,7 @@ CGFloat statusBarSize = 0;
 
 @interface PhoneTableView : UITableView <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
-@property (nonatomic, strong) UIRefreshControl *refreshOverlayView;
+@property (nonatomic, strong) UIView *refreshOverlayView;
 @end
 
 @implementation PhoneTableView
@@ -144,7 +146,7 @@ CGFloat statusBarSize = 0;
 }
 
 - (void)refresh:(UIRefreshControl *)refreshControl {
-  shareRequestTableViewRefresh(self.tag);
+  shareRequestTableViewRefresh((int)self.tag);
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -155,14 +157,14 @@ CGFloat statusBarSize = 0;
       self.refreshControl.bounds.size.height);
     overlayFrame.size.height = -scrollView.contentOffset.y;
     self.refreshOverlayView.frame = overlayFrame;
-    shareRequestTableViewUpdateRefreshView(self.tag,
-      self.refreshOverlayView.tag);
+    shareRequestTableViewUpdateRefreshView((int)self.tag,
+      (int)self.refreshOverlayView.tag);
   }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
   int refreshHandle;
-  int handle = tableView.tag;
+  int handle = (int)tableView.tag;
   if (0 == handle) {
     return 0;
   }
@@ -193,7 +195,7 @@ CGFloat statusBarSize = 0;
 
 - (NSInteger)tableView:(UITableView *)tableView
     numberOfRowsInSection:(NSInteger)section {
-  int handle = tableView.tag;
+  int handle = (int)tableView.tag;
   if (0 == handle) {
     return 0;
   }
@@ -202,17 +204,17 @@ CGFloat statusBarSize = 0;
 
 - (void)tableView: (UITableView *)tableView
 	  didSelectRowAtIndexPath: (NSIndexPath *)indexPath {
-  int handle = tableView.tag;
-  shareRequestTableViewCellClick(handle, indexPath.section, indexPath.row,
-    [(PhoneTableView *)tableView
+  int handle = (int)tableView.tag;
+  shareRequestTableViewCellClick(handle, (int)indexPath.section,
+    (int)indexPath.row, [(PhoneTableView *)tableView
       getRenderHandleFromIndexPath:indexPath]);
 }
 
 - (CGFloat)tableView:(UITableView *)tableView
     heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-  int handle = tableView.tag;
+  int handle = (int)tableView.tag;
   return (CGFloat)shareRequestTableViewRowHeight(handle,
-    indexPath.section, indexPath.row);
+    (int)indexPath.section, (int)indexPath.row);
 }
 
 - (NSString *)tableView:(UITableView *)tableView
@@ -229,7 +231,7 @@ CGFloat statusBarSize = 0;
   if (nil != cell && nil != cell.contentView) {
     for (UIView *loopView in cell.contentView.subviews) {
       if (loopView.tag > 0) {
-        return loopView.tag;
+        return (int)loopView.tag;
       }
     }
   }
@@ -247,22 +249,23 @@ CGFloat statusBarSize = 0;
 - (void)tableView:(UITableView *)tableView
     willDisplayCell:(UITableViewCell *)cell
     forRowAtIndexPath:(NSIndexPath *)indexPath {
-  int handle = tableView.tag;
+  int handle = (int)tableView.tag;
   if (0 == handle) {
     return;
   }
-  shareRequestTableViewCellRender(handle, indexPath.section, indexPath.row,
-    [(PhoneTableView *)tableView getRenderHandleFromCell:cell]);
+  shareRequestTableViewCellRender(handle, (int)indexPath.section,
+    (int)indexPath.row, [(PhoneTableView *)tableView
+      getRenderHandleFromCell:cell]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
     cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  int handle = tableView.tag;
+  int handle = (int)tableView.tag;
   char buf[4096];
   UITableViewCell *cell;
   NSString *cellIdentifier;
-  shareRequestTableViewCellIdentifier(handle, indexPath.section,
-      indexPath.row, buf, sizeof(buf));
+  shareRequestTableViewCellIdentifier(handle, (int)indexPath.section,
+      (int)indexPath.row, buf, sizeof(buf));
   cellIdentifier = [NSString stringWithUTF8String:buf];
   cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
   if (nil == cell) {
@@ -270,8 +273,8 @@ CGFloat statusBarSize = 0;
     cell = [[UITableViewCell alloc]
         initWithStyle:UITableViewCellStyleDefault
         reuseIdentifier:cellIdentifier];
-    customView = shareRequestTableViewCellCustomView(handle, indexPath.section,
-        indexPath.row);
+    customView = shareRequestTableViewCellCustomView(handle,
+        (int)indexPath.section, (int)indexPath.row);
     if (customView) {
       [cell.contentView addSubview:(UIView *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:customView]]];
@@ -419,7 +422,7 @@ CGFloat statusBarSize = 0;
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
-  int handle = view.tag;
+  int handle = (int)view.tag;
   if (nil == view.context) {
     return;
   }
@@ -922,7 +925,7 @@ int shareSetViewVerticalAlign(int handle, int align) {
 
 int shareCreateTableView(int handle, int parentHandle) {
   PhoneTableView *view = [[PhoneTableView alloc]
-    initWithStyle:PHONE_TABLE_VIEW_STYLE_PLAIN];
+    initWithStyle:UITableViewStylePlain];
   [objcHandleMap
     setObject:view
     forKey:[NSNumber numberWithInt:handle]];
@@ -1080,7 +1083,10 @@ int shareCreateOpenGLView(int handle, int parentHandle) {
     forKey:[NSNumber numberWithInt:handle]];
   addViewToParent(view, parentHandle);
   view.tag = handle;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   view.context = nil;
+#pragma clang diagnostic pop
   view.enableSetNeedsDisplay = NO;
   view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
   view.delegate = objcDelegate;
@@ -1145,7 +1151,7 @@ int shareCreateThread(int handle, const char *threadName) {
   }
   phoneSetHandleContext(handle, ctx);
   if (threadName) {
-    int threadNameLen = strlen(threadName);
+    int threadNameLen = (int)strlen(threadName);
     ctx->threadName = shareMalloc(threadNameLen + 1);
     memcpy(ctx->threadName, threadName, threadNameLen + 1);
   }
@@ -1155,24 +1161,21 @@ int shareCreateThread(int handle, const char *threadName) {
 }
 
 int shareStartThread(int handle) {
-  phoneHandle *handleData = pHandle(handle);
   threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
   pthread_create(&ctx->threadId, 0, runThread, ctx);
   return 0;
 }
 
 int shareJoinThread(int handle) {
-  phoneHandle *handleData = pHandle(handle);
   threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
   if (ctx) {
     void *threadReturn = 0;
-    pthread_join(&ctx->threadId, &threadReturn);
+    pthread_join(ctx->threadId, &threadReturn);
   }
   return 0;
 }
 
 int shareRemoveThread(int handle) {
-  phoneHandle *handleData = pHandle(handle);
   threadContext *ctx = (threadContext *)phoneGetHandleContext(handle);
   if (ctx) {
     if (ctx->threadName) {
@@ -1208,5 +1211,7 @@ int shareIsShakeSensorSupported(void) {
 int shareGetViewParent(int handle) {
   UIView *view = (UIView *)[objcHandleMap
     objectForKey:[NSNumber numberWithInt:handle]];
-  return [view superview].tag;
+  return (int)[view superview].tag;
 }
+
+#pragma clang diagnostic pop

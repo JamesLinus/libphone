@@ -1,11 +1,7 @@
-#import urllib
 from mod_pbxproj import XcodeProject
 import sys
 import os
 from shutil import copyfile
-
-#urllib.urlretrieve('https://github.com/huxingyi/libphone/wiki/asserts/seed.pbxproj', 'libphonetest.pbxproj')
-#urllib.urlretrieve('https://github.com/huxingyi/libphone/wiki/asserts/Info.plist', 'Info.plist')
 
 with open('project.pbxproj', 'r') as seedFile:
   seedContents = seedFile.read()
@@ -13,6 +9,7 @@ with open('project.pbxproj', 'r') as seedFile:
     .replace('seedProductName', 'test') \
     .replace('seedOrganizationName', 'libphone') \
     .replace('seedOrganizationIdentifier', 'libphone')
+  os.system('rm -rf libphonetest.xcodeproj')
   os.mkdir('libphonetest.xcodeproj')
   os.mkdir('libphonetest.xcodeproj/project.xcworkspace')
   copyfile('contents.xcworkspacedata', \
@@ -31,5 +28,6 @@ with open('project.pbxproj', 'r') as seedFile:
   project.add_single_valued_flag('INFOPLIST_FILE', '$(SRCROOT)/Info.plist')
   project.add_single_valued_flag('PRODUCT_BUNDLE_IDENTIFIER', 'libphone.test')
   project.add_single_valued_flag('IPHONEOS_DEPLOYMENT_TARGET', '8.2')
+  project.add_single_valued_flag('GCC_TREAT_WARNINGS_AS_ERRORS', 'YES')
   project.remove_single_valued_flag('ASSETCATALOG_COMPILER_APPICON_NAME')
   project.save()

@@ -276,7 +276,6 @@ static void *runWorkItem(void *arg) {
       shareNeedFlushMainWorkQueue();
     }
   }
-  shareWorkQueueThreadUninit();
   return 0;
 }
 
@@ -470,7 +469,7 @@ int phoneAddViewAnimationToSet(int animationHandle, int setHandle) {
   pHandle(animationHandle)->canRemove = 0;
   setHandleData->u.animationSet.total++;
   aniHandleData->next = setHandleData->next;
-  setHandleData->next = (void *)animationHandle;
+  setHandleData->next = (void *)0 + animationHandle;
   aniHandleData->u.animation.animationSetHandle = setHandle;
   return shareAddViewAnimationToSet(animationHandle, setHandle);
 }
@@ -944,7 +943,7 @@ int phoneRemoveShakeSensor(int handle) {
 
 int shareAddHandleToLink(int handle, int *link) {
   phoneHandle *handleData = pHandle(handle);
-  handleData->next = (void *)(*link);
+  handleData->next = (void *)0 + (*link);
   (*link) = handle;
   return 0;
 }

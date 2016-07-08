@@ -170,10 +170,6 @@ enum phoneViewVerticalAlignType {
   PHONE_VIEW_VERTICAL_ALIGN_BOTTOM
 };
 int phoneSetViewVerticalAlign(int handle, int align);
-enum phoneTableViewStyle {
-  PHONE_TABLE_VIEW_STYLE_PLAIN,
-  PHONE_TABLE_VIEW_STYLE_GROUPED
-};
 int phoneCreateTableView(int parentHandle,
     phoneViewEventHandler eventHandler);
 float phoneDipToPix(int dip);
@@ -309,10 +305,13 @@ int phoneJstringToUtf8(jstring jstr, char *buf, int bufSize);
 #include <OpenGLES/ES2/gl.h>
 #if __OBJC__
 #import <UIKit/UIKit.h>
-@interface phoneAppDelegate : UIResponder <UIApplicationDelegate>
+#import <GLKit/GLKit.h>
+@interface phoneAppDelegate : UIResponder <UIApplicationDelegate,
+  GLKViewDelegate>
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) UIImageView *container;
 @property (strong, nonatomic) NSMutableDictionary *handleMap;
+- (void)dispatchTableViewRefresh:(UIRefreshControl *)view;
 @end
 #endif
 #endif

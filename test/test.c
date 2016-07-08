@@ -132,7 +132,7 @@ void testAddItem(const char *testName, testItemHandler testHandler) {
 }
 
 static void realExit(int handle) {
-  int code = phoneGetHandleTag(handle);
+  int code = (int)phoneGetHandleTag(handle);
   exit(code);
 }
 
@@ -143,7 +143,7 @@ static void testExit(int code) {
   }
   test->postedExit = 1;
   delayHandle = phoneCreateTimer(500, realExit);
-  phoneSetHandleTag(delayHandle, code);
+  phoneSetHandleTag(delayHandle, (void *)0 + code);
 }
 
 static void testCheck(void) {
