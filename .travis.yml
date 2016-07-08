@@ -25,7 +25,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t platform-tools --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t android-23 --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t sys-img-armeabi-v7a-android-23 --force --no-ui; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t build-tools-19.0.1 --force --no-ui; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t build-tools-23.0.3 --force --no-ui; fi
   # Lets check if adb is works
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then adb version; fi
 
