@@ -29,7 +29,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t extra-android-support --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t extra-android-m2repository --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t extra-google-m2repository --force --no-ui; fi
-  # Lets check if adb is works
+  # Lets check if adb works
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then adb version; fi
 
 before_script:

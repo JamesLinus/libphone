@@ -156,6 +156,10 @@ if __name__ == "__main__":
     maxWaitLogSeconds = 10
     if 0 == len(testList):
         die('getOrderedTestList failed')
+    print('will analyze')
+    result, out = executeCmd('xcodebuild analyze -project test/ios/libphonetest.xcodeproj -target test -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO')
+    if 0 != result:
+        die('analyze failed, result: {} output: {}'.format(result, out))
     print('will build')
     result, out = executeCmd('xcodebuild -project test/ios/libphonetest.xcodeproj -target test -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO')
     if 0 != result:
