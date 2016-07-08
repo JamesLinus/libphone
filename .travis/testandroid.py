@@ -18,7 +18,7 @@ def die(log):
 
 class EmulatorController:
     def __init__(self):
-        self.maxBootWaitSeconds = 300
+        self.maxBootWaitSeconds = 600
         self.maxRetryTimes = 30
         self.supportedPlatforms = None
         self.wantTestPlatform = 9
@@ -147,6 +147,10 @@ class EmulatorController:
         return True
 
 def beforeScript():
+    print('will build')
+    result, out = executeCmd('cd test/android && ./gradlew assembleDebug')
+    if 0 != result:
+        die('build failed, result: {} output: {}'.format(result, out))
     emuctrl = EmulatorController()
     print('will fetch supported platforms')
     print('supported platforms: {}'.format(emuctrl.getSortedSupportedPlatforms()))
@@ -160,10 +164,6 @@ def beforeScript():
 def script():
     maxLogcatWaitSeconds = 60
     emuctrl = EmulatorController()
-    print('will build')
-    result, out = executeCmd('cd test/android && ./gradlew assembleDebug')
-    if 0 != result:
-        die('build failed, result: {} output: {}'.format(result, out))
     print('will install')
     if not emuctrl.installAppToCurrentEmulator('com.libphone.test',
             'test/android/app/build/outputs/apk/app-debug.apk'):
