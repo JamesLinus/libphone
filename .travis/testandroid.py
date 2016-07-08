@@ -58,6 +58,7 @@ class EmulatorController:
             result, out = executeCmd('android list targets')
             if 0 != result:
                 return []
+            print(out)
             platformList = []
             for item in out.split('----------'):
                 platformMatch = re.search('"android-(\d+)"', item)
