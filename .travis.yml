@@ -10,11 +10,17 @@ before_install:
   # For 32bit tools like adb
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
+  # Android NDK
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget http://dl.google.com/android/ndk/android-ndk-r9c-linux-x86_64.tar.bz2; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-ndk-r9c-linux-x86_64.tar.bz2; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_NDK_HOME=$PWD/android-ndk-r9c; fi
   # Android SDK
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
+  # Set PATH
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}; fi
+  # Update Android SDK
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t tools --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t platform-tools --force --no-ui; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo y | android update sdk -a -t android-23 --force --no-ui; fi
