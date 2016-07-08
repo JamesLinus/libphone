@@ -12,7 +12,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo yes | android update sdk -a -t tools,platform-tools,extra-android-support,extra-android-m2repository,android-23,build-tools-23.0.2,extra-google-google_play_services,extra-google-m2repository --force --no-ui; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo yes | android update sdk -a -t tools,platform-tools,extra-android-support,extra-android-m2repository,android-23,sys-img-armeabi-v7a-android-23,build-tools-23.0.2,extra-google-google_play_services,extra-google-m2repository --force --no-ui; fi
   # For 32bit tools like adb
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
