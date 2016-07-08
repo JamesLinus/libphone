@@ -2,24 +2,27 @@ os:
   - osx
   - linux
 
+sudo: required
+
 language: c
 
 before_install:
+  # Android SDK
+  # --filter 57: sys-img-armeabi-v7a-android-23
+  # --filter 5: build-tools-23.0.2
+  # --filter 28: android-23
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-sdk_r23.0.2-linux.tgz; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_HOME=$PWD/android-sdk-linux; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools; fi
-  # - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --filter platform-tools,build-tools-25.1.7,android-23,extra-android-support,android-23,sysimg-23 --no-ui --force > /dev/null; fi
-  # --filter 2: platform-tools
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 2 --no-ui --force > /dev/null; fi
-  # --filter 57: sys-img-armeabi-v7a-android-23
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 57 --no-ui --force > /dev/null; fi
-  # --filter 5: build-tools-23.0.2
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 5 --no-ui --force > /dev/null; fi
-  # --filter 28: android-23
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo "y" | android update sdk --all --filter 28 --no-ui --force > /dev/null; fi
-  #- if [ "$TRAVIS_OS_NAME" == "linux" ]; then chmod -R +x ${ANDROID_HOME}; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then apt-get install ia32-libs; fi
+  # For 32bit tools like adb
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
+  # Lets check if adb is works
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then adb version; fi
 
 before_script:
