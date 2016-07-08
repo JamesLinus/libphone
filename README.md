@@ -8,8 +8,16 @@ Code once, target both.
 
 Contributing
 ----------------
-Don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
+**Please check TODO List**, don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
 *Note: Please follow the coding style of the existed codes.*
+
+TODO List
+------------
+- [x] Add Travis CI
+- [ ] Add Sensor APIs
+- [ ] Add Test
+- [ ] Add Wiki
+- [ ] Release Beta Version
 
 Screenshots
 -----------------
