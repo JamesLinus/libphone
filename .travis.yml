@@ -26,6 +26,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo $PATH; fi
 
 before_script:
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then adb version; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then echo $PWD; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ls; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ls ${ANDROID_HOME}; fi

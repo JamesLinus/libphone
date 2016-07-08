@@ -204,6 +204,8 @@ if __name__ == "__main__":
     if None == action:
         die('usage: python .travis/testandroid.py <beforeScript/script>')
     if 'beforeScript' == action:
+        result, out = executeCmd('echo PATH in subprocess is $PATH')
+        print(out)
         beforeScript()
     elif 'script' == action:
         script()
