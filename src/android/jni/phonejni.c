@@ -269,13 +269,13 @@ JNIEXPORT jint nativeSendAppLayoutChanging(JNIEnv *env, jobject obj,
 
 JNIEXPORT jint nativeInvokeOpenGLViewRender(JNIEnv *env, jobject obj,
     int handle, jlong func) {
-  ((phoneOpenGLViewRenderHandler)func)(handle);
+  ((phoneOpenGLViewRenderHandler)((char *)0 + func))(handle);
   return 0;
 }
 
 JNIEXPORT jint nativeInvokeThread(JNIEnv *env, jobject obj, jint handle,
     jlong func) {
-  ((phoneThreadRunHandler)func)(handle);
+  ((phoneThreadRunHandler)((char *)0 + func))(handle);
   return 0;
 }
 
@@ -936,7 +936,7 @@ int shareBeginOpenGLViewRender(int handle,
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, activity,
     "javaBeginOpenGLViewRender", "(IJ)I",
-    (jint)handle, (jlong)renderHandler);
+    (jint)handle, (jlong)((char *)renderHandler - (char *)0));
   return result;
 }
 
@@ -955,7 +955,7 @@ int shareStartThread(int handle) {
   phoneHandle *handleData = pHandle(handle);
   phoneCallJavaReturnInt(result, env, activity,
     "javaStartThread", "(IJ)I",
-    (jint)handle, (jlong)handleData->u.thread.runHandler);
+    (jint)handle, (jlong)((char *)handleData->u.thread.runHandler - (char *)0));
   return result;
 }
 

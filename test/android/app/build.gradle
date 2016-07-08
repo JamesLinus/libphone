@@ -25,6 +25,7 @@ model {
         println("whereIsTheBuildDir: " + String.valueOf(project.buildDir))
         CFlags.add("-I" + String.valueOf(project.buildDir) + "/../../../../include")
         CFlags.add("-I" + String.valueOf(project.buildDir) + "/../../../../src")
+        CFlags.add("-Werror")
         ldLibs.add("log")
         ldLibs.add("GLESv2")
         ldLibs.add("android")

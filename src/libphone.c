@@ -469,7 +469,7 @@ int phoneAddViewAnimationToSet(int animationHandle, int setHandle) {
   pHandle(animationHandle)->canRemove = 0;
   setHandleData->u.animationSet.total++;
   aniHandleData->next = setHandleData->next;
-  setHandleData->next = (void *)0 + animationHandle;
+  setHandleData->next = (void *)((char *)0 + animationHandle);
   aniHandleData->u.animation.animationSetHandle = setHandle;
   return shareAddViewAnimationToSet(animationHandle, setHandle);
 }
@@ -943,7 +943,7 @@ int phoneRemoveShakeSensor(int handle) {
 
 int shareAddHandleToLink(int handle, int *link) {
   phoneHandle *handleData = pHandle(handle);
-  handleData->next = (void *)0 + (*link);
+  handleData->next = (void *)((char *)0 + (*link));
   (*link) = handle;
   return 0;
 }
