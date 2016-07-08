@@ -12,7 +12,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
   # Android NDK
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget http://dl.google.com/android/ndk/android-ndk-r9c-linux-x86_64.tar.bz2; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xzf android-ndk-r9c-linux-x86_64.tar.bz2; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then tar xf android-ndk-r9c-linux-x86_64.tar.bz2; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export ANDROID_NDK_HOME=$PWD/android-ndk-r9c; fi
   # Android SDK
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz; fi
