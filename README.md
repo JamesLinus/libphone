@@ -17,7 +17,8 @@ TODO List
 - [ ] Add Sensor APIs
 - [ ] Add Test
 - [ ] Add Wiki
-- [ ] Release Beta Version
+- [ ] Make [MMORPG.js](https://github.com/huxingyi/MMORPG.js) Works
+- [ ] After Finish Above Perfectly, then We Release the Beta Version
 
 Screenshots
 -----------------
