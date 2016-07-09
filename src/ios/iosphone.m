@@ -1214,4 +1214,11 @@ int shareGetViewParent(int handle) {
   return (int)[view superview].tag;
 }
 
+int phoneDefaultAppEntry(int argc, char * argv[]) {
+  @autoreleasepool {
+    return UIApplicationMain(argc, argv, nil,
+      NSStringFromClass([phoneAppDelegate class]));
+  }
+}
+
 #pragma clang diagnostic pop

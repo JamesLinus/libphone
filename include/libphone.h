@@ -297,6 +297,10 @@ int phoneJstringToUtf8(jstring jstr, char *buf, int bufSize);
 
 #endif
 
+#ifdef __APPLE__
+int phoneDefaultAppEntry(int argc, char * argv[]);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
