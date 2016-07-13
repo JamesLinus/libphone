@@ -43,7 +43,12 @@ typedef struct phoneWorkQueueContext {
   phoneWorkQueueThread *threadArray;
 } phoneWorkQueueContext;
 
-#define PHONE_MAX_VIEW_STACK_DEPTH 10
+typedef struct phoneRunOnMainWorkQueueContext {
+  phoneRunOnMainWorkQueueHandler handler;
+  void *tag;
+  struct phoneRunOnMainWorkQueueContext *next;
+  struct phoneRunOnMainWorkQueueContext *prev;
+} phoneRunOnMainWorkQueueContext;
 
 typedef struct phoneHandle {
   int order;
@@ -107,7 +112,37 @@ typedef struct phoneApplication {
   int maxHandleType;
   float displayDensity;
   int shakeSensorLink;
+  int runOnMainWorkQueueAgencyBusy;
+  int runOnMainWorkQueueAgency;
+  phoneRunOnMainWorkQueueContext *firstRunOnMainWorkQueue;
+  phoneRunOnMainWorkQueueContext *lastRunOnMainWorkQueue;
+  pthread_mutex_t runOnMainWorkQueueLock;
 } phoneApplication;
+
+#define shareAddToLink(item, first, last) do {      \
+  (item)->prev = (last);                            \
+  if (last) {                                       \
+    (last)->next = (item);                          \
+  } else {                                          \
+    (first) = (item);                               \
+  }                                                 \
+  (last) = (item);                                  \
+} while (0)
+
+#define shareRemoveFromLink(item, first, last) do { \
+  if ((item)->prev) {                               \
+    (item)->prev->next = (item)->next;              \
+  }                                                 \
+  if ((item)->next) {                               \
+    (item)->next->prev = (item)->prev;              \
+  }                                                 \
+  if ((item) == (first)) {                          \
+    (first) = (item)->next;                         \
+  }                                                 \
+  if ((item) == (last)) {                           \
+    (last) = (item)->prev;                          \
+  }                                                 \
+} while (0)
 
 extern phoneApplication *pApp;
 

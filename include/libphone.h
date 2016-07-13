@@ -218,6 +218,9 @@ int phoneStartSensor(int handle);
 int phoneStopSensor(int handle);
 int phoneIsShakeSensorSupported(void);
 int phoneGetViewParent(int handle);
+typedef void (*phoneRunOnMainWorkQueueHandler)(void *tag);
+int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
+  void *tag);
 
 #if __ANDROID__
 #include <jni.h>

@@ -24,6 +24,62 @@ phoneHandle *pHandle(int handle) {
 #define pHandle(handle) (assert(handle > 0 && \
     handle <= pApp->handleArrayCapacity), pHandleDebug(handle))
 
+static void lockRunOnMainWorkQueue(void) {
+  pthread_mutex_lock(&pApp->runOnMainWorkQueueLock);
+}
+
+static void unlockRunOnMainWorkQueue(void) {
+  pthread_mutex_unlock(&pApp->runOnMainWorkQueueLock);
+}
+
+static void runOnMainWorkQueueByAgency(int handle) {
+  phoneRunOnMainWorkQueueContext *ctx;
+  lockRunOnMainWorkQueue();
+  ctx = pApp->firstRunOnMainWorkQueue;
+  if (ctx) {
+    shareRemoveFromLink(ctx, pApp->firstRunOnMainWorkQueue,
+      pApp->lastRunOnMainWorkQueue);
+  }
+  unlockRunOnMainWorkQueue();
+  if (ctx) {
+    ctx->handler(ctx->tag);
+    free(ctx);
+  }
+  lockRunOnMainWorkQueue();
+  if (pApp->firstRunOnMainWorkQueue) {
+    phonePostToMainWorkQueue(pApp->runOnMainWorkQueueAgency);
+  } else {
+    pApp->runOnMainWorkQueueAgencyBusy = 0;
+  }
+  unlockRunOnMainWorkQueue();
+}
+
+static void prepareAgencyForRunOnMainWorkQueue(void) {
+  pApp->runOnMainWorkQueueAgency = phoneCreateWorkItem(0,
+    runOnMainWorkQueueByAgency);
+}
+
+int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
+    void *tag) {
+  phoneRunOnMainWorkQueueContext *ctx =
+    (phoneRunOnMainWorkQueueContext *)calloc(1,
+      sizeof(phoneRunOnMainWorkQueueContext));
+  if (!ctx) {
+    return -1;
+  }
+  ctx->handler = handler;
+  ctx->tag = tag;
+  lockRunOnMainWorkQueue();
+  shareAddToLink(ctx, pApp->firstRunOnMainWorkQueue,
+    pApp->lastRunOnMainWorkQueue);
+  if (!pApp->runOnMainWorkQueueAgencyBusy) {
+    pApp->runOnMainWorkQueueAgencyBusy = 1;
+    phonePostToMainWorkQueue(pApp->runOnMainWorkQueueAgency);
+  }
+  unlockRunOnMainWorkQueue();
+  return 0;
+}
+
 int phoneInitApplication(void) {
   memset(pApp, 0, sizeof(phoneApplication));
   pApp->mainThreadId = phoneGetThreadId();
@@ -34,6 +90,8 @@ int phoneInitApplication(void) {
   pApp->mainWorkQueue.threadCount = 1;
   pApp->maxHandleType = PHONE_USER_DEFINED;
   pApp->displayDensity = 1.0;
+  pthread_mutex_init(&pApp->runOnMainWorkQueueLock, NULL);
+  prepareAgencyForRunOnMainWorkQueue();
   return shareInitApplication();
 }
 
