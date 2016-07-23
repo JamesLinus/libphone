@@ -1,11 +1,13 @@
 #define testListMap(XX)                                                                             \
   XX("timer will trigger in 1 secs", testTimerWillTriggerInOneSeconds)                              \
   XX("container view change parent", testContainerViewChangeParent)                                 \
-  XX("remove view", testRemoveView)
+  XX("remove view", testRemoveView)                                                                \
+  XX("toggle status bar", testToggleStatusBar)
 
 ///////////////////////////////////////////////////////////////////////////////
 #include "test.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 #if __ANDROID__
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -177,7 +179,8 @@ static void testCheck(void) {
 void testSucceed(testItem *item) {
   item->finished = 1;
   item->succeed = 1;
-  phoneLog(PHONE_LOG_INFO, TEST_TAG, TEST_TAG "[-] \"%s\" succeeded", item->testName);
+  phoneLog(PHONE_LOG_INFO, TEST_TAG, TEST_TAG "[-] \"%s\" succeeded",
+    item->testName);
   testCheck();
 }
 
@@ -186,8 +189,9 @@ void testFail(testItem *item, const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   item->finished = 1;
-  snprintf(errMsg, sizeof(errMsg), fmt, args);
-  phoneLog(PHONE_LOG_ERROR, TEST_TAG, TEST_TAG "[x] \"%s\" failed", item->testName);
+  vsnprintf(errMsg, sizeof(errMsg), fmt, args);
+  phoneLog(PHONE_LOG_ERROR, TEST_TAG, TEST_TAG "[x] \"%s\" failed(%s)",
+    item->testName, errMsg);
   va_end(args);
   testCheck();
 }

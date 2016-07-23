@@ -221,6 +221,7 @@ int phoneGetViewParent(int handle);
 typedef void (*phoneRunOnMainWorkQueueHandler)(void *tag);
 int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
   void *tag);
+int phoneShowStatusBar(int display);
 
 #if __ANDROID__
 #include <jni.h>

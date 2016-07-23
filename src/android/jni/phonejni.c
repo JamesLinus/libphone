@@ -1045,3 +1045,12 @@ int shareGetViewParent(int handle) {
     (jint)handle);
   return result;
 }
+
+int shareShowStatusBar(int display) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaShowStatusBar", "(I)I",
+    (jint)display);
+  return result;
+}

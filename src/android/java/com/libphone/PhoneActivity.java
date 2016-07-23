@@ -681,17 +681,21 @@ public class PhoneActivity extends Activity {
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (!lunched) {
-                    lunched = true;
-                    lastWindowWidth = container.getWidth();
-                    lastWindowHeight = container.getHeight();
-                    lunchWithNative();
-                } else {
-                    if (lastWindowWidth != container.getWidth() ||
-                            lastWindowHeight != container.getHeight()) {
-                        lastWindowWidth = container.getWidth();
-                        lastWindowHeight = container.getHeight();
-                        nativeSendAppLayoutChanging();
+                int width = container.getWidth();
+                int height = container.getHeight();
+                if (width > 0 && height > 0) {
+                    if (!lunched) {
+                        lunched = true;
+                        lastWindowWidth = width;
+                        lastWindowHeight = height;
+                        lunchWithNative();
+                    } else {
+                        if (lastWindowWidth != width ||
+                                lastWindowHeight != height) {
+                            lastWindowWidth = width;
+                            lastWindowHeight = height;
+                            nativeSendAppLayoutChanging();
+                        }
                     }
                 }
             }
@@ -1304,7 +1308,6 @@ public class PhoneActivity extends Activity {
             Window window = getWindow();
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.addFlags(0x80000000);
-            //window.setStatusBarColor(0xff000000 | color);
             try {
                 window.getClass().getDeclaredMethod("setStatusBarColor", int.class).invoke(window,
                         0xff000000 | color);
@@ -1515,5 +1518,25 @@ public class PhoneActivity extends Activity {
         View view = (View)findHandleObject(handle);
         View parentView = (View)view.getParent();
         return parentView.getId();
+    }
+
+    public int javaShowStatusBar(int display) {
+        if (Build.VERSION.SDK_INT < 16) {
+            if (1 == display) {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            } else {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        } else {
+            View decorView = getWindow().getDecorView();
+            if (1 == display) {
+                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() &
+                        ~View.SYSTEM_UI_FLAG_FULLSCREEN);
+            } else {
+                decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }
+        return 0;
     }
 }

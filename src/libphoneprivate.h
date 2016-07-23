@@ -265,5 +265,6 @@ int shareAddHandleToLink(int handle, int *link);
 int shareRemoveHandleFromLink(int handle, int *link);
 int shareIsShakeSensorSupported(void);
 int shareGetViewParent(int handle);
+int shareShowStatusBar(int display);
 
 #endif

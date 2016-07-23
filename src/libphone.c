@@ -1071,3 +1071,7 @@ int phoneGetViewParent(int handle) {
   }
   return shareGetViewParent(handle);
 }
+
+int phoneShowStatusBar(int display) {
+  return shareShowStatusBar(display);
+}

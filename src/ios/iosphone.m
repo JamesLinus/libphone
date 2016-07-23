@@ -12,6 +12,7 @@ NSMutableDictionary *objcHandleMap = nil;
 UIWindow *objcWindow = nil;
 UIImageView *objcContainer = nil;
 CGFloat statusBarSize = 0;
+int hasStatusBar = 1;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -293,21 +294,23 @@ CGFloat statusBarSize = 0;
 
 - (void)layoutContainer {
   CGRect containerFrame = [[UIScreen mainScreen] bounds];
-  UIInterfaceOrientation orient =
-    [UIApplication sharedApplication].statusBarOrientation;
-  switch (orient) {
-    case UIInterfaceOrientationPortrait:
-    case UIInterfaceOrientationPortraitUpsideDown:
-      containerFrame.origin.y += statusBarSize;
-      containerFrame.size.height -= statusBarSize;
-      break;
-    case UIInterfaceOrientationLandscapeLeft:
-    case UIInterfaceOrientationLandscapeRight:
-      containerFrame.origin.y += statusBarSize;
-      containerFrame.size.height -= statusBarSize;
-      break;
-    default:
-      assert(0 && "Unknown orientation");
+  if (hasStatusBar) {
+    UIInterfaceOrientation orient =
+      [UIApplication sharedApplication].statusBarOrientation;
+    switch (orient) {
+      case UIInterfaceOrientationPortrait:
+      case UIInterfaceOrientationPortraitUpsideDown:
+        containerFrame.origin.y += statusBarSize;
+        containerFrame.size.height -= statusBarSize;
+        break;
+      case UIInterfaceOrientationLandscapeLeft:
+      case UIInterfaceOrientationLandscapeRight:
+        containerFrame.origin.y += statusBarSize;
+        containerFrame.size.height -= statusBarSize;
+        break;
+      default:
+        assert(0 && "Unknown orientation");
+    }
   }
   objcContainer.frame = containerFrame;
 }
@@ -1219,6 +1222,17 @@ int phoneDefaultAppEntry(int argc, char * argv[]) {
     return UIApplicationMain(argc, argv, nil,
       NSStringFromClass([phoneAppDelegate class]));
   }
+}
+
+int shareShowStatusBar(int display) {
+  hasStatusBar = display ? 1 : 0;
+  [[UIApplication sharedApplication]
+    setStatusBarHidden:(display?NO:YES) withAnimation:UIStatusBarAnimationNone];
+  [objcDelegate layoutContainer];
+  if (pApp->handler->layoutChanging) {
+    pApp->handler->layoutChanging();
+  }
+  return 0;
 }
 
 #pragma clang diagnostic pop
