@@ -48,7 +48,11 @@ int hasStatusBar = 1;
   return YES;
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 90000
+- (NSUInteger)supportedInterfaceOrientations
+#else
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
+#endif
 {
   if (PHONE_ORIENTATION_SETTING_PORTRAIT == pApp->forceOrient) {
     return UIInterfaceOrientationMaskPortrait;
