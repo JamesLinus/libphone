@@ -1054,3 +1054,23 @@ int shareShowStatusBar(int display) {
     (jint)display);
   return result;
 }
+
+int shareForceOrientation(enum phoneOrientationSetting orient) {
+  int result = -1;
+  JNIEnv *env = phoneGetJNIEnv();
+  pApp->forceOrient = orient;
+  switch (pApp->forceOrient) {
+    case PHONE_ORIENTATION_SETTING_PORTRAIT:
+      phoneCallJavaReturnInt(result, env, activity,
+        "javaForcePortraitOrientation", "()I");
+      break;
+    case PHONE_ORIENTATION_SETTING_LANDSCAPE:
+      phoneCallJavaReturnInt(result, env, activity,
+        "javaForceLandscapeOrientation", "()I");
+      break;
+    default:
+      phoneCallJavaReturnInt(result, env, activity,
+        "javaForceAutorotatedOrientation", "()I");
+  }
+  return result;
+}

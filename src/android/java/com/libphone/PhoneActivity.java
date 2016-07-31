@@ -67,6 +67,7 @@ import android.content.res.AssetManager;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorEvent;
 import android.util.FloatMath;
+import android.content.pm.ActivityInfo;
 
 public class PhoneActivity extends Activity {
 
@@ -1537,6 +1538,21 @@ public class PhoneActivity extends Activity {
                 decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
             }
         }
+        return 0;
+    }
+
+    public int javaForcePortraitOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        return 0;
+    }
+
+    public int javaForceLandscapeOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        return 0;
+    }
+
+    public int javaForceAutorotatedOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         return 0;
     }
 }

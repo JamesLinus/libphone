@@ -1,8 +1,9 @@
 #define testListMap(XX)                                                                             \
   XX("timer will trigger in 1 secs", testTimerWillTriggerInOneSeconds)                              \
   XX("container view change parent", testContainerViewChangeParent)                                 \
-  XX("remove view", testRemoveView)                                                                \
-  XX("toggle status bar", testToggleStatusBar)
+  XX("remove view", testRemoveView)                                                                 \
+  XX("toggle status bar", testToggleStatusBar)                                                      \
+  XX("toggle orientation", testToggleOrientation)
 
 ///////////////////////////////////////////////////////////////////////////////
 #include "test.h"
@@ -33,6 +34,7 @@ struct testContext {
   testItem *firstTestItem;
   testItem *lastTestItem;
   int postedExit:1;
+  int nextTestIndex;
 };
 
 typedef struct testItem {
@@ -153,6 +155,12 @@ static void testCheck(void) {
   int total = 0;
   int finished = 0;
   int succeed = 0;
+  if (test->nextTestIndex < sizeof(testList) / sizeof(testList[0])) {
+    int addIndex = test->nextTestIndex;
+    ++test->nextTestIndex;
+    testAddItem(testList[addIndex].testName,
+      testList[addIndex].testHandler);
+  }
   while (loop) {
     if (loop->finished) {
       ++finished;
@@ -197,11 +205,9 @@ void testFail(testItem *item, const char *fmt, ...) {
 }
 
 static void testAll(void) {
-  int i;
   memset(test, 0, sizeof(testContext));
-  for (i = 0; i < sizeof(testList) / sizeof(testList[0]); ++i) {
-    testAddItem(testList[i].testName, testList[i].testHandler);
-  }
+  test->nextTestIndex = 1;
+  testAddItem(testList[0].testName, testList[0].testHandler);
 }
 
 int phoneMain(int argc, const char *argv[]) {

@@ -90,6 +90,7 @@ int phoneInitApplication(void) {
   pApp->mainWorkQueue.threadCount = 1;
   pApp->maxHandleType = PHONE_USER_DEFINED;
   pApp->displayDensity = 1.0;
+  pApp->forceOrient = PHONE_ORIENTATION_SETTING_AUTOROTATED;
   pthread_mutex_init(&pApp->runOnMainWorkQueueLock, NULL);
   prepareAgencyForRunOnMainWorkQueue();
   return shareInitApplication();
@@ -1074,4 +1075,8 @@ int phoneGetViewParent(int handle) {
 
 int phoneShowStatusBar(int display) {
   return shareShowStatusBar(display);
+}
+
+int phoneForceOrientation(enum phoneOrientationSetting orient) {
+  return shareForceOrientation(orient);
 }

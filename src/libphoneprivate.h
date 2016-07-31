@@ -117,6 +117,7 @@ typedef struct phoneApplication {
   phoneRunOnMainWorkQueueContext *firstRunOnMainWorkQueue;
   phoneRunOnMainWorkQueueContext *lastRunOnMainWorkQueue;
   pthread_mutex_t runOnMainWorkQueueLock;
+  enum phoneOrientationSetting forceOrient;
 } phoneApplication;
 
 #define shareAddToLink(item, first, last) do {      \
@@ -266,5 +267,6 @@ int shareRemoveHandleFromLink(int handle, int *link);
 int shareIsShakeSensorSupported(void);
 int shareGetViewParent(int handle);
 int shareShowStatusBar(int display);
+int shareForceOrientation(enum phoneOrientationSetting orient);
 
 #endif

@@ -29,10 +29,6 @@ int hasStatusBar = 1;
   [super didReceiveMemoryWarning];
 }
 
-- (BOOL)shouldAutorotate {
-  return YES;
-}
-
 - (BOOL)prefersStatusBarHidden {
   return NO;
 }
@@ -45,6 +41,22 @@ int hasStatusBar = 1;
   if (UIEventSubtypeMotionShake == motion) {
     shareDispatchShake();
   }
+}
+
+- (BOOL)shouldAutorotate
+{
+  return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+  if (PHONE_ORIENTATION_SETTING_PORTRAIT == pApp->forceOrient) {
+    return UIInterfaceOrientationMaskPortrait;
+  }
+  if (PHONE_ORIENTATION_SETTING_LANDSCAPE == pApp->forceOrient) {
+    return UIInterfaceOrientationMaskLandscape;
+  }
+  return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
 @end
@@ -1227,10 +1239,36 @@ int phoneDefaultAppEntry(int argc, char * argv[]) {
 int shareShowStatusBar(int display) {
   hasStatusBar = display ? 1 : 0;
   [[UIApplication sharedApplication]
-    setStatusBarHidden:(display?NO:YES) withAnimation:UIStatusBarAnimationNone];
+    setStatusBarHidden:(display ? NO : YES)
+    withAnimation:UIStatusBarAnimationNone];
   [objcDelegate layoutContainer];
   if (pApp->handler->layoutChanging) {
     pApp->handler->layoutChanging();
+  }
+  return 0;
+}
+
+int shareForceOrientation(enum phoneOrientationSetting orient) {
+  pApp->forceOrient = orient;
+  [UIViewController attemptRotationToDeviceOrientation];
+  switch (pApp->forceOrient) {
+    case PHONE_ORIENTATION_SETTING_PORTRAIT:
+      if (phoneIsLandscape()) {
+        [[UIDevice currentDevice]
+          setValue:[NSNumber numberWithInteger: UIInterfaceOrientationPortrait]
+          forKey:@"orientation"];
+      }
+      break;
+    case PHONE_ORIENTATION_SETTING_LANDSCAPE:
+      if (!phoneIsLandscape()) {
+        [[UIDevice currentDevice]
+          setValue:[NSNumber
+            numberWithInteger: UIInterfaceOrientationLandscapeLeft]
+          forKey:@"orientation"];
+      }
+      break;
+    default:
+      break;
   }
   return 0;
 }

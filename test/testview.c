@@ -72,3 +72,46 @@ void testToggleStatusBar(testItem *item) {
   ctx->firstDelay = phoneCreateTimer(1000, checkHeightWithStatusBarHidden);
   phoneSetHandleTag(ctx->firstDelay, ctx);
 }
+
+typedef struct testToggleOrientationContext {
+  testItem *item;
+  int delayTask;
+} testToggleOrientationContext;
+
+static void checkIfOrientationIsLandscape(int handle) {
+  void *tag = phoneGetHandleTag(handle);
+  testToggleOrientationContext *ctx = (testToggleOrientationContext *)tag;
+  phoneRemoveTimer(ctx->delayTask);
+  if (phoneIsLandscape()) {
+    testSucceed(ctx->item);
+    free(ctx);
+    return;
+  }
+  testFail(ctx->item,
+    "want landscape but portrait presented");
+  free(ctx);
+}
+
+static void checkIfOrientationIsPortrait(int handle) {
+  void *tag = phoneGetHandleTag(handle);
+  testToggleOrientationContext *ctx = (testToggleOrientationContext *)tag;
+  phoneRemoveTimer(ctx->delayTask);
+  if (!phoneIsLandscape()) {
+    phoneForceOrientation(PHONE_ORIENTATION_SETTING_LANDSCAPE);
+    ctx->delayTask = phoneCreateTimer(1000, checkIfOrientationIsLandscape);
+    phoneSetHandleTag(ctx->delayTask, ctx);
+    return;
+  }
+  testFail(ctx->item,
+    "want portrait but landscape presented");
+  free(ctx);
+}
+
+void testToggleOrientation(testItem *item) {
+  testToggleOrientationContext *ctx = (testToggleOrientationContext *)calloc(1,
+    sizeof(testToggleOrientationContext));
+  ctx->item = item;
+  phoneForceOrientation(PHONE_ORIENTATION_SETTING_PORTRAIT);
+  ctx->delayTask = phoneCreateTimer(1000, checkIfOrientationIsPortrait);
+  phoneSetHandleTag(ctx->delayTask, ctx);
+}

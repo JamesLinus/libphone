@@ -222,6 +222,12 @@ typedef void (*phoneRunOnMainWorkQueueHandler)(void *tag);
 int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
   void *tag);
 int phoneShowStatusBar(int display);
+enum phoneOrientationSetting {
+  PHONE_ORIENTATION_SETTING_AUTOROTATED,
+  PHONE_ORIENTATION_SETTING_PORTRAIT,
+  PHONE_ORIENTATION_SETTING_LANDSCAPE
+};
+int phoneForceOrientation(enum phoneOrientationSetting orient);
 
 #if __ANDROID__
 #include <jni.h>
