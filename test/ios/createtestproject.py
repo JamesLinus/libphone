@@ -22,6 +22,7 @@ with open('project.pbxproj', 'r') as seedFile:
   project.add_file_if_doesnt_exist('../../test/test.c')
   project.add_file_if_doesnt_exist('../../test/testtimer.c')
   project.add_file_if_doesnt_exist('../../test/testview.c')
+  project.add_file_if_doesnt_exist('../../test/testother.c')
   project.add_file_if_doesnt_exist('../../test/ios/main.m')
   project.add_flags({'HEADER_SEARCH_PATHS':['$(SRCROOT)/../../include', \
     '$(SRCROOT)/../../src', '$(SRCROOT)/../../test']});

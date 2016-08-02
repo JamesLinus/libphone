@@ -240,7 +240,7 @@ void *phoneGetHandleTag(int handle) {
 }
 
 int phoneSleep(unsigned int milliseconds) {
-  struct timeval val = {0, milliseconds};
+  struct timeval val = {milliseconds / 1000, (milliseconds % 1000) * 1000};
   return select(0, 0, 0, 0, &val);
 }
 

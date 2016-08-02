@@ -1,4 +1,15 @@
 #define testListMap(XX)                                                                             \
+  XX("test create container view", testCreateContainerView)                                         \
+  XX("test create text view", testCreateTextView)                                                   \
+  XX("test create edit text view", testCreateEditTextView)                                          \
+  XX("test enable view event", testEnableViewEvent)                                                 \
+  XX("test sleep", testSleep)                                                                       \
+  XX("test copy string", testCopyString)                                                            \
+  XX("test set view frame", testSetViewFrame)                                                       \
+  XX("test set view background color", testSetViewBackgroundColor)                                  \
+  XX("test set view font color", testSetViewFontColor)                                              \
+  XX("test set view text", testSetViewText)                                                         \
+  XX("test get threadid", testGetThreadId)                                                          \
   XX("timer will trigger in 1 secs", testTimerWillTriggerInOneSeconds)                              \
   XX("container view change parent", testContainerViewChangeParent)                                 \
   XX("remove view", testRemoveView)                                                                 \

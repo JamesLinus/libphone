@@ -1103,7 +1103,7 @@ public class PhoneActivity extends Activity {
 
     public String javaGetViewText(int handle) {
         TextView view = (TextView)findHandleObject(handle);
-        return (String)view.getText();
+        return view.getText().toString();
     }
 
     public int javaSetViewInputTypeAsVisiblePassword(int handle) {

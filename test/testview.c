@@ -115,3 +115,122 @@ void testToggleOrientation(testItem *item) {
   ctx->delayTask = phoneCreateTimer(1000, checkIfOrientationIsPortrait);
   phoneSetHandleTag(ctx->delayTask, ctx);
 }
+
+void testCreateContainerView(testItem *item) {
+  int parent = phoneCreateContainerView(0, 0);
+  int child = phoneCreateContainerView(parent, 0);
+  if (parent != phoneGetViewParent(child)) {
+    testFail(item,
+      "view parent test failed");
+    phoneRemoveView(parent);
+    phoneRemoveView(child);
+    return;
+  }
+  phoneRemoveView(parent);
+  phoneRemoveView(child);
+  testSucceed(item);
+}
+
+void testCreateTextView(testItem *item) {
+  int parent = phoneCreateContainerView(0, 0);
+  int child = phoneCreateTextView(parent, 0);
+  if (parent != phoneGetViewParent(child)) {
+    testFail(item,
+      "view parent test failed");
+    phoneRemoveView(parent);
+    phoneRemoveView(child);
+    return;
+  }
+  phoneRemoveView(parent);
+  phoneRemoveView(child);
+  testSucceed(item);
+}
+
+void testCreateEditTextView(testItem *item) {
+  int parent = phoneCreateContainerView(0, 0);
+  int child = phoneCreateEditTextView(parent, 0);
+  if (parent != phoneGetViewParent(child)) {
+    testFail(item,
+      "view parent test failed");
+    phoneRemoveView(parent);
+    phoneRemoveView(child);
+    return;
+  }
+  phoneRemoveView(parent);
+  phoneRemoveView(child);
+  testSucceed(item);
+}
+
+void testEnableViewEvent(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneEnableViewEvent(view, PHONE_VIEW_CLICK);
+  phoneEnableViewEvent(view, PHONE_VIEW_LONG_CLICK);
+  phoneEnableViewEvent(view, PHONE_VIEW_VALUE_CHANGE);
+  phoneEnableViewEvent(view, PHONE_VIEW_TOUCH);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+typedef struct testSetViewFrameContext {
+  testItem *item;
+  int view;
+  int delay;
+} testSetViewFrameContext;
+
+static void delayCheckViewFrame(int handle) {
+  testSetViewFrameContext *ctx =
+    (testSetViewFrameContext *)phoneGetHandleTag(handle);
+  if (100 != phoneGetViewWidth(ctx->view) ||
+      50 != phoneGetViewHeight(ctx->view)) {
+    testFail(ctx->item,
+      "width not equal to 100 or height not equal to 50");
+    phoneRemoveView(ctx->view);
+    phoneRemoveTimer(ctx->delay);
+    free(ctx);
+    return;
+  }
+  phoneRemoveView(ctx->view);
+  phoneRemoveTimer(ctx->delay);
+  testSucceed(ctx->item);
+  free(ctx);
+}
+
+void testSetViewFrame(testItem *item) {
+  testSetViewFrameContext *ctx = (testSetViewFrameContext *)calloc(1,
+    sizeof(testSetViewFrameContext));
+  ctx->view = phoneCreateContainerView(0, 0);
+  ctx->item = item;
+  phoneSetViewFrame(ctx->view, 0, 0, 100, 50);
+  ctx->delay = phoneCreateTimer(1000, delayCheckViewFrame);
+  phoneSetHandleTag(ctx->delay, ctx);
+}
+
+void testSetViewBackgroundColor(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneSetViewBackgroundColor(view, 0xefefef);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewFontColor(testItem *item) {
+  int view = phoneCreateTextView(0, 0);
+  phoneSetViewFontColor(view, 0xefefef);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewText(testItem *item) {
+  char buf[512];
+  int view = phoneCreateEditTextView(0, 0);
+  phoneSetViewText(view, "hello world");
+  buf[0] = '\0';
+  phoneGetViewText(view, buf, sizeof(buf));
+  if (0 != strcmp(buf, "hello world")) {
+    testFail(item,
+      "unexprected text \"%s\"", buf);
+    phoneRemoveView(view);
+    return;
+  }
+  phoneRemoveView(view);
+  testSucceed(item);
+}
