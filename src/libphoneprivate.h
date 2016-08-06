@@ -173,7 +173,7 @@ int shareRemoveViewAnimationSet(int handle);
 int shareRemoveViewAnimation(int handle);
 int shareCreateViewTranslateAnimation(int handle, int viewHandle,
     float offsetX, float offsetY);
-int shareBeginAnimationSet(int handle, int duration);
+int shareBeginViewAnimationSet(int handle, int duration);
 int shareCreateViewAlphaAnimation(int handle, int viewHandle,
     float fromAlpha, float toAlpha);
 int shareBringViewToFront(int handle);
@@ -268,5 +268,9 @@ int shareIsShakeSensorSupported(void);
 int shareGetViewParent(int handle);
 int shareShowStatusBar(int display);
 int shareForceOrientation(enum phoneOrientationSetting orient);
+int shareIsViewVisible(int handle);
+int shareGetDataDirectory(char *buf, int bufSize);
+int shareGetCacheDirectory(char *buf, int bufSize);
+int shareGetExternalDataDirectory(char *buf, int bufSize);
 
 #endif

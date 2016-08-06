@@ -98,7 +98,7 @@ static void checkIfOrientationIsPortrait(int handle) {
   phoneRemoveTimer(ctx->delayTask);
   if (!phoneIsLandscape()) {
     phoneForceOrientation(PHONE_ORIENTATION_SETTING_LANDSCAPE);
-    ctx->delayTask = phoneCreateTimer(1000, checkIfOrientationIsLandscape);
+    ctx->delayTask = phoneCreateTimer(2000, checkIfOrientationIsLandscape);
     phoneSetHandleTag(ctx->delayTask, ctx);
     return;
   }
@@ -112,7 +112,7 @@ void testToggleOrientation(testItem *item) {
     sizeof(testToggleOrientationContext));
   ctx->item = item;
   phoneForceOrientation(PHONE_ORIENTATION_SETTING_PORTRAIT);
-  ctx->delayTask = phoneCreateTimer(1000, checkIfOrientationIsPortrait);
+  ctx->delayTask = phoneCreateTimer(2000, checkIfOrientationIsPortrait);
   phoneSetHandleTag(ctx->delayTask, ctx);
 }
 
@@ -232,5 +232,134 @@ void testSetViewText(testItem *item) {
     return;
   }
   phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testToggleViewDisplay(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  if (!phoneIsViewVisible(view)) {
+    testFail(item,
+      "newly created view is not visible");
+    phoneRemoveView(view);
+    return;
+  }
+  phoneShowView(view, 0);
+  if (phoneIsViewVisible(view)) {
+    testFail(item,
+      "hide view failed");
+    phoneRemoveView(view);
+    return;
+  }
+  phoneShowView(view, 1);
+  if (!phoneIsViewVisible(view)) {
+    testFail(item,
+      "show view failed");
+    phoneRemoveView(view);
+    return;
+  }
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+typedef struct testViewAnimationContext {
+  testItem *item;
+  int animationSet;
+  int view;
+} testViewAnimationContext;
+
+static void viewAnimationSetFinished(int handle) {
+  testViewAnimationContext *ctx =
+    (testViewAnimationContext *)phoneGetHandleTag(handle);
+  phoneRemoveViewAnimationSet(ctx->animationSet);
+  phoneRemoveView(ctx->view);
+  testSucceed(ctx->item);
+  free(ctx);
+}
+
+void testViewAnimation(testItem *item) {
+  testViewAnimationContext *ctx = (testViewAnimationContext *)calloc(1,
+    sizeof(testViewAnimationContext));
+  ctx->item = item;
+  ctx->animationSet = phoneCreateViewAnimationSet(300,
+    viewAnimationSetFinished);
+  ctx->view = phoneCreateContainerView(0, 0);
+  phoneAddViewAnimationToSet(phoneCreateViewTranslateAnimation(ctx->view,
+    100, 100), ctx->animationSet);
+  phoneAddViewAnimationToSet(phoneCreateViewAlphaAnimation(ctx->view, 0, 1),
+    ctx->animationSet);
+  phoneSetHandleTag(ctx->animationSet, ctx);
+  phoneBeginViewAnimationSet(ctx->animationSet);
+}
+
+void testBringViewToFront(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneBringViewToFront(view);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewAlpha(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneSetViewAlpha(view, 0.5);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewFontSize(testItem *item) {
+  int view = phoneCreateTextView(0, 0);
+  phoneSetViewFontSize(view, dp(12));
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewBackgroundImageResource(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneSetViewBackgroundImageResource(view, "test.png");
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testSetViewBackgroundImagePath(testItem *item) {
+  int view = phoneCreateContainerView(0, 0);
+  phoneSetViewBackgroundImagePath(view, "test.png");
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testGetDataDirectory(testItem *item) {
+  char buf[780] = {0};
+  phoneGetDataDirectory(buf, sizeof(buf));
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "%s", buf);
+  if (!buf[0]) {
+    testFail(item,
+      "get data directory failed");
+    return;
+  }
+  testSucceed(item);
+}
+
+void testGetCacheDirectory(testItem *item) {
+  char buf[780] = {0};
+  phoneGetCacheDirectory(buf, sizeof(buf));
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "%s", buf);
+  if (!buf[0]) {
+    testFail(item,
+      "get cache directory failed");
+    return;
+  }
+  testSucceed(item);
+}
+
+void testGetExternalDataDirectory(testItem *item) {
+  char buf[780] = {0};
+  phoneGetExternalDataDirectory(buf, sizeof(buf));
+  phoneLog(PHONE_LOG_DEBUG, __FUNCTION__, "%s", buf);
+#if PHONE_PLATFORM == PHONE_PLATFORM_IOS
+  if (buf[0]) {
+    testFail(item,
+      "get external data directory return \"%s\"", buf);
+    return;
+  }
+#endif
   testSucceed(item);
 }

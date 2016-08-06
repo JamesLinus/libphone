@@ -475,7 +475,6 @@ int phoneCreateTextView(int parentHandle,
     return 0;
   }
   shareSetViewAlign(handle, PHONE_VIEW_ALIGN_CENTER);
-  shareSetViewAlign(handle, PHONE_VIEW_VERTICAL_ALIGN_MIDDLE);
   return handle;
 }
 
@@ -535,7 +534,7 @@ int phoneAddViewAnimationToSet(int animationHandle, int setHandle) {
 
 int phoneBeginViewAnimationSet(int handle) {
   assert(PHONE_VIEW_ANIMATION_SET == pHandle(handle)->type);
-  return shareBeginAnimationSet(handle,
+  return shareBeginViewAnimationSet(handle,
       pHandle(handle)->u.animationSet.duration);
 }
 
@@ -724,10 +723,6 @@ int phoneSetStatusBarBackgroundColor(unsigned int color) {
 
 int phoneSetViewAlign(int handle, int align) {
   return shareSetViewAlign(handle, align);
-}
-
-int phoneSetViewVerticalAlign(int handle, int align) {
-  return shareSetViewVerticalAlign(handle, align);
 }
 
 int phoneCreateTableView(int parentHandle,
@@ -1079,4 +1074,20 @@ int phoneShowStatusBar(int display) {
 
 int phoneForceOrientation(enum phoneOrientationSetting orient) {
   return shareForceOrientation(orient);
+}
+
+int phoneIsViewVisible(int handle) {
+  return shareIsViewVisible(handle);
+}
+
+int phoneGetDataDirectory(char *buf, int bufSize) {
+  return shareGetDataDirectory(buf, bufSize);
+}
+
+int phoneGetCacheDirectory(char *buf, int bufSize) {
+  return shareGetCacheDirectory(buf, bufSize);
+}
+
+int phoneGetExternalDataDirectory(char *buf, int bufSize) {
+  return shareGetExternalDataDirectory(buf, bufSize);
 }

@@ -544,11 +544,11 @@ int shareCreateViewTranslateAnimation(int handle, int viewHandle,
   return result;
 }
 
-int shareBeginAnimationSet(int handle, int duration) {
+int shareBeginViewAnimationSet(int handle, int duration) {
   jint result;
   JNIEnv *env = phoneGetJNIEnv();
   phoneCallJavaReturnInt(result, env, activity,
-    "javaBeginAnimationSet", "(II)I",
+    "javaBeginViewAnimationSet", "(II)I",
     (jint)handle, (jint)duration);
   return result;
 }
@@ -750,11 +750,6 @@ int shareSetViewAlign(int handle, int align) {
       break;
   }
   return result;
-}
-
-int shareSetViewVerticalAlign(int handle, int align) {
-  // TODO:
-  return 0;
 }
 
 int shareSetViewCornerRadius(int handle, float radius) {
@@ -1073,4 +1068,37 @@ int shareForceOrientation(enum phoneOrientationSetting orient) {
         "javaForceAutorotatedOrientation", "()I");
   }
   return result;
+}
+
+int shareIsViewVisible(int handle) {
+  int result;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnInt(result, env, activity,
+    "javaIsViewVisible", "(I)I",
+    (jint)handle);
+  return result;
+}
+
+int shareGetDataDirectory(char *buf, int bufSize) {
+  jstring result = 0;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnObject(result, env, activity,
+    "javaGetDataDirectory", "()Ljava/lang/String;");
+  return phoneJstringToUtf8(result, buf, bufSize);
+}
+
+int shareGetCacheDirectory(char *buf, int bufSize) {
+  jstring result = 0;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnObject(result, env, activity,
+    "javaGetCacheDirectory", "()Ljava/lang/String;");
+  return phoneJstringToUtf8(result, buf, bufSize);
+}
+
+int shareGetExternalDataDirectory(char *buf, int bufSize) {
+  jstring result = 0;
+  JNIEnv *env = phoneGetJNIEnv();
+  phoneCallJavaReturnObject(result, env, activity,
+    "javaGetExternalDataDirectory", "()Ljava/lang/String;");
+  return phoneJstringToUtf8(result, buf, bufSize);
 }

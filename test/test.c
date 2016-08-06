@@ -1,4 +1,12 @@
 #define testListMap(XX)                                                                             \
+  XX("test set view alpha", testSetViewAlpha)                                                       \
+  XX("test set view font size", testSetViewFontSize)                                                \
+  XX("test set view background image resource", testSetViewBackgroundImageResource)                 \
+  XX("test set view background image path", testSetViewBackgroundImagePath)                         \
+  XX("test get data directory", testGetDataDirectory)                                               \
+  XX("test get cache directory", testGetCacheDirectory)                                             \
+  XX("test get external data directory", testGetExternalDataDirectory)                              \
+  XX("test bring view to front", testBringViewToFront)                                              \
   XX("test create container view", testCreateContainerView)                                         \
   XX("test create text view", testCreateTextView)                                                   \
   XX("test create edit text view", testCreateEditTextView)                                          \
@@ -9,11 +17,13 @@
   XX("test set view background color", testSetViewBackgroundColor)                                  \
   XX("test set view font color", testSetViewFontColor)                                              \
   XX("test set view text", testSetViewText)                                                         \
+  XX("toggle view display", testToggleViewDisplay)                                                  \
   XX("test get threadid", testGetThreadId)                                                          \
   XX("timer will trigger in 1 secs", testTimerWillTriggerInOneSeconds)                              \
   XX("container view change parent", testContainerViewChangeParent)                                 \
   XX("remove view", testRemoveView)                                                                 \
   XX("toggle status bar", testToggleStatusBar)                                                      \
+  XX("test view animation", testViewAnimation)                                                      \
   XX("toggle orientation", testToggleOrientation)
 
 ///////////////////////////////////////////////////////////////////////////////

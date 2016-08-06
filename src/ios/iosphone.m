@@ -653,7 +653,7 @@ int shareCreateViewTranslateAnimation(int handle, int viewHandle,
   return 0;
 }
 
-int shareBeginAnimationSet(int handle, int duration) {
+int shareBeginViewAnimationSet(int handle, int duration) {
   int loopHandle = (int)pHandle(handle)->next;
   assert(PHONE_VIEW_ANIMATION_SET == pHandle(handle)->type);
   while (loopHandle) {
@@ -793,12 +793,12 @@ int shareGetViewText(int handle, char *buf, int bufSize) {
     case PHONE_TEXT_VIEW: {
       UILabel *view = (UILabel *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
-      phoneCopyString(buf, bufSize, [view.text UTF8String]);
+      return phoneCopyString(buf, bufSize, [view.text UTF8String]);
     } break;
     case PHONE_EDIT_TEXT_VIEW: {
       UITextField *view = (UITextField *)[objcHandleMap
         objectForKey:[NSNumber numberWithInt:handle]];
-      phoneCopyString(buf, bufSize, [view.text UTF8String]);
+      return phoneCopyString(buf, bufSize, [view.text UTF8String]);
     } break;
   }
   return 0;
@@ -934,11 +934,6 @@ int shareSetViewAlign(int handle, int align) {
       view.textAlignment = phoneViewAlignToIos(align);
     } break;
   }
-  return 0;
-}
-
-int shareSetViewVerticalAlign(int handle, int align) {
-  // TODO:
   return 0;
 }
 
@@ -1274,6 +1269,30 @@ int shareForceOrientation(enum phoneOrientationSetting orient) {
     default:
       break;
   }
+  return 0;
+}
+
+int shareIsViewVisible(int handle) {
+  UIView *view = (UIView *)[objcHandleMap
+    objectForKey:[NSNumber numberWithInt:handle]];
+  return NO == view.hidden ? 1 : 0;
+}
+
+int shareGetDataDirectory(char *buf, int bufSize) {
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+    NSUserDomainMask, YES);
+  NSString *libraryDirectory = [paths objectAtIndex:0];
+  return phoneCopyString(buf, bufSize, [libraryDirectory UTF8String]);
+}
+
+int shareGetCacheDirectory(char *buf, int bufSize) {
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory,
+    NSUserDomainMask, YES);
+  NSString *libraryDirectory = [paths objectAtIndex:0];
+  return phoneCopyString(buf, bufSize, [libraryDirectory UTF8String]);
+}
+
+int shareGetExternalDataDirectory(char *buf, int bufSize) {
   return 0;
 }
 

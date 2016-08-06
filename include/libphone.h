@@ -164,12 +164,6 @@ enum phoneViewAlignType {
   PHONE_VIEW_ALIGN_RIGHT
 };
 int phoneSetViewAlign(int handle, int align);
-enum phoneViewVerticalAlignType {
-  PHONE_VIEW_VERTICAL_ALIGN_MIDDLE,
-  PHONE_VIEW_VERTICAL_ALIGN_TOP,
-  PHONE_VIEW_VERTICAL_ALIGN_BOTTOM
-};
-int phoneSetViewVerticalAlign(int handle, int align);
 int phoneCreateTableView(int parentHandle,
     phoneViewEventHandler eventHandler);
 float phoneDipToPix(int dip);
@@ -228,6 +222,21 @@ enum phoneOrientationSetting {
   PHONE_ORIENTATION_SETTING_LANDSCAPE
 };
 int phoneForceOrientation(enum phoneOrientationSetting orient);
+int phoneIsViewVisible(int handle);
+int phoneGetDataDirectory(char *buf, int bufSize);
+int phoneGetCacheDirectory(char *buf, int bufSize);
+int phoneGetExternalDataDirectory(char *buf, int bufSize);
+
+#define PHONE_PLATFORM_IOS     1
+#define PHONE_PLATFORM_ANDROID 2
+
+#if defined(__ANDROID__)
+#define PHONE_PLATFORM PHONE_PLATFORM_ANDROID
+#elif defined(__APPLE__)
+#define PHONE_PLATFORM PHONE_PLATFORM_IOS
+#else
+#error "Unsupported platform"
+#endif
 
 #if __ANDROID__
 #include <jni.h>

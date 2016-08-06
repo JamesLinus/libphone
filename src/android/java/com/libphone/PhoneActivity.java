@@ -68,6 +68,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorEvent;
 import android.util.FloatMath;
 import android.content.pm.ActivityInfo;
+import java.io.File;
+import java.util.Map;
+import android.view.animation.AnimationSet;
 
 public class PhoneActivity extends Activity {
 
@@ -1004,11 +1007,16 @@ public class PhoneActivity extends Activity {
         final int finalHandle = handle;
         ani.setAnimationListener(new AnimationListener(){
             public void onAnimationStart(Animation ani) {
+                PhoneActivity.this.handler.postDelayed(new Runnable() {
+                    public void run() {
+                        nativeAnimationFinished(finalHandle);
+                    }
+                }, ani.getDuration());
             };
             public void onAnimationRepeat(Animation ani) {
             };
             public void onAnimationEnd(Animation ani) {
-                nativeAnimationFinished(finalHandle);
+                // This function is not reliable, sometimes is not called
             };
         });
         pair.animation = ani;
@@ -1017,13 +1025,38 @@ public class PhoneActivity extends Activity {
         return 0;
     }
 
-    public int javaBeginAnimationSet(int handle, int duration) {
+    public int javaBeginViewAnimationSet(int handle, int duration) {
         ArrayList<Integer> list = (ArrayList<Integer>)findHandleObject(handle);
+        Map<Integer, ArrayList<Integer>> map = new HashMap<Integer, ArrayList<Integer>>();
         for (Iterator<Integer> it = list.iterator(); it.hasNext();) {
             int animationHandle = (int)it.next();
             PhoneAnimationPair pair = (PhoneAnimationPair)findHandleObject(animationHandle);
-            pair.animation.setDuration(duration);
-            pair.view.startAnimation(pair.animation);
+            ArrayList<Integer> animations = map.get(pair.view.getId());
+            if (null == animations) {
+                animations = new ArrayList<Integer>();
+                animations.add(animationHandle);
+                map.put(pair.view.getId(), animations);
+                continue;
+            }
+            animations.add(animationHandle);
+        }
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : map.entrySet()) {
+            ArrayList<Integer> animations = (ArrayList<Integer>)entry.getValue();
+            if (1 == animations.size()) {
+                int animationHandle = (int)animations.get(0);
+                PhoneAnimationPair pair = (PhoneAnimationPair)findHandleObject(animationHandle);
+                pair.animation.setDuration(duration);
+                pair.view.startAnimation(pair.animation);
+            } else {
+                AnimationSet animationSet = new AnimationSet(false);
+                PhoneAnimationPair pair = null;
+                for (Iterator<Integer> it = animations.iterator(); it.hasNext();) {
+                    int animationHandle = (int)it.next();
+                    pair = (PhoneAnimationPair)findHandleObject(animationHandle);
+                    animationSet.addAnimation(pair.animation);
+                }
+                pair.view.startAnimation(animationSet);
+            }
         }
         return 0;
     }
@@ -1554,5 +1587,36 @@ public class PhoneActivity extends Activity {
     public int javaForceAutorotatedOrientation() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         return 0;
+    }
+
+    public int javaIsViewVisible(int handle) {
+        View view = (View)findHandleObject(handle);
+        return View.VISIBLE == view.getVisibility() ? 1 : 0;
+    }
+
+    public String appendTailSlashToPath(String path) {
+        if (path.isEmpty()) {
+            return path;
+        }
+        if (path.endsWith("/")) {
+            return path;
+        }
+        return path + "/";
+    }
+
+    public String javaGetDataDirectory() {
+        return appendTailSlashToPath(getFilesDir().getPath());
+    }
+
+    public String javaGetExternalDataDirectory() {
+        File file = getExternalFilesDir(null);
+        if (null == file) {
+            return "";
+        }
+        return appendTailSlashToPath(file.getPath());
+    }
+
+    public String javaGetCacheDirectory() {
+        return appendTailSlashToPath(getCacheDir().getPath());
     }
 }
