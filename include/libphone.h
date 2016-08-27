@@ -138,6 +138,9 @@ typedef void (*phoneAfterWorkHandler)(int itemHandle);
 int phoneCreateWorkItem(phoneBackgroundWorkHandler workHandler,
     phoneAfterWorkHandler afterWorkHandler);
 int phonePostToMainWorkQueue(int itemHandle);
+typedef void (*phoneRunOnMainWorkQueueHandler)(void *tag);
+int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
+  void *tag);
 int phoneSetViewAlpha(int handle, float alpha);
 int phoneSetViewFontSize(int handle, float fontSize);
 int phoneSetViewBackgroundImageResource(int handle,
@@ -184,6 +187,7 @@ int phoneSetEditTextViewPlaceholder(int handle, const char *text,
     unsigned int color);
 int phoneSetViewEventHandler(int handle, phoneViewEventHandler eventHandler);
 int phoneSetViewParent(int handle, int parentHandle);
+int phoneGetViewParent(int handle);
 int phoneRemoveView(int handle);
 int phoneCreateOpenGLView(int parentHandle,
     phoneViewEventHandler eventHandler);
@@ -196,25 +200,6 @@ int phoneCreateThread(const char *threadName,
 int phoneStartThread(int handle);
 int phoneJoinThread(int handle);
 int phoneRemoveThread(int handle);
-FILE *phoneOpenAsset(const char *filename);
-#define phoneSensorEventTypeMap(XX)                                                             \
-  XX(PHONE_SENSOR_SHAKE, "shake")
-#define XX(code, name) code,
-enum phoneSensorEventType {
-  phoneSensorEventTypeMap(XX)
-};
-#undef XX
-typedef int (*phoneSensorEventHandler)(int handle, int eventType,
-    void *eventParam);
-int phoneCreateShakeSensor(phoneSensorEventHandler eventHandler);
-int phoneRemoveShakeSensor(int handle);
-int phoneStartSensor(int handle);
-int phoneStopSensor(int handle);
-int phoneIsShakeSensorSupported(void);
-int phoneGetViewParent(int handle);
-typedef void (*phoneRunOnMainWorkQueueHandler)(void *tag);
-int phoneRunOnMainWorkQueue(phoneRunOnMainWorkQueueHandler handler,
-  void *tag);
 int phoneShowStatusBar(int display);
 enum phoneOrientationSetting {
   PHONE_ORIENTATION_SETTING_AUTOROTATED,
@@ -226,6 +211,7 @@ int phoneIsViewVisible(int handle);
 int phoneGetDataDirectory(char *buf, int bufSize);
 int phoneGetCacheDirectory(char *buf, int bufSize);
 int phoneGetExternalDataDirectory(char *buf, int bufSize);
+FILE *phoneOpenAsset(const char *filename);
 
 #define PHONE_PLATFORM_IOS     1
 #define PHONE_PLATFORM_ANDROID 2

@@ -974,27 +974,6 @@ void *shareCalloc(int count, int size) {
   return calloc(count, size);
 }
 
-int phoneCreateShakeSensor(phoneSensorEventHandler eventHandler) {
-  int handle = phoneAllocHandle();
-  phoneHandle *handleData;
-  if (!handle) {
-    return 0;
-  }
-  assert(eventHandler);
-  handleData = pHandle(handle);
-  handleData->type = PHONE_SHAKE_SENSOR;
-  handleData->u.sensor.eventHandler = eventHandler;
-  handleData->next = 0;
-  return handle;
-}
-
-int phoneRemoveShakeSensor(int handle) {
-  phoneHandle *handleData = pHandle(handle);
-  assert(PHONE_SHAKE_SENSOR == handleData->type);
-  phoneFreeHandle(handle);
-  return 0;
-}
-
 int shareAddHandleToLink(int handle, int *link) {
   phoneHandle *handleData = pHandle(handle);
   handleData->next = (void *)((char *)0 + (*link));
@@ -1017,48 +996,6 @@ int shareRemoveHandleFromLink(int handle, int *link) {
     loop = (int)pHandle(loop)->next;
   }
   return 0;
-}
-
-int phoneStartSensor(int handle) {
-  phoneHandle *handleData = pHandle(handle);
-  int needStartShakeDetection = 0;
-  assert(PHONE_SHAKE_SENSOR == handleData->type);
-  if (0 == pApp->shakeSensorLink) {
-    needStartShakeDetection = 1;
-  }
-  shareAddHandleToLink(handle, &pApp->shakeSensorLink);
-  if (needStartShakeDetection) {
-    return shareStartShakeDetection();
-  }
-  return 0;
-}
-
-int phoneStopSensor(int handle) {
-  phoneHandle *handleData = pHandle(handle);
-  assert(PHONE_SHAKE_SENSOR == handleData->type);
-  shareRemoveHandleFromLink(handle, &pApp->shakeSensorLink);
-  if (0 == pApp->shakeSensorLink) {
-    return shareStopShakeDetection();
-  }
-  return 0;
-}
-
-int shareDispatchShake(void) {
-  phoneHandle *handleData;
-  int handle;
-  int loop = pApp->shakeSensorLink;
-  while (loop) {
-    handle = loop;
-    loop = (int)pHandle(loop)->next;
-    handleData = pHandle(handle);
-    assert(PHONE_SHAKE_SENSOR == handleData->type);
-    handleData->u.sensor.eventHandler(handle, PHONE_SENSOR_SHAKE, 0);
-  }
-  return 0;
-}
-
-int phoneIsShakeSensorSupported(void) {
-  return shareIsShakeSensorSupported();
 }
 
 int phoneGetViewParent(int handle) {

@@ -1,4 +1,6 @@
 #define testListMap(XX)                                                                             \
+  XX("test toggle soft input", testToggleSoftInput)                                                 \
+  XX("test get view text", testGetViewText)                                                         \
   XX("test set view alpha", testSetViewAlpha)                                                       \
   XX("test set view font size", testSetViewFontSize)                                                \
   XX("test set view background image resource", testSetViewBackgroundImageResource)                 \

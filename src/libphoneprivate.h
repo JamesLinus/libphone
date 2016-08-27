@@ -16,7 +16,6 @@ enum phoneHandleType {
   PHONE_TABLE_VIEW = 9,
   PHONE_OPENGL_VIEW = 10,
   PHONE_THREAD = 11,
-  PHONE_SHAKE_SENSOR = 12,
   PHONE_USER_DEFINED = 10000
 };
 
@@ -93,9 +92,6 @@ typedef struct phoneHandle {
     struct {
       phoneThreadRunHandler runHandler;
     } thread;
-    struct {
-      phoneSensorEventHandler eventHandler;
-    } sensor;
   } u;
 } phoneHandle;
 
@@ -111,7 +107,6 @@ typedef struct phoneApplication {
   volatile int needFlushMainWorkQueue;
   int maxHandleType;
   float displayDensity;
-  int shakeSensorLink;
   int runOnMainWorkQueueAgencyBusy;
   int runOnMainWorkQueueAgency;
   phoneRunOnMainWorkQueueContext *firstRunOnMainWorkQueue;
@@ -259,12 +254,8 @@ int shareRemoveThread(int handle);
 FILE *shareOpenAsset(const char *filename);
 void *shareMalloc(int size);
 void *shareCalloc(int count, int size);
-int shareStartShakeDetection(void);
-int shareStopShakeDetection(void);
-int shareDispatchShake(void);
 int shareAddHandleToLink(int handle, int *link);
 int shareRemoveHandleFromLink(int handle, int *link);
-int shareIsShakeSensorSupported(void);
 int shareGetViewParent(int handle);
 int shareShowStatusBar(int display);
 int shareForceOrientation(enum phoneOrientationSetting orient);

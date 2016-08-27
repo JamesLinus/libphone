@@ -363,3 +363,38 @@ void testGetExternalDataDirectory(testItem *item) {
 #endif
   testSucceed(item);
 }
+
+void testToggleSoftInput(testItem *item) {
+  int view = phoneCreateEditTextView(0, 0);
+  phoneShowSoftInputOnView(view);
+  phoneHideSoftInputOnView(view);
+  phoneRemoveView(view);
+  testSucceed(item);
+}
+
+void testGetViewText(testItem *item) {
+  char buf[512];
+  int view = phoneCreateEditTextView(0, 0);
+  phoneSetViewText(view, "hello");
+  buf[0] = '\0';
+  phoneGetViewText(view, buf, sizeof(buf));
+  if (0 != strcmp(buf, "hello")) {
+    testFail(item,
+      "incorrect edit view text \"%s\"", buf);
+    phoneRemoveView(view);
+    return;
+  }
+  phoneRemoveView(view);
+  view = phoneCreateTextView(0, 0);
+  phoneSetViewText(view, "hello");
+  buf[0] = '\0';
+  phoneGetViewText(view, buf, sizeof(buf));
+  if (0 != strcmp(buf, "hello")) {
+    testFail(item,
+      "incorrect view text \"%s\"", buf);
+    phoneRemoveView(view);
+    return;
+  }
+  phoneRemoveView(view);
+  testSucceed(item);
+}

@@ -4,21 +4,10 @@ libphone is a cross-platform library which supports iOS and Android development 
 
 Code once, target both.
 
-*Note: This project is still in the very early stage, NOT suggest used in product environment, because the api is not stable and may be changed in the future. The beta version will be released in a few weeks, from that point, the api will be stable.*
-
 Contributing
 ----------------
-**Please check TODO List**, don't hesitate to make a pull request or share ideas on *[trello](https://trello.com/b/y46Ve05Y)*.  All kinds of contribution are welcome.  
+Don't hesitate to make a pull request.  All kinds of contribution are welcome.  
 *Note: Please follow the coding style of the existed codes.*
-
-TODO List
-------------
-- [x] Add Travis CI
-- [ ] Add Sensor APIs
-- [ ] Add Test
-- [ ] Add Wiki
-- [ ] Make [gravity](https://github.com/huxingyi/gravity) Works
-- [ ] After Finish Above Perfectly, then We Release the Beta Version
 
 Screenshots
 -----------------
@@ -164,14 +153,10 @@ Features
   - Rotate
   - Pull to Refresh  
   - OpenGL ES 2.0  
-- Sensor  
-  - Shake  
-- Work Queue
+- Work Queue  
 - Timer  
 - Native Thread  
 - Asset Reader  
-
-*(More functions are under heavy development.)*
 
 Tools
 -----------
